@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disturbing Tales from AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Disturbing Tales from AI</h1>
+        <p>Warning: This website contains dark, humorous, and AI-generated content that may be unsettling. Proceed with caution.</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#horror">Horror</a></li>
+            <li><a href="#comedy">Dark Comedy</a></li>
+            <li><a href="#scifi">Sci-Fi</a></li>
+            <li><a href="#fantasy">Dark Fantasy</a></li>
+            <li><a href="#mystery">Mystery</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="horror">
+            <h2>Horror</h2>
+            <p>AI-generated horror stories that will send shivers down your spine. These stories might be too disturbing for some readers.</p>
+            <button>Generate Story</button>
+        </section>
+        <section id="comedy">
+            <h2>Dark Comedy</h2>
+            <p>Humorous tales with a dark twist, crafted by our AI. These stories are intended to make you laugh while feeling a bit uncomfortable.</p>
+            <button>Generate Story</button>
+        </section>
+        <section id="scifi">
+            <h2>Sci-Fi</h2>
+            <p>Explore dystopian futures and twisted technological worlds in these AI-generated sci-fi stories. Prepare for a disturbing journey.</p>
+            <button>Generate Story</button>
+        </section>
+        <section id="fantasy">
+            <h2>Dark Fantasy</h2>
+            <p>Delve into the realm of dark fantasy with these AI-created stories. Experience twisted fairy tales and sinister magical worlds.</p>
+            <button>Generate Story</button>
+        </section>
+        <section id="mystery">
+            <h2>Mystery</h2>
+            <p>Unravel the darkest secrets and shocking twists in these AI-generated mystery stories. Nothing is as it seems.</p>
+            <button>Generate Story</button>
+        </section>
+    </main>
+    <script src="stories.js"></script>
+    <script>
+  document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('click', (event) => {
+      let genre = event.target.parentElement.id;
+      let story = generateStory(genre);
+      event.target.parentElement.querySelector('p').textContent = story;
+    });
+  });
+</script>
+</body>
+</html>
+
+
+
+
+
+
