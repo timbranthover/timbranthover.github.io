@@ -14,11 +14,17 @@
       margin: 0;
       font-family: Arial, sans-serif;
     }
-    h1 {
+    /* Style the clickable title */
+    h1 a {
+      text-decoration: none;
+      color: black;
       font-size: 5em;
       font-weight: bold;
       font-style: italic;
-      margin: 0;
+      transition: color 0.3s ease;
+    }
+    h1 a:hover {
+      color: red; /* Change to any color you prefer on hover */
     }
     h2 {
       font-size: 3em;
@@ -26,15 +32,14 @@
       font-style: italic;
       margin-top: 0.5em;
       margin-bottom: 1em;
+      color: black;
     }
     img {
       margin-top: 20px;
-      max-width: 40%;
+      max-width: 30%; /* Adjust as needed for smaller size */
       height: auto;
-      /* Apply the pulse animation */
       animation: pulse 2s infinite;
     }
-    /* Keyframes for a subtle pulsing effect */
     @keyframes pulse {
       0%   { transform: scale(1); }
       50%  { transform: scale(1.05); }
@@ -43,12 +48,9 @@
   </style>
 </head>
 <body>
-  <h1>TYLER LEEDS</h1>
-  <h2>IS A FAGGOT!!!!!!!</h2>
+  <!-- Clicking the title navigates to friend.html -->
+  <h1><a href="friend.html">TYLER LEEDS</a></h1>
+  <h2>IS A FAGGOT!!!!!!</h2>
   <img src="pictureforsite.jpg" alt="Cool Picture">
 </body>
 </html>
-
-</body>
-</html>
-
