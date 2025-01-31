@@ -2,26 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Still My Friend</title>
+  <title>Easter Egg</title>
+  <!-- Include the p5.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <style>
+    /* Make sure the page takes up the full window and has a dark background */
     body {
-      background: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
-      font-family: Arial, sans-serif;
-    }
-    h1 {
-      font-size: 5em;
-      font-weight: bold;
-      font-style: italic;
-      color: black;
+      overflow: hidden;
+      background: #000;
     }
   </style>
 </head>
 <body>
-  <h1>is still a faggot</h1>
+<script>
+  let angle = 0;
+
+  function setup() {
+    createCanvas(windowWidth, windowHeight);
+    noStroke();
+  }
+
+  function draw() {
+    // Create a trailing effect with a semi-transparent background
+    background(0, 25);
+    translate(width / 2, height / 2);
+
+    // Draw multiple rotating circles (an abstract, pulsating easter egg)
+    for (let i = 0; i < 12; i++) {
+      push();
+      // Calculate rotation for each element
+      rotate(angle + (TWO_PI / 12) * i);
+      // Determine size pulsation
+      let size = 30 + sin(angle * 3 + i) * 20;
+      // Set a color with transparency for a cool overlay effect
+      fill(255, 150);
+      ellipse(150, 0, size, size);
+      pop();
+    }
+    
+    angle += 0.01;
+  }
+
+  function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+  }
+</script>
 </body>
 </html>
