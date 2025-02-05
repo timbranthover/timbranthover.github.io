@@ -6,7 +6,7 @@
   <!-- Include the p5.js library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <style>
-    /* Make sure the page takes up the full window and has a dark background */
+    /* Full-window canvas with dark background */
     body {
       margin: 0;
       overflow: hidden;
@@ -17,31 +17,38 @@
 <body>
 <script>
   let angle = 0;
+  let colorOffset = 0;
 
   function setup() {
     createCanvas(windowWidth, windowHeight);
     noStroke();
+    colorMode(HSB, 255);
   }
 
   function draw() {
-    // Create a trailing effect with a semi-transparent background
+    // Semi-transparent background creates a trailing effect
     background(0, 25);
     translate(width / 2, height / 2);
 
-    // Draw multiple rotating circles (an abstract, pulsating easter egg)
+    // Draw 12 rotating, pulsating circles
     for (let i = 0; i < 12; i++) {
       push();
-      // Calculate rotation for each element
+      // Each circle is rotated relative to the others
       rotate(angle + (TWO_PI / 12) * i);
-      // Determine size pulsation
+      // Pulsate circle size using sine
       let size = 30 + sin(angle * 3 + i) * 20;
-      // Set a color with transparency for a cool overlay effect
-      fill(255, 150);
+      // Dynamic hue changes based on i and colorOffset
+      fill((i * 30 + colorOffset) % 255, 200, 255, 150);
       ellipse(150, 0, size, size);
       pop();
     }
     
     angle += 0.01;
+  }
+
+  // Change the color offset when the canvas is clicked
+  function mousePressed() {
+    colorOffset = random(255);
   }
 
   function windowResized() {
