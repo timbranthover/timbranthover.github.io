@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>Tyler Leeds</title>
   <style>
+    :root {
+      --primary-color: #000;
+      --hover-color: red;
+      --background: white;
+    }
     body {
-      background: white;
+      background: var(--background);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -15,18 +19,19 @@
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
+      transition: opacity 0.5s ease;
     }
     /* Style the clickable title */
     h1 a {
       text-decoration: none;
-      color: black;
+      color: var(--primary-color);
       font-size: 5em;
       font-weight: bold;
       font-style: italic;
       transition: color 0.3s ease;
     }
     h1 a:hover {
-      color: red; /* Change to any color you prefer on hover */
+      color: var(--hover-color);
     }
     h2 {
       font-size: 3em;
@@ -34,11 +39,11 @@
       font-style: italic;
       margin-top: 0.5em;
       margin-bottom: 1em;
-      color: black;
+      color: var(--primary-color);
     }
     img {
       margin-top: 20px;
-      max-width: 30%; /* Adjust as needed for smaller size */
+      max-width: 30%;
       height: auto;
       animation: pulse 2s infinite;
     }
@@ -47,12 +52,40 @@
       50%  { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
+    /* Fade-out effect on navigation */
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; }
+    }
+    
+    /* Responsive text sizes for smaller screens */
+    @media (max-width: 600px) {
+      h1 a { font-size: 3em; }
+      h2 { font-size: 2em; }
+      img { max-width: 50%; }
+    }
   </style>
 </head>
 <body>
-  <!-- Clicking the title navigates to friend.html -->
-  <h1><a href="friend.html">TYLER LEEDS</a></h1>
+  <!-- Clicking the title navigates to friend.html with a fade effect -->
+  <h1><a href="friend.html" id="title-link">TYLER LEEDS</a></h1>
   <h2>Tyler J Leeds</h2>
   <img src="pictureforsite.jpg" alt="Cool Picture">
+  
+  <script>
+    // Add fade-out effect on click before navigating to friend.html
+    document.addEventListener("DOMContentLoaded", function() {
+      const link = document.getElementById("title-link");
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        document.body.classList.add("fade-out");
+        setTimeout(() => {
+          window.location.href = link.href;
+        }, 500);
+      });
+    });
+  </script>
 </body>
 </html>
