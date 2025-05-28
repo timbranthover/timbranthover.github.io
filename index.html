@@ -1,153 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tyler Leeds</title>
-  <style>
-    :root {
-      --primary-color: #000;
-      --hover-color: red;
-      --background: white;
-    }
-    body {
-      background: var(--background);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      transition: opacity 0.5s ease;
-    }
-    /* Style the clickable title */
-    h1 a {
-      text-decoration: none;
-      color: var(--primary-color);
-      font-size: 5em;
-      font-weight: bold;
-      font-style: italic;
-      transition: color 0.3s ease;
-    }
-    h1 a:hover {
-      color: var(--hover-color);
-    }
-    h2 {
-      font-size: 3em;
-      font-weight: bold;
-      font-style: italic;
-      margin-top: 0.5em;
-      margin-bottom: 1em;
-      color: var(--primary-color);
-    }
-    img {
-      margin-top: 20px;
-      max-width: 30%;
-      height: auto;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%   { transform: scale(1); }
-      50%  { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    /* Fade-out effect on navigation */
-    .fade-out {
-      animation: fadeOut 0.5s forwards;
-    }
-    @keyframes fadeOut {
-      to { opacity: 0; }
-    }
-    
-    /* Responsive text sizes for smaller screens */
-    @media (max-width: 600px) {
-      h1 a { font-size: 3em; }
-      h2 { font-size: 2em; }
-      img { max-width: 50%; }
-    }
-  </style>
-</head>
-<!-- Add this just before the closing </body> tag in index.html -->
-<canvas id="particleCanvas"></canvas>
-<script>
-  const canvas = document.getElementById('particleCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  
-  let particles = [];
-  
-  class Particle {
-    constructor(x, y) {
-      this.x = x;
-      this.y = y;
-      this.size = Math.random() * 3 + 1;
-      this.speedX = (Math.random() - 0.5) * 1.5;
-      this.speedY = (Math.random() - 0.5) * 1.5;
-    }
-    update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-      if(this.size > 0.2) this.size -= 0.03;
-    }
-    draw() {
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  
-  function handleParticles() {
-    for(let i = 0; i < particles.length; i++) {
-      particles[i].update();
-      particles[i].draw();
-      // Remove particles that are too small
-      if(particles[i].size <= 0.3) {
-        particles.splice(i, 1);
-        i--;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tim Branthover — One‑Slide Résumé</title>
+    <!-- Tailwind via CDN for quick styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .slide {
+        @apply absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity duration-700;
       }
-    }
-  }
-  
-  function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    handleParticles();
-    requestAnimationFrame(animateParticles);
-  }
-  
-  window.addEventListener('mousemove', function(e) {
-    for(let i = 0; i < 5; i++){
-      particles.push(new Particle(e.x, e.y));
-    }
-  });
-  
-  animateParticles();
-  
-  window.addEventListener('resize', function() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  });
-</script>
-<body>
-  <!-- Clicking the title navigates to friend.html with a fade effect -->
-  <h1><a href="friend.html" id="title-link">TYLER LEEDS</a></h1>
-  <h2>Tyler J Leeds</h2>
-  <img src="pictureforsite.jpg" alt="Cool Picture">
-  
-  <script>
-    // Add fade-out effect on click before navigating to friend.html
-    document.addEventListener("DOMContentLoaded", function() {
-      const link = document.getElementById("title-link");
-      link.addEventListener("click", function(e) {
-        e.preventDefault();
-        document.body.classList.add("fade-out");
-        setTimeout(() => {
-          window.location.href = link.href;
-        }, 500);
-      });
-    });
-  </script>
-</body>
+      .hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .visible {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="bg-zinc-900 text-white min-h-screen flex items-center justify-center">
+    <div class="relative w-full max-w-xl h-96">
+      <!-- Slide 0 -->
+      <section id="slide-0" class="slide visible">
+        <h1 class="text-4xl font-bold mb-4">👋 Hey, I'm Tim</h1>
+        <p class="text-xl">Product guy, VC alum, doc‑to‑💸 facilitator.</p>
+      </section>
+
+      <!-- Slide 1 -->
+      <section id="slide-1" class="slide hidden">
+        <h1 class="text-4xl font-bold mb-4">🚀 What I build</h1>
+        <p class="text-xl">Friction‑free e‑Sig & form flows that release billions.</p>
+      </section>
+
+      <!-- Slide 2 -->
+      <section id="slide-2" class="slide hidden">
+        <h1 class="text-4xl font-bold mb-4">🛠️ What I fix</h1>
+        <p class="text-xl">Clunky processes, unclear specs, missed deadlines.</p>
+      </section>
+
+      <!-- Slide 3 -->
+      <section id="slide-3" class="slide hidden">
+        <h1 class="text-4xl font-bold mb-4">📬 Reach me</h1>
+        <p class="text-xl">
+          <a href="mailto:timb@example.com" class="underline">timb@example.com</a>
+        </p>
+      </section>
+    </div>
+
+    <script>
+      // Simple 3‑second auto‑rotating slider
+      let current = 0;
+      const slides = document.querySelectorAll('.slide');
+      setInterval(() => {
+        slides[current].classList.add('hidden');
+        slides[current].classList.remove('visible');
+        current = (current + 1) % slides.length;
+        slides[current].classList.remove('hidden');
+        slides[current].classList.add('visible');
+      }, 3000);
+    </script>
+  </body>
 </html>
