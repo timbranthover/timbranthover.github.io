@@ -8,7 +8,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       .slide {
-        @apply absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity duration-700;
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: opacity 0.7s;
       }
       .hidden {
         opacity: 0;
@@ -42,9 +49,7 @@
       <!-- Slide 3 -->
       <section id="slide-3" class="slide hidden">
         <h1 class="text-4xl font-bold mb-4">📬 Reach me</h1>
-        <p class="text-xl">
-          <a href="mailto:timb@example.com" class="underline">timb@example.com</a>
-        </p>
+        <p class="text-xl"><a href="mailto:timb@example.com" class="underline">timb@example.com</a></p>
       </section>
     </div>
 
@@ -62,3 +67,4 @@
     </script>
   </body>
 </html>
+
