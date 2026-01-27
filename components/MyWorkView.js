@@ -1,4 +1,4 @@
-const MyWorkView = ({ onBack, onLoadDraft }) => {
+const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY }) => {
   const [workTab, setWorkTab] = React.useState('inProgress');
   const [activeActionMenu, setActiveActionMenu] = React.useState(null);
 
@@ -33,7 +33,7 @@ const MyWorkView = ({ onBack, onLoadDraft }) => {
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              {tab.label} ({MOCK_HISTORY[tab.key].length})
+              {tab.label} ({workItems[tab.key].length})
             </button>
           ))}
         </div>
@@ -49,7 +49,7 @@ const MyWorkView = ({ onBack, onLoadDraft }) => {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {MOCK_HISTORY[workTab].map((item) => (
+            {workItems[workTab].map((item) => (
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-gray-900">{item.account}</div>

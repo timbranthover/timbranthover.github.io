@@ -1,4 +1,4 @@
-const PackageView = ({ account, selectedForms, onBack, initialData }) => {
+const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSignature, onSaveDraft }) => {
   const [currentFormIndex, setCurrentFormIndex] = React.useState(0);
   const [formDataMap, setFormDataMap] = React.useState(initialData || {});
   const [formSigners, setFormSigners] = React.useState({});
@@ -49,7 +49,13 @@ const PackageView = ({ account, selectedForms, onBack, initialData }) => {
 
   const handleSaveDraft = (draftName) => {
     console.log('Saving draft:', draftName, formDataMap);
-    alert(`Draft "${draftName}" saved successfully!`);
+
+    // Call the parent's save draft handler
+    if (onSaveDraft) {
+      onSaveDraft(draftName, formDataMap);
+    }
+
+    alert(`Draft "${draftName}" saved successfully! Check "My Work" to see your draft.`);
   };
 
   const handleSendForSignature = () => {
@@ -70,14 +76,27 @@ const PackageView = ({ account, selectedForms, onBack, initialData }) => {
       return;
     }
 
+    // Collect all unique signers across all forms
+    const allSigners = Object.values(formSigners).flat();
+    const uniqueSigners = Array.from(new Set(allSigners.map(s => s.id)))
+      .map(id => allSigners.find(s => s.id === id));
+
     console.log('Sending for signature:', {
       forms: selectedForms,
       formSigners: formSigners,
       formData: formDataMap
     });
 
-    const totalSigners = Object.values(formSigners).flat().length;
-    alert(`Forms sent for signature to ${totalSigners} signer assignment(s)`);
+    // Call the parent's send for signature handler
+    if (onSendForSignature) {
+      onSendForSignature({
+        forms: selectedForms,
+        signers: uniqueSigners,
+        formData: formDataMap
+      });
+    }
+
+    alert(`Forms sent for signature! Check "My Work" → "In Progress" to track the status.`);
   };
 
   const toggleSigner = (formCode, signer) => {

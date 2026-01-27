@@ -4,6 +4,7 @@ const App = () => {
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [draftData, setDraftData] = React.useState(null);
   const [searchError, setSearchError] = React.useState(null);
+  const [workItems, setWorkItems] = React.useState(MOCK_HISTORY);
 
   const handleSearch = (accountNumber) => {
     // Normalize account number (remove spaces, uppercase)
@@ -34,6 +35,50 @@ const App = () => {
     setSelectedForms(draftItem.forms);
     setDraftData(draftItem.draftData ? { 'AC-TF': draftItem.draftData } : null);
     setView('package');
+  };
+
+  const handleSendForSignature = (packageData) => {
+    // Create a new in-progress item
+    const newItem = {
+      id: `ip${Date.now()}`,
+      account: currentAccount.accountNumber,
+      names: currentAccount.accountName,
+      forms: packageData.forms,
+      status: packageData.signers.length > 1
+        ? `Waiting for ${packageData.signers[0].name} and ${packageData.signers.length - 1} other${packageData.signers.length > 2 ? 's' : ''}`
+        : `Waiting for ${packageData.signers[0]?.name || 'signer'}`,
+      lastChange: 'Just now',
+      progress: { signed: 0, total: packageData.signers.length }
+    };
+
+    // Add to in-progress items
+    setWorkItems(prev => ({
+      ...prev,
+      inProgress: [newItem, ...prev.inProgress]
+    }));
+
+    // Navigate to My Work to show the new item
+    setView('work');
+  };
+
+  const handleSaveDraft = (draftName, draftFormData) => {
+    // Create a new draft item
+    const newDraft = {
+      id: `d${Date.now()}`,
+      account: currentAccount.accountNumber,
+      names: currentAccount.accountName,
+      forms: selectedForms,
+      status: 'Draft',
+      lastChange: 'Just now',
+      draftName: draftName,
+      draftData: draftFormData
+    };
+
+    // Add to drafts
+    setWorkItems(prev => ({
+      ...prev,
+      drafts: [newDraft, ...prev.drafts]
+    }));
   };
 
   const handleBack = () => {
@@ -86,6 +131,7 @@ const App = () => {
           <MyWorkView
             onBack={handleBack}
             onLoadDraft={handleLoadDraft}
+            workItems={workItems}
           />
         )}
 
@@ -95,6 +141,8 @@ const App = () => {
             selectedForms={selectedForms}
             onBack={handleBack}
             initialData={draftData}
+            onSendForSignature={handleSendForSignature}
+            onSaveDraft={handleSaveDraft}
           />
         )}
       </div>
