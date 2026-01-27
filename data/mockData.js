@@ -1,24 +1,106 @@
-const MOCK_ACCOUNT = {
-  accountNumber: "1B92008",
-  accountName: "Timothy & Sarah Branthover",
-  accountType: "Joint",
-  signers: [
-    { 
-      id: 1, 
-      name: "Timothy Branthover", 
-      role: "Primary",
-      emails: ["timbrant@gmail.com", "tim@ubs.com"],
-      phones: ["9088724028", "9085559876"]
-    },
-    { 
-      id: 2, 
-      name: "Sarah Branthover", 
-      role: "Joint",
-      emails: ["sarah.test@gmail.com"],
-      phones: ["9085551234"]
-    }
-  ]
+const MOCK_ACCOUNTS = {
+  "1B92008": {
+    accountNumber: "1B92008",
+    accountName: "Timothy & Sarah Branthover",
+    accountType: "Joint",
+    signers: [
+      {
+        id: 1,
+        name: "Timothy Branthover",
+        role: "Primary",
+        emails: ["timbrant@gmail.com", "tim@ubs.com"],
+        phones: ["9088724028", "9085559876"]
+      },
+      {
+        id: 2,
+        name: "Sarah Branthover",
+        role: "Joint",
+        emails: ["sarah.test@gmail.com"],
+        phones: ["9085551234"]
+      }
+    ]
+  },
+  "1B92007": {
+    accountNumber: "1B92007",
+    accountName: "Timothy Branthover",
+    accountType: "Roth IRA",
+    signers: [
+      {
+        id: 1,
+        name: "Timothy Branthover",
+        role: "Owner",
+        emails: ["timbrant@gmail.com", "tim@ubs.com", "timothy.brant@personal.com"],
+        phones: ["9088724028", "9085559876", "2015551234"]
+      }
+    ]
+  },
+  "1C88543": {
+    accountNumber: "1C88543",
+    accountName: "Michael Chen",
+    accountType: "Individual",
+    signers: [
+      {
+        id: 1,
+        name: "Michael Chen",
+        role: "Owner",
+        emails: ["mchen@email.com", "michael.chen@work.com"],
+        phones: ["4155551234", "4155559876"]
+      }
+    ]
+  },
+  "1D12456": {
+    accountNumber: "1D12456",
+    accountName: "Jennifer & Robert Martinez",
+    accountType: "Joint",
+    signers: [
+      {
+        id: 1,
+        name: "Jennifer Martinez",
+        role: "Primary",
+        emails: ["jmartinez@email.com", "jennifer.m@work.com"],
+        phones: ["3105551234", "3105559876"]
+      },
+      {
+        id: 2,
+        name: "Robert Martinez",
+        role: "Joint",
+        emails: ["rmartinez@email.com", "robert.martinez@business.com"],
+        phones: ["3105552345", "3105558765"]
+      }
+    ]
+  },
+  "1E99871": {
+    accountNumber: "1E99871",
+    accountName: "Sarah Johnson Living Trust",
+    accountType: "Trust",
+    signers: [
+      {
+        id: 1,
+        name: "Sarah Johnson",
+        role: "Trustee",
+        emails: ["sjohnson@email.com", "sarah.j.trust@legal.com"],
+        phones: ["6175551234", "6175559876"]
+      }
+    ]
+  },
+  "1F44320": {
+    accountNumber: "1F44320",
+    accountName: "David Williams",
+    accountType: "Traditional IRA",
+    signers: [
+      {
+        id: 1,
+        name: "David Williams",
+        role: "Owner",
+        emails: ["dwilliams@email.com", "david.w@company.com", "dwill88@personal.net"],
+        phones: ["7025551234", "7025559876"]
+      }
+    ]
+  }
 };
+
+// Default account for backward compatibility
+const MOCK_ACCOUNT = MOCK_ACCOUNTS["1B92008"];
 
 const MOCK_DRAFT_DATA = {
   transferringFirm: "Fidelity Investments",
