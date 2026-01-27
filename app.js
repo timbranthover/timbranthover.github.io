@@ -56,7 +56,39 @@ const App = () => {
     setView('package');
   };
 
-  const handleSendForSignature = (packageData) => {
+  const handleSendForSignature = async (packageData) => {
+    // Check if we should send via DocuSign (AC-TF form with account 1B92008)
+    const shouldUseDocuSign =
+      currentAccount.accountNumber === '1B92008' &&
+      packageData.forms.some(form => form.id === 'AC-TF');
+
+    let docusignEnvelopeId = null;
+
+    // Send via DocuSign if conditions are met
+    if (shouldUseDocuSign) {
+      try {
+        // Get the first signer (Timothy)
+        const primarySigner = packageData.signers[0];
+        const result = await DocuSignService.sendEnvelope(
+          primarySigner.email,
+          primarySigner.name,
+          currentAccount.accountNumber
+        );
+
+        if (result.success) {
+          docusignEnvelopeId = result.envelopeId;
+          console.log('DocuSign envelope sent successfully:', result.envelopeId);
+          alert(`Success! Real DocuSign envelope sent to ${primarySigner.email}!\n\nEnvelope ID: ${result.envelopeId}\n\nCheck your email!`);
+        } else {
+          console.error('DocuSign error:', result.error);
+          alert(`DocuSign Error: ${result.error}\n\nThe item will still be added to My Work for demo purposes.`);
+        }
+      } catch (error) {
+        console.error('Error sending DocuSign envelope:', error);
+        alert(`Error: ${error.message}\n\nThe item will still be added to My Work for demo purposes.`);
+      }
+    }
+
     // Create a new in-progress item
     const newItem = {
       id: `ip${Date.now()}`,
@@ -67,7 +99,8 @@ const App = () => {
         ? `Waiting for ${packageData.signers[0].name} and ${packageData.signers.length - 1} other${packageData.signers.length > 2 ? 's' : ''}`
         : `Waiting for ${packageData.signers[0]?.name || 'signer'}`,
       lastChange: 'Just now',
-      progress: { signed: 0, total: packageData.signers.length }
+      progress: { signed: 0, total: packageData.signers.length },
+      docusignEnvelopeId: docusignEnvelopeId // Store envelope ID if sent via DocuSign
     };
 
     // Add to in-progress items

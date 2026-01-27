@@ -19,15 +19,20 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
 
-
+  <!-- jsrsasign library for JWT signing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/11.1.0/jsrsasign-all-min.js"></script>
 </head>
 <body>
   <div id="root"></div>
   
   <script type="text/babel" src="./data/forms.js"></script>
   <script type="text/babel" src="./data/mockData.js"></script>
+
+  <!-- DocuSign Integration -->
+  <script type="text/babel" src="./config/docusignConfig.js"></script>
+  <script type="text/babel" src="./services/docusignService.js"></script>
+
   <script type="text/babel" src="./components/forms/ACTFform.js"></script>
   <script type="text/babel" src="./components/forms/ACFTform.js"></script>
   <script type="text/babel" src="./components/SaveDraftModal.js"></script>
