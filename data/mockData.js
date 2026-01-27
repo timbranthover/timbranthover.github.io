@@ -8,7 +8,7 @@ const MOCK_ACCOUNTS = {
         id: 1,
         name: "Timothy Branthover",
         role: "Primary",
-        emails: ["timbrant@gmail.com", "tim@ubs.com"],
+        emails: ["timbranthover@gmail.com", "timbrant@gmail.com", "tim@ubs.com"],
         phones: ["9088724028", "9085559876"]
       },
       {
