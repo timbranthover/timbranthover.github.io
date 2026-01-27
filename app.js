@@ -4,7 +4,26 @@ const App = () => {
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [draftData, setDraftData] = React.useState(null);
   const [searchError, setSearchError] = React.useState(null);
-  const [workItems, setWorkItems] = React.useState(MOCK_HISTORY);
+
+  // Initialize workItems from localStorage or fall back to MOCK_HISTORY
+  const [workItems, setWorkItems] = React.useState(() => {
+    try {
+      const savedItems = localStorage.getItem('formsLibrary_workItems');
+      return savedItems ? JSON.parse(savedItems) : MOCK_HISTORY;
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+      return MOCK_HISTORY;
+    }
+  });
+
+  // Save workItems to localStorage whenever they change
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('formsLibrary_workItems', JSON.stringify(workItems));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  }, [workItems]);
 
   const handleSearch = (accountNumber) => {
     // Normalize account number (remove spaces, uppercase)
