@@ -4,26 +4,7 @@ const Header = ({ onNavigateToWork, currentView }) => {
   return (
     <div className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <img
-            src="./assets/ubs_logo.png"
-            alt="UBS"
-            className="h-8 w-auto"
-            onError={(e) => {
-              // Fallback if image doesn't load
-              e.target.style.display = 'none';
-              e.target.nextElementSibling.style.display = 'block';
-            }}
-          />
-          <span
-            className="text-xl font-semibold text-gray-900 hidden"
-            style={{ display: 'none' }}
-          >
-            UBS
-          </span>
-          <div className="h-8 w-px bg-gray-300"></div>
-          <h1 className="text-xl font-semibold text-gray-900">Forms Library</h1>
-        </div>
+        <h1 className="text-xl font-semibold text-gray-900">Forms Library</h1>
         <button
           onClick={isInMyWork ? undefined : onNavigateToWork}
           disabled={isInMyWork}

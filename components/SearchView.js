@@ -3,6 +3,7 @@ const SearchView = ({ onSearch }) => {
   const [aiQuery, setAiQuery] = React.useState('');
   const [aiSuggestion, setAiSuggestion] = React.useState(null);
   const [showOtherOptions, setShowOtherOptions] = React.useState(false);
+  const [showTooltip, setShowTooltip] = React.useState(false);
 
   const handleSearch = () => {
     if (accountSearch.trim()) {
@@ -29,15 +30,39 @@ const SearchView = ({ onSearch }) => {
         <p className="text-sm text-gray-600 mb-6">Enter account number or UAN to view available forms for e-signature.</p>
         
         <div className="flex gap-3">
-          <input
-            type="text"
-            placeholder="Account/UAN"
-            value={accountSearch}
-            onChange={(e) => setAccountSearch(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button 
+          <div
+            className="flex-1 relative"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <input
+              type="text"
+              placeholder="Account/UAN"
+              value={accountSearch}
+              onChange={(e) => setAccountSearch(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {showTooltip && !accountSearch && (
+              <div className="absolute z-10 left-0 top-full mt-2 w-80 bg-gray-900 text-white text-xs rounded-lg shadow-lg p-3 pointer-events-none">
+                <div className="flex items-start gap-2 mb-2">
+                  <svg className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="font-medium mb-1.5">Demo Test Accounts</p>
+                    <div className="space-y-1 text-gray-300">
+                      <div><span className="font-mono text-blue-300">1B92008</span> - Joint Account</div>
+                      <div><span className="font-mono text-blue-300">1C88543</span> - Individual</div>
+                      <div><span className="font-mono text-blue-300">1E99871</span> - Trust</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+              </div>
+            )}
+          </div>
+          <button
             onClick={handleSearch}
             className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
           >
