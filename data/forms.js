@@ -1,0 +1,22 @@
+const FORMS_DATA = [
+  { code: "AC-FT", name: "EFT Addendum", description: "Electronic Funds Transfer authorization", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-DQ", name: "IRA Owner Distribution Approval Request", description: "IRA distribution request and approval", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-TF", name: "Account Transfer Form", description: "ACAT transfer from external institution", eSignEnabled: true, requiresAllSigners: true },
+  { code: "AC-DISB-LOA", name: "Consolidated Disbursement", description: "Authorization for consolidated disbursement", eSignEnabled: true, requiresAllSigners: false },
+  { code: "CL-ACRA", name: "Advisory Relationship Application", description: "Investment advisory agreement", eSignEnabled: true, requiresAllSigners: true },
+  { code: "WP-MAINT-BA", name: "IRA Designation/Change of Beneficiary", description: "Update IRA beneficiary information", eSignEnabled: true, requiresAllSigners: false },
+  { code: "LA-GEN", name: "Generic LOA", description: "General letter of authorization", eSignEnabled: true, requiresAllSigners: false },
+  { code: "SPER", name: "Structured Products Eligibility Request", description: "Eligibility request for structured products", eSignEnabled: true, requiresAllSigners: false },
+  { code: "CL-W9", name: "TEFRA Form (Domestic)", description: "W-9 taxpayer identification", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-RC", name: "Roth IRA Conversion/IRA Recharacterization", description: "Convert traditional IRA to Roth IRA", eSignEnabled: true, requiresAllSigners: false },
+  { code: "LOAN-U1", name: "Statement of Purpose", description: "Credit and margin loan purpose statement", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-ACCESS-IST", name: "Access Program Account Application", description: "Advisory investment solutions application", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-OPI", name: "Options Agreement", description: "Covered and uncovered options qualification", eSignEnabled: true, requiresAllSigners: false },
+  { code: "CL-BOE", name: "Legal Entity BOE Certification", description: "Beneficial owner certification", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-TO", name: "TOD Account Agreement", description: "Transfer on death designation", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-UND", name: "Undeliverable Mail Request Form", description: "Update address for returned mail", eSignEnabled: true, requiresAllSigners: false },
+  { code: "LOAN-HA", name: "New Account Form - Individual Premium Credit Line", description: "Credit line application for individuals", eSignEnabled: true, requiresAllSigners: false },
+  { code: "LA25", name: "Tax Withholding Election IRA Account", description: "IRA tax withholding election", eSignEnabled: true, requiresAllSigners: false },
+  { code: "CL-TS", name: "Trustee Certification Non-ERISA", description: "Trust authorization and certification", eSignEnabled: true, requiresAllSigners: false },
+  { code: "AC-DBT", name: "IRA Beneficiary Total Distribution", description: "Beneficiary distribution from IRA", eSignEnabled: true, requiresAllSigners: false }
+];
