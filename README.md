@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**UBS Forms Library** -- a client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature. Built as a single-page React application hosted on GitHub Pages.
+** Forms Library** -- a client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature. Built as a single-page React application hosted on GitHub Pages.
 
 This is a **prototype / demo application** using mock data. There is no backend, no build step, and no bundler. It runs entirely in the browser via CDN-loaded React 18 + Babel transpilation.
 
