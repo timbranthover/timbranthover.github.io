@@ -1,4 +1,4 @@
-const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY, onVoidEnvelope, onEnvelopeStatusChange }) => {
+const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTORY, onVoidEnvelope, onEnvelopeStatusChange }) => {
   const [workTab, setWorkTab] = React.useState('inProgress');
   const [activeActionMenu, setActiveActionMenu] = React.useState(null);
   const [envelopeStatuses, setEnvelopeStatuses] = React.useState({});
@@ -10,7 +10,7 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY, onVoidEnvel
   const STATUS_BADGES = {
     sent: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Sent' },
     delivered: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Viewed' },
-    completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Signed' },
+    completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
     voided: { bg: 'bg-red-100', text: 'text-red-800', label: 'Voided' },
     declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined' }
   };
@@ -139,6 +139,44 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY, onVoidEnvel
     return `${diffDays}d ago`;
   };
 
+  // Render the hover popup with recipient detail
+  const renderDetailPopup = (recipientInfo, envStatus) => {
+    if (!recipientInfo && !envStatus) return null;
+
+    return (
+      <div className="absolute left-0 top-full mt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-20 w-60 bg-white rounded-lg shadow-lg border border-gray-200 p-3 pointer-events-none">
+        <div className="absolute -top-1 left-3 w-2 h-2 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+        {envStatus && envStatus.voidedReason && (
+          <div className="text-xs text-gray-600 mb-2">
+            <span className="font-medium">Reason:</span> {envStatus.voidedReason}
+          </div>
+        )}
+        {recipientInfo && recipientInfo.signers.map(signer => (
+          <div key={signer.recipientId || signer.email} className="flex items-center gap-1.5 text-xs text-gray-600 py-0.5">
+            {signer.status === 'completed' ? (
+              <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : signer.status === 'delivered' ? (
+              <svg className="w-3 h-3 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            ) : (
+              <svg className="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            <span>{signer.name}: {signer.status === 'completed' ? 'Signed' : signer.status === 'delivered' ? 'Viewed' : 'Pending'}</span>
+            {signer.signedDateTime && (
+              <span className="text-gray-400 ml-auto flex-shrink-0">({formatTime(signer.signedDateTime)})</span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // Render status cell for an item
   const renderStatusCell = (item) => {
     const envStatus = item.docusignEnvelopeId ? envelopeStatuses[item.docusignEnvelopeId] : null;
@@ -164,45 +202,22 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY, onVoidEnvel
       const badge = STATUS_BADGES[envStatus.status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: envStatus.status };
 
       return (
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
-              {badge.label}
-            </span>
-            {envStatus.status !== 'completed' && envStatus.status !== 'voided' && recipientInfo && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-16 h-1.5 bg-gray-200 rounded-full">
-                  <div
-                    className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                    style={{ width: `${recipientInfo.total > 0 ? (recipientInfo.completed / recipientInfo.total) * 100 : 0}%` }}
-                  />
-                </div>
-                <span className="text-xs text-gray-500">{recipientInfo.completed}/{recipientInfo.total}</span>
+        <div className="relative group inline-flex items-center gap-2">
+          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium cursor-default ${badge.bg} ${badge.text}`}>
+            {badge.label}
+          </span>
+          {envStatus.status !== 'completed' && envStatus.status !== 'voided' && recipientInfo && (
+            <div className="flex items-center gap-1.5">
+              <div className="w-16 h-1.5 bg-gray-200 rounded-full">
+                <div
+                  className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                  style={{ width: `${recipientInfo.total > 0 ? (recipientInfo.completed / recipientInfo.total) * 100 : 0}%` }}
+                />
               </div>
-            )}
-          </div>
-          {recipientInfo && recipientInfo.signers.map(signer => (
-            <div key={signer.recipientId || signer.email} className="flex items-center gap-1.5 text-xs text-gray-500">
-              {signer.status === 'completed' ? (
-                <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : signer.status === 'delivered' ? (
-                <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              ) : (
-                <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              )}
-              <span>{signer.name}: {signer.status === 'completed' ? 'Signed' : signer.status === 'delivered' ? 'Viewed' : 'Pending'}</span>
-              {signer.signedDateTime && (
-                <span className="text-gray-400">({formatTime(signer.signedDateTime)})</span>
-              )}
+              <span className="text-xs text-gray-500">{recipientInfo.completed}/{recipientInfo.total}</span>
             </div>
-          ))}
+          )}
+          {(recipientInfo || (envStatus && envStatus.voidedReason)) && renderDetailPopup(recipientInfo, envStatus)}
         </div>
       );
     }
@@ -248,9 +263,18 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY, onVoidEnvel
               </svg>
               Resume editing
             </button>
-            <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm(`Delete draft "${item.draftName || 'Untitled'}"?`)) {
+                  if (onDeleteDraft) onDeleteDraft(item);
+                }
+                setActiveActionMenu(null);
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
               Delete draft
             </button>
