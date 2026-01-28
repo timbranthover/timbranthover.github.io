@@ -1,119 +1,105 @@
-# README.md
+# UBS Forms Library
 
-## Project Overview
+A client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature via DocuSign.
 
-** Forms Library** -- a client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature. Built as a single-page React application hosted on GitHub Pages.
+**Live site:** [timbranthover.github.io](https://timbranthover.github.io)
 
-This is a **prototype / demo application** using mock data. There is no backend, no build step, and no bundler. It runs entirely in the browser via CDN-loaded React 18 + Babel transpilation.
+## Quick Start
 
-## Tech Stack
-
-- **React 18** (UMD via unpkg CDN)
-- **ReactDOM 18** (UMD via unpkg CDN)
-- **Babel Standalone** (in-browser JSX transpilation via `type="text/babel"` scripts)
-- **Tailwind CSS** (CDN, `cdn.tailwindcss.com`)
-- **Inter font** (Google Fonts)
-- No build system. No npm. No bundler. No package.json.
-
-## Repository Structure
-
-```
-/
-├── index.html              # Entry point -- loads all scripts and renders <div id="root">
-├── app.js                  # Root <App> component, view routing state machine
-├── assets/
-│   └── ubs_logo.png        # Header logo
-├── components/
-│   ├── Header.js           # Top nav bar with UBS logo + "My Work" button
-│   ├── SearchView.js       # Landing page: account search + AI form suggestion
-│   ├── ResultsView.js      # Form selection grid with fuzzy search
-│   ├── PackageView.js      # Form fill + signer assignment sidebar + send/save actions
-│   ├── MyWorkView.js       # Tabbed work queue: Drafts / In Progress / Completed / Voided
-│   ├── SaveDraftModal.js   # Modal for naming and saving a draft
-│   └── forms/
-│       ├── ACTFform.js     # ACAT Account Transfer Form (AC-TF)
-│       └── ACFTform.js     # EFT Authorization Form (AC-FT)
-└── data/
-    ├── mockData.js         # MOCK_ACCOUNTS, MOCK_HISTORY, MOCK_DRAFT_DATA, AI_SUGGESTIONS
-    └── forms.js            # FORMS_DATA -- the full catalog of 20 form definitions
-```
-
-## Architecture
-
-### No Build System
-All files are plain `.js` with JSX, transpiled in-browser by Babel Standalone. Scripts are loaded in dependency order via `<script type="text/babel" src="...">` tags in `index.html`. **Load order matters** -- data files first, then components bottom-up, then `app.js` last.
-
-### View Routing
-`app.js` manages a simple state machine with `useState('landing')`:
-- `landing` -- SearchView (account lookup + AI suggestion)
-- `results` -- ResultsView (form selection for an account)
-- `package` -- PackageView (fill forms, assign signers, send/save)
-- `work` -- MyWorkView (tabbed work queue)
-
-Navigation is prop-driven (`onBack`, `onSearch`, `onContinue`, etc.). No router library.
-
-### Component Pattern
-Every component is a **top-level `const` function component** (not exported, not in modules). Components communicate via props passed down from `App`. State is managed with `React.useState` and `React.useEffect` -- no external state library.
-
-### Data Pattern
-All data lives in global `const` variables (`MOCK_ACCOUNTS`, `FORMS_DATA`, `MOCK_HISTORY`, `AI_SUGGESTIONS`) loaded before components. Components reference these globals directly. Accounts are keyed by account number string (e.g., `"1B92008"`).
-
-### Styling
-100% Tailwind utility classes. No custom CSS files. The only `<style>` block sets Inter as the body font. Follow the existing Tailwind class conventions -- UBS blue is `blue-600`/`blue-700`, backgrounds are `gray-50`, cards use `bg-white rounded-lg shadow-sm border border-gray-200`.
-
-## Development Workflow
-
-### Running Locally
-No install needed. Open `index.html` in a browser, or serve with any static server:
+No install needed. Serve with any static file server:
 ```bash
 npx serve .
 # or
 python3 -m http.server
 ```
+Then open `http://localhost:3000` (or `:8000` for Python).
 
-### Deploying
-Push to `main` on `timbranthover.github.io`. GitHub Pages serves it automatically. No build step required.
+To deploy, push to `main` -- GitHub Pages picks it up automatically.
 
-### Case Sensitivity
-GitHub Pages is **case-sensitive**. File paths in `index.html` script tags and asset references must match the actual filenames exactly (e.g., `./assets/ubs_logo.png`, not `UBS_Logo.PNG`).
+## How It Works
 
-## Conventions & Standards
+### The App Flow
+1. **Search** -- enter an account number (e.g. `1B92008`) on the landing page
+2. **Select Forms** -- pick one or more forms from the catalog
+3. **Fill & Assign** -- complete form fields, assign signers from the account
+4. **Send or Save** -- send for e-signature (real DocuSign for eligible combos) or save as draft
+5. **My Work** -- track envelopes across Drafts / In Progress / Completed / Voided tabs
 
-### Code Style
-- **Functional components only** -- no classes, no hooks libraries
-- **`React.useState` / `React.useEffect`** -- always fully qualified (no destructured imports since there are no modules)
-- **Inline SVG icons** -- no icon library; all icons are hand-written `<svg>` elements with Heroicon-style paths
-- **Tailwind only** -- no inline `style={}` except for rare dynamic values (e.g., progress bar width percentages)
-- **No semicolons** in JSX returns; standard semicolons in logic blocks
+### DocuSign Integration
+Real DocuSign envelope sending works for **account `1B92008` + form `AC-TF`**. All other combinations use mock behavior.
 
-### Adding a New Form
-1. Create `components/forms/YourForm.js` following the pattern in `ACTFform.js` or `ACFTform.js`
-2. Add its `<script>` tag in `index.html` **before** `PackageView.js` (it must be loaded first)
-3. Add a `case` in `PackageView.js` `renderFormComponent()` switch statement
-4. Add the form definition to `data/forms.js` (`FORMS_DATA` array)
+The DocuSign flow:
+- Browser creates a JWT (RS256 signed with jsrsasign library)
+- JWT is exchanged for an OAuth token via DocuSign's auth server
+- Envelope is created using the DocuSign REST API v2.1
+- All calls route through a **Cloudflare Worker** proxy to bypass browser CORS
 
-### Adding a New Account
-Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number string. Each account has: `accountNumber`, `accountName`, `accountType`, and a `signers` array. Each signer has `id`, `name`, `role`, `emails[]`, and `phones[]`.
+The Cloudflare Worker is deployed externally (not in this repo). Its URL is configured in `config/docusignConfig.js` under `proxyUrl`.
 
-### Adding a New View
-1. Add a new state value in the `view` state machine in `app.js`
-2. Add a conditional render block in the `App` return JSX
-3. Wire navigation via props (`onBack`, etc.)
+### Data Persistence
+Work items (drafts, in-progress, completed, voided) are stored in **localStorage** under the key `formsLibrary_workItems`. They survive page reloads.
 
-## Key Design Decisions
+## Common Operations
 
-- **No build tooling by design** -- this is a rapid prototype meant to be immediately editable and deployable with zero setup friction. Do not introduce npm, webpack, vite, or any bundler.
-- **Global script loading** -- all components and data are globals. This is intentional for the CDN-React architecture. Do not refactor into ES modules unless the entire architecture is being migrated.
-- **Mock data is the "backend"** -- all account lookups, form catalogs, and work history are in-memory JS objects. Keep mock data realistic and consistent (real-ish form codes, plausible account structures).
-- **Dynamic account lookup** -- `handleSearch` in `app.js` looks up accounts from `MOCK_ACCOUNTS` by normalized (trimmed, uppercased) account number. New accounts just need to be added to the map.
-- **Signer logic per form** -- `requiresAllSigners` on each form definition controls whether the PackageView enforces selecting all account signers or just one.
+### Clear all work items (reset My Work tabs)
+Open the browser console on the live site and run:
+```js
+localStorage.removeItem('formsLibrary_workItems'); location.reload();
+```
+This removes all accumulated drafts, in-progress, completed, and voided items. After reload, all tabs start empty.
 
-## What NOT to Do
+### Clear everything (full site reset)
+```js
+localStorage.clear(); location.reload();
+```
 
-- Do not add a package.json, node_modules, or build step
-- Do not convert to ES modules or add import/export statements
-- Do not add external component libraries (Material UI, Ant Design, etc.)
-- Do not remove or rename the Tailwind CDN approach
-- Do not add a router library -- the view state machine is sufficient
-- Do not introduce TypeScript -- this is plain JSX transpiled by Babel Standalone
-- Do not hardcode account data in components -- always reference `MOCK_ACCOUNTS`
+### Check what's in localStorage
+```js
+JSON.parse(localStorage.getItem('formsLibrary_workItems'));
+```
+
+### Test accounts
+| Account | Name | Signers |
+|---------|------|---------|
+| `1B92008` | Timothy & Sarah Branthover | 2 (DocuSign-enabled) |
+| `1B92007` | Jennifer & Michael Rodriguez | 2 |
+| `1C88543` | David Park | 1 |
+| `1D12456` | Emily & Robert Chen | 2 |
+| `1E99871` | Alexandra Thompson | 1 |
+| `1F44320` | James & Maria Santos | 2 |
+
+## File Structure
+
+```
+index.html                  # Entry point, loads all scripts in order
+app.js                      # Root component, view state machine, DocuSign handlers
+config/
+  docusignConfig.js         # DocuSign API keys, proxy URL, RSA key (demo sandbox)
+services/
+  docusignService.js        # DocuSign API: send, status, void, resend, download
+components/
+  Header.js                 # Top nav bar
+  SearchView.js             # Account search landing page
+  ResultsView.js            # Form selection grid
+  PackageView.js            # Form fill + signer assignment + send/save
+  MyWorkView.js             # Tabbed work queue with live status polling
+  SaveDraftModal.js         # Draft naming modal
+  forms/
+    ACTFform.js             # ACAT Transfer Form (AC-TF)
+    ACFTform.js             # EFT Authorization Form (AC-FT)
+data/
+  mockData.js               # Mock accounts, history, draft data, AI suggestions
+  forms.js                  # Form catalog (20 form definitions)
+assets/
+  ubs_logo.png              # Header logo
+```
+
+## Tech Stack
+
+- React 18 + ReactDOM 18 (CDN, no build)
+- Babel Standalone (in-browser JSX transpilation)
+- Tailwind CSS (CDN)
+- jsrsasign (CDN, JWT signing)
+- Cloudflare Worker (CORS proxy, free tier)
+
+No npm. No bundler. No build step. Edit files and push.
