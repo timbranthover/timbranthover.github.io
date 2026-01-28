@@ -135,7 +135,8 @@ const App = () => {
       status: 'Draft',
       lastChange: 'Just now',
       draftName: draftName,
-      draftData: draftFormData
+      draftData: draftFormData,
+      savedAt: new Date().toISOString()
     };
 
     // Add to drafts
