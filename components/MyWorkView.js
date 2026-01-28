@@ -1,6 +1,337 @@
-const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY }) => {
+const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY, onVoidEnvelope, onEnvelopeStatusChange }) => {
   const [workTab, setWorkTab] = React.useState('inProgress');
   const [activeActionMenu, setActiveActionMenu] = React.useState(null);
+  const [envelopeStatuses, setEnvelopeStatuses] = React.useState({});
+  const [loadingActions, setLoadingActions] = React.useState({});
+  const [isPolling, setIsPolling] = React.useState(false);
+  const [lastRefreshed, setLastRefreshed] = React.useState(null);
+
+  // Status badge config
+  const STATUS_BADGES = {
+    sent: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Sent' },
+    delivered: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Viewed' },
+    completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Signed' },
+    voided: { bg: 'bg-red-100', text: 'text-red-800', label: 'Voided' },
+    declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined' }
+  };
+
+  // Fetch status for all items with DocuSign envelope IDs
+  const fetchAllStatuses = async () => {
+    const allItems = [
+      ...workItems.inProgress,
+      ...workItems.completed,
+      ...workItems.voided
+    ].filter(item => item.docusignEnvelopeId);
+
+    if (allItems.length === 0) return;
+
+    setIsPolling(true);
+
+    for (const item of allItems) {
+      try {
+        const result = await DocuSignService.getEnvelopeStatus(item.docusignEnvelopeId);
+        if (result.success) {
+          setEnvelopeStatuses(prev => ({
+            ...prev,
+            [item.docusignEnvelopeId]: result
+          }));
+
+          // Auto-move items if DocuSign status changed to terminal state
+          const isInProgress = workItems.inProgress.some(i => i.id === item.id);
+          if (isInProgress && onEnvelopeStatusChange) {
+            if (result.status === 'completed' || result.status === 'voided') {
+              onEnvelopeStatusChange(item.id, result);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error polling status for', item.docusignEnvelopeId, err);
+      }
+    }
+
+    setIsPolling(false);
+    setLastRefreshed(new Date());
+  };
+
+  // Poll on mount and every 30 seconds
+  React.useEffect(() => {
+    fetchAllStatuses();
+    const interval = setInterval(fetchAllStatuses, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Close action menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = () => setActiveActionMenu(null);
+    if (activeActionMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [activeActionMenu]);
+
+  // Action handlers
+  const handleResend = async (item) => {
+    if (!item.docusignEnvelopeId) return;
+    setLoadingActions(prev => ({ ...prev, [item.id]: 'resending' }));
+    setActiveActionMenu(null);
+
+    const result = await DocuSignService.resendEnvelope(item.docusignEnvelopeId);
+    if (result.success) {
+      alert('Notification resent successfully! The signer will receive a new email.');
+    } else {
+      alert(`Failed to resend: ${result.error}`);
+    }
+
+    setLoadingActions(prev => { const next = { ...prev }; delete next[item.id]; return next; });
+  };
+
+  const handleVoid = async (item) => {
+    if (!item.docusignEnvelopeId) return;
+    const reason = prompt('Enter reason for voiding this envelope:');
+    if (!reason) return;
+
+    setLoadingActions(prev => ({ ...prev, [item.id]: 'voiding' }));
+    setActiveActionMenu(null);
+
+    if (onVoidEnvelope) {
+      await onVoidEnvelope(item, reason);
+    }
+
+    setLoadingActions(prev => { const next = { ...prev }; delete next[item.id]; return next; });
+  };
+
+  const handleDownload = async (item) => {
+    if (!item.docusignEnvelopeId) return;
+    setLoadingActions(prev => ({ ...prev, [item.id]: 'downloading' }));
+    setActiveActionMenu(null);
+
+    const result = await DocuSignService.downloadDocument(item.docusignEnvelopeId);
+    if (!result.success) {
+      alert(`Failed to download: ${result.error}`);
+    }
+
+    setLoadingActions(prev => { const next = { ...prev }; delete next[item.id]; return next; });
+  };
+
+  // Get recipient info from envelope status
+  const getRecipientInfo = (item) => {
+    if (!item.docusignEnvelopeId) return null;
+    const status = envelopeStatuses[item.docusignEnvelopeId];
+    if (!status || !status.recipients) return null;
+
+    const signers = status.recipients.signers || [];
+    const completed = signers.filter(s => s.status === 'completed').length;
+    return { signers, completed, total: signers.length };
+  };
+
+  // Format relative time
+  const formatTime = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
+  };
+
+  // Render status cell for an item
+  const renderStatusCell = (item) => {
+    const envStatus = item.docusignEnvelopeId ? envelopeStatuses[item.docusignEnvelopeId] : null;
+    const recipientInfo = getRecipientInfo(item);
+    const loading = loadingActions[item.id];
+
+    // Loading state
+    if (loading) {
+      const labels = { voiding: 'Voiding...', resending: 'Resending...', downloading: 'Downloading...' };
+      return (
+        <div className="flex items-center gap-2">
+          <svg className="w-4 h-4 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <span className="text-sm text-blue-600">{labels[loading]}</span>
+        </div>
+      );
+    }
+
+    // Real DocuSign status
+    if (envStatus) {
+      const badge = STATUS_BADGES[envStatus.status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: envStatus.status };
+
+      return (
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+              {badge.label}
+            </span>
+            {envStatus.status !== 'completed' && envStatus.status !== 'voided' && recipientInfo && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-16 h-1.5 bg-gray-200 rounded-full">
+                  <div
+                    className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                    style={{ width: `${recipientInfo.total > 0 ? (recipientInfo.completed / recipientInfo.total) * 100 : 0}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500">{recipientInfo.completed}/{recipientInfo.total}</span>
+              </div>
+            )}
+          </div>
+          {recipientInfo && recipientInfo.signers.map(signer => (
+            <div key={signer.recipientId || signer.email} className="flex items-center gap-1.5 text-xs text-gray-500">
+              {signer.status === 'completed' ? (
+                <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : signer.status === 'delivered' ? (
+                <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              ) : (
+                <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+              <span>{signer.name}: {signer.status === 'completed' ? 'Signed' : signer.status === 'delivered' ? 'Viewed' : 'Pending'}</span>
+              {signer.signedDateTime && (
+                <span className="text-gray-400">({formatTime(signer.signedDateTime)})</span>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Default mock display
+    return (
+      <div className="flex items-center gap-2">
+        {item.progress && workTab === 'inProgress' && (
+          <div className="flex items-center gap-2">
+            <div className="w-20 h-2 bg-gray-200 rounded-full">
+              <div
+                className="h-full bg-blue-600 rounded-full"
+                style={{ width: `${(item.progress.signed / item.progress.total) * 100}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-600">{item.progress.signed}/{item.progress.total}</span>
+          </div>
+        )}
+        {workTab === 'completed' && (
+          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )}
+        <span className="text-sm text-gray-900">{item.status}</span>
+      </div>
+    );
+  };
+
+  // Render action buttons for an item
+  const renderActionMenu = (item) => {
+    const hasEnvelope = !!item.docusignEnvelopeId;
+
+    return (
+      <div className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+        {workTab === 'drafts' && (
+          <>
+            <button
+              onClick={(e) => { e.stopPropagation(); onLoadDraft(item); setActiveActionMenu(null); }}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Resume editing
+            </button>
+            <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Delete draft
+            </button>
+          </>
+        )}
+        {workTab === 'inProgress' && (
+          <>
+            {hasEnvelope && (
+              <button
+                onClick={(e) => { e.stopPropagation(); handleResend(item); }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Resend notification
+              </button>
+            )}
+            {!hasEnvelope && (
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View envelope
+              </button>
+            )}
+            {hasEnvelope ? (
+              <button
+                onClick={(e) => { e.stopPropagation(); handleVoid(item); }}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                Void envelope
+              </button>
+            ) : (
+              <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Void envelope
+              </button>
+            )}
+          </>
+        )}
+        {workTab === 'completed' && (
+          <>
+            {hasEnvelope && (
+              <button
+                onClick={(e) => { e.stopPropagation(); handleDownload(item); }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download signed PDF
+              </button>
+            )}
+            <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              View details
+            </button>
+          </>
+        )}
+        {workTab === 'voided' && (
+          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            View details
+          </button>
+        )}
+      </div>
+    );
+  };
 
   const tabConfig = [
     { key: 'drafts', label: 'Drafts' },
@@ -12,13 +343,36 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-gray-900">My Work</h2>
-        <button 
-          onClick={onBack}
-          className="text-sm text-blue-600 hover:text-blue-700"
-        >
-          ← Back to search
-        </button>
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-semibold text-gray-900">My Work</h2>
+          {isPolling && (
+            <svg className="w-4 h-4 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          {lastRefreshed && (
+            <span className="text-xs text-gray-400">Updated {formatTime(lastRefreshed.toISOString())}</span>
+          )}
+          <button
+            onClick={fetchAllStatuses}
+            disabled={isPolling}
+            className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 disabled:opacity-50"
+          >
+            <svg className={`w-4 h-4 ${isPolling ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
+          <button
+            onClick={onBack}
+            className="text-sm text-blue-600 hover:text-blue-700"
+          >
+            Back to search
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -28,8 +382,8 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY }) => {
               key={tab.key}
               onClick={() => setWorkTab(tab.key)}
               className={`px-4 py-2 text-sm font-medium rounded ${
-                workTab === tab.key 
-                  ? 'bg-blue-50 text-blue-700' 
+                workTab === tab.key
+                  ? 'bg-blue-50 text-blue-700'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -49,19 +403,38 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY }) => {
             </tr>
           </thead>
           <tbody className="divide-y">
+            {workItems[workTab].length === 0 && (
+              <tr>
+                <td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-500">
+                  No items in this tab
+                </td>
+              </tr>
+            )}
             {workItems[workTab].map((item) => (
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
-                  <div className="text-sm font-medium text-gray-900">{item.account}</div>
-                  <div className="text-sm text-gray-600">{item.names}</div>
-                  {item.draftName && workTab === 'drafts' && (
-                    <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                      </svg>
-                      {item.draftName}
+                  <div className="flex items-start gap-2">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{item.account}</div>
+                      <div className="text-sm text-gray-600">{item.names}</div>
+                      {item.draftName && workTab === 'drafts' && (
+                        <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                          </svg>
+                          {item.draftName}
+                        </div>
+                      )}
                     </div>
-                  )}
+                    {item.docusignEnvelopeId && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 flex-shrink-0">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Live
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
@@ -73,115 +446,25 @@ const MyWorkView = ({ onBack, onLoadDraft, workItems = MOCK_HISTORY }) => {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    {item.progress && workTab === 'inProgress' && (
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-gray-200 rounded-full">
-                          <div 
-                            className="h-full bg-blue-600 rounded-full" 
-                            style={{ width: `${(item.progress.signed / item.progress.total) * 100}%` }} 
-                          />
-                        </div>
-                        <span className="text-xs text-gray-600">{item.progress.signed}/{item.progress.total}</span>
-                      </div>
-                    )}
-                    {workTab === 'completed' && (
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    )}
-                    <span className="text-sm text-gray-900">{item.status}</span>
-                  </div>
+                  {renderStatusCell(item)}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{item.lastChange}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {item.docusignEnvelopeId && envelopeStatuses[item.docusignEnvelopeId]
+                    ? formatTime(envelopeStatuses[item.docusignEnvelopeId].statusChangedDateTime)
+                    : item.lastChange
+                  }
+                </td>
                 <td className="px-6 py-4 text-right relative">
-                  <button 
-                    onClick={() => setActiveActionMenu(activeActionMenu === item.id ? null : item.id)}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setActiveActionMenu(activeActionMenu === item.id ? null : item.id); }}
                     className="p-1 hover:bg-gray-100 rounded"
                   >
                     <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                     </svg>
                   </button>
-                  
-                  {activeActionMenu === item.id && (
-                    <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                      {workTab === 'drafts' && (
-                        <>
-                          <button 
-                            onClick={() => onLoadDraft(item)}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Resume editing
-                          </button>
-                          <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Delete draft
-                          </button>
-                        </>
-                      )}
-                      {workTab === 'inProgress' && (
-                        <>
-                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            View envelope
-                          </button>
-                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            Resend notifications
-                          </button>
-                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Edit & resend
-                          </button>
-                          <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Void envelope
-                          </button>
-                        </>
-                      )}
-                      {workTab === 'completed' && (
-                        <>
-                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            View signed PDF
-                          </button>
-                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Download PDF
-                          </button>
-                        </>
-                      )}
-                      {workTab === 'voided' && (
-                        <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          View details
-                        </button>
-                      )}
-                    </div>
-                  )}
+
+                  {activeActionMenu === item.id && renderActionMenu(item)}
                 </td>
               </tr>
             ))}
