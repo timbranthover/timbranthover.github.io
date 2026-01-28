@@ -145,6 +145,14 @@ const App = () => {
     }));
   };
 
+  // Delete a draft
+  const handleDeleteDraft = (draftItem) => {
+    setWorkItems(prev => ({
+      ...prev,
+      drafts: prev.drafts.filter(d => d.id !== draftItem.id)
+    }));
+  };
+
   // Void a real DocuSign envelope and move to voided tab
   const handleVoidEnvelope = async (item, reason) => {
     if (!item.docusignEnvelopeId) return;
@@ -254,6 +262,7 @@ const App = () => {
           <MyWorkView
             onBack={handleBack}
             onLoadDraft={handleLoadDraft}
+            onDeleteDraft={handleDeleteDraft}
             workItems={workItems}
             onVoidEnvelope={handleVoidEnvelope}
             onEnvelopeStatusChange={handleEnvelopeStatusChange}
