@@ -3,7 +3,7 @@
 const DOCUSIGN_CONFIG = {
   // Cloudflare Worker proxy URL to bypass CORS
   // Deploy the worker first, then set this to your worker URL (e.g., 'https://docusign-proxy.YOUR_SUBDOMAIN.workers.dev')
-  proxyUrl: '',
+  proxyUrl: 'https://docusign-proxy.timbranthover.workers.dev',
   integrationKey: 'e3b57567-c8d9-4a8c-9afa-a9c17d6c0e6c',
   userId: 'f8153ebd-bdaf-47dc-b281-f79e5bc0e345',
   accountId: 'a8cadde8-8b48-4282-8bd8-7bbaeb670fc3',
