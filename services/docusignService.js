@@ -41,7 +41,14 @@ const DocuSignService = {
     try {
       const assertion = this.generateJWTAssertion();
 
-      const response = await fetch(`https://${DOCUSIGN_CONFIG.oAuthBasePath}/oauth/token`, {
+      // Use proxy if configured, otherwise direct (direct will fail with CORS in browser)
+      const tokenUrl = DOCUSIGN_CONFIG.proxyUrl
+        ? `${DOCUSIGN_CONFIG.proxyUrl}/oauth/token`
+        : `https://${DOCUSIGN_CONFIG.oAuthBasePath}/oauth/token`;
+
+      console.log('DocuSign: Requesting token from', tokenUrl);
+
+      const response = await fetch(tokenUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -94,17 +101,21 @@ const DocuSignService = {
         status: 'sent'
       };
 
-      const response = await fetch(
-        `${DOCUSIGN_CONFIG.basePath}/v2.1/accounts/${DOCUSIGN_CONFIG.accountId}/envelopes`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(envelopeDefinition)
-        }
-      );
+      // Use proxy if configured, otherwise direct (direct will fail with CORS in browser)
+      const envelopeUrl = DOCUSIGN_CONFIG.proxyUrl
+        ? `${DOCUSIGN_CONFIG.proxyUrl}/restapi/v2.1/accounts/${DOCUSIGN_CONFIG.accountId}/envelopes`
+        : `${DOCUSIGN_CONFIG.basePath}/v2.1/accounts/${DOCUSIGN_CONFIG.accountId}/envelopes`;
+
+      console.log('DocuSign: Sending envelope to', envelopeUrl);
+
+      const response = await fetch(envelopeUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(envelopeDefinition)
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
