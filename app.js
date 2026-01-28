@@ -58,27 +58,39 @@ const App = () => {
 
   const handleSendForSignature = async (packageData) => {
     // Check if we should send via DocuSign (AC-TF form with account 1B92008)
+    // packageData.forms is an array of form code strings like ['AC-TF']
     const shouldUseDocuSign =
       currentAccount.accountNumber === '1B92008' &&
-      packageData.forms.some(form => form.id === 'AC-TF');
+      packageData.forms.includes('AC-TF');
+
+    console.log('DocuSign check:', {
+      account: currentAccount.accountNumber,
+      forms: packageData.forms,
+      shouldUseDocuSign: shouldUseDocuSign
+    });
 
     let docusignEnvelopeId = null;
 
     // Send via DocuSign if conditions are met
     if (shouldUseDocuSign) {
       try {
-        // Get the first signer (Timothy)
+        // Get the first signer's email - signers have emails[] array, use first email
         const primarySigner = packageData.signers[0];
+        const signerEmail = primarySigner.emails ? primarySigner.emails[0] : primarySigner.email;
+        const signerName = primarySigner.name;
+
+        console.log('DocuSign: Sending envelope to', signerEmail, signerName);
+
         const result = await DocuSignService.sendEnvelope(
-          primarySigner.email,
-          primarySigner.name,
+          signerEmail,
+          signerName,
           currentAccount.accountNumber
         );
 
         if (result.success) {
           docusignEnvelopeId = result.envelopeId;
           console.log('DocuSign envelope sent successfully:', result.envelopeId);
-          alert(`Success! Real DocuSign envelope sent to ${primarySigner.email}!\n\nEnvelope ID: ${result.envelopeId}\n\nCheck your email!`);
+          alert(`Success! Real DocuSign envelope sent to ${signerEmail}!\n\nEnvelope ID: ${result.envelopeId}\n\nCheck your email!`);
         } else {
           console.error('DocuSign error:', result.error);
           alert(`DocuSign Error: ${result.error}\n\nThe item will still be added to My Work for demo purposes.`);
