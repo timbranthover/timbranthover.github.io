@@ -139,6 +139,14 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     return `${diffDays}d ago`;
   };
 
+  // Format date/time elegantly for saved drafts
+  const formatDateTime = (isoString) => {
+    if (!isoString) return '—';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+      ' at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  };
+
   // Render the hover popup with recipient detail
   const renderDetailPopup = (recipientInfo, envStatus) => {
     if (!recipientInfo && !envStatus) return null;
@@ -207,8 +215,8 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             {badge.label}
           </span>
           {envStatus.status !== 'completed' && envStatus.status !== 'voided' && recipientInfo && (
-            <div className="flex items-center gap-1.5">
-              <div className="w-16 h-1.5 bg-gray-200 rounded-full">
+            <div className="flex items-center gap-2">
+              <div className="w-32 h-2.5 bg-gray-200 rounded-full">
                 <div
                   className="h-full bg-blue-600 rounded-full transition-all duration-500"
                   style={{ width: `${recipientInfo.total > 0 ? (recipientInfo.completed / recipientInfo.total) * 100 : 0}%` }}
@@ -227,7 +235,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       <div className="flex items-center gap-2">
         {item.progress && workTab === 'inProgress' && (
           <div className="flex items-center gap-2">
-            <div className="w-20 h-2 bg-gray-200 rounded-full">
+            <div className="w-32 h-2.5 bg-gray-200 rounded-full">
               <div
                 className="h-full bg-blue-600 rounded-full"
                 style={{ width: `${(item.progress.signed / item.progress.total) * 100}%` }}
@@ -418,18 +426,20 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
-            <tr>
+            <tr className="h-11">
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">To</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Forms</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Status</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Last Change</th>
+              {workTab === 'drafts' && (
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Saved</th>
+              )}
               <th className="text-right px-6 py-3 text-xs font-medium text-gray-700 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {workItems[workTab].length === 0 && (
               <tr>
-                <td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-500">
+                <td colSpan={workTab === 'drafts' ? 5 : 4} className="px-6 py-8 text-center text-sm text-gray-500">
                   No items in this tab
                 </td>
               </tr>
@@ -437,28 +447,18 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             {workItems[workTab].map((item) => (
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
-                  <div className="flex items-start gap-2">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{item.account}</div>
-                      <div className="text-sm text-gray-600">{item.names}</div>
-                      {item.draftName && workTab === 'drafts' && (
-                        <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                          </svg>
-                          {item.draftName}
-                        </div>
-                      )}
-                    </div>
-                    {item.docusignEnvelopeId && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 flex-shrink-0">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Live
-                      </span>
-                    )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-900">{item.account}</span>
+                    <span className="text-sm text-gray-500">{item.names}</span>
                   </div>
+                  {item.draftName && workTab === 'drafts' && (
+                    <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      {item.draftName}
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
@@ -472,12 +472,11 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
                 <td className="px-6 py-4">
                   {renderStatusCell(item)}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {item.docusignEnvelopeId && envelopeStatuses[item.docusignEnvelopeId]
-                    ? formatTime(envelopeStatuses[item.docusignEnvelopeId].statusChangedDateTime)
-                    : item.lastChange
-                  }
-                </td>
+                {workTab === 'drafts' && (
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {formatDateTime(item.savedAt)}
+                  </td>
+                )}
                 <td className="px-6 py-4 text-right relative">
                   <button
                     onClick={(e) => { e.stopPropagation(); setActiveActionMenu(activeActionMenu === item.id ? null : item.id); }}
