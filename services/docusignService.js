@@ -1,7 +1,16 @@
-// DocuSign Service - Handles JWT authentication and envelope sending
+// DocuSign Service - Handles JWT authentication and envelope operations
 const DocuSignService = {
   accessToken: null,
   tokenExpiry: null,
+
+  // Helper to build API URL with proxy support
+  _buildApiUrl(path, queryParams) {
+    const fullPath = `/restapi/v2.1/accounts/${DOCUSIGN_CONFIG.accountId}${path}`;
+    const search = queryParams ? `?${new URLSearchParams(queryParams)}` : '';
+    return DOCUSIGN_CONFIG.proxyUrl
+      ? `${DOCUSIGN_CONFIG.proxyUrl}${fullPath}${search}`
+      : `https://demo.docusign.net${fullPath}${search}`;
+  },
 
   // Generate JWT assertion for authentication
   generateJWTAssertion() {
@@ -101,14 +110,10 @@ const DocuSignService = {
         status: 'sent'
       };
 
-      // Use proxy if configured, otherwise direct (direct will fail with CORS in browser)
-      const envelopeUrl = DOCUSIGN_CONFIG.proxyUrl
-        ? `${DOCUSIGN_CONFIG.proxyUrl}/restapi/v2.1/accounts/${DOCUSIGN_CONFIG.accountId}/envelopes`
-        : `${DOCUSIGN_CONFIG.basePath}/v2.1/accounts/${DOCUSIGN_CONFIG.accountId}/envelopes`;
+      const url = this._buildApiUrl('/envelopes');
+      console.log('DocuSign: Sending envelope to', url);
 
-      console.log('DocuSign: Sending envelope to', envelopeUrl);
-
-      const response = await fetch(envelopeUrl, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -134,6 +139,142 @@ const DocuSignService = {
         success: false,
         error: error.message
       };
+    }
+  },
+
+  // Get envelope status and recipient details
+  async getEnvelopeStatus(envelopeId) {
+    try {
+      const accessToken = await this.getAccessToken();
+
+      // Fetch envelope and recipients in parallel
+      const [envelopeRes, recipientsRes] = await Promise.all([
+        fetch(this._buildApiUrl(`/envelopes/${envelopeId}`), {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        }),
+        fetch(this._buildApiUrl(`/envelopes/${envelopeId}/recipients`), {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        })
+      ]);
+
+      if (!envelopeRes.ok) {
+        const err = await envelopeRes.json();
+        throw new Error(err.message || envelopeRes.statusText);
+      }
+
+      const envelope = await envelopeRes.json();
+      const recipients = recipientsRes.ok ? await recipientsRes.json() : null;
+
+      return {
+        success: true,
+        envelopeId: envelope.envelopeId,
+        status: envelope.status,
+        statusChangedDateTime: envelope.statusChangedDateTime,
+        sentDateTime: envelope.sentDateTime,
+        deliveredDateTime: envelope.deliveredDateTime,
+        completedDateTime: envelope.completedDateTime,
+        voidedDateTime: envelope.voidedDateTime,
+        voidedReason: envelope.voidedReason,
+        recipients: recipients
+      };
+    } catch (error) {
+      console.error('Error getting envelope status:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Void an envelope
+  async voidEnvelope(envelopeId, reason) {
+    try {
+      const accessToken = await this.getAccessToken();
+      const url = this._buildApiUrl(`/envelopes/${envelopeId}`);
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          status: 'voided',
+          voidedReason: reason || 'Voided by advisor'
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || response.statusText);
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error voiding envelope:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Resend envelope notifications
+  async resendEnvelope(envelopeId) {
+    try {
+      const accessToken = await this.getAccessToken();
+      const url = this._buildApiUrl(`/envelopes/${envelopeId}/recipients`, { resend_envelope: 'true' });
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || response.statusText);
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error resending envelope:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Download signed document as PDF
+  async downloadDocument(envelopeId) {
+    try {
+      const accessToken = await this.getAccessToken();
+      const url = this._buildApiUrl(`/envelopes/${envelopeId}/documents/combined`);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to download: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+
+      // Trigger browser download
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `envelope-${envelopeId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      return { success: false, error: error.message };
     }
   }
 };

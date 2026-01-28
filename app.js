@@ -145,6 +145,65 @@ const App = () => {
     }));
   };
 
+  // Void a real DocuSign envelope and move to voided tab
+  const handleVoidEnvelope = async (item, reason) => {
+    if (!item.docusignEnvelopeId) return;
+
+    const result = await DocuSignService.voidEnvelope(item.docusignEnvelopeId, reason);
+    if (result.success) {
+      setWorkItems(prev => ({
+        ...prev,
+        inProgress: prev.inProgress.filter(i => i.id !== item.id),
+        voided: [{
+          ...item,
+          status: 'Voided',
+          lastChange: 'Just now',
+          reason: reason
+        }, ...prev.voided]
+      }));
+      alert('Envelope voided successfully.');
+    } else {
+      alert(`Failed to void envelope: ${result.error}`);
+    }
+  };
+
+  // Handle envelope status changes from polling (auto-move completed/voided)
+  const handleEnvelopeStatusChange = (itemId, envelopeData) => {
+    if (envelopeData.status === 'completed') {
+      setWorkItems(prev => {
+        const item = prev.inProgress.find(i => i.id === itemId);
+        if (!item) return prev;
+
+        return {
+          ...prev,
+          inProgress: prev.inProgress.filter(i => i.id !== itemId),
+          completed: [{
+            ...item,
+            status: 'Completed',
+            lastChange: 'Just now',
+            progress: { signed: item.progress?.total || 1, total: item.progress?.total || 1 }
+          }, ...prev.completed]
+        };
+      });
+    } else if (envelopeData.status === 'voided') {
+      setWorkItems(prev => {
+        const item = prev.inProgress.find(i => i.id === itemId);
+        if (!item) return prev;
+
+        return {
+          ...prev,
+          inProgress: prev.inProgress.filter(i => i.id !== itemId),
+          voided: [{
+            ...item,
+            status: 'Voided',
+            lastChange: 'Just now',
+            reason: envelopeData.voidedReason || 'Voided'
+          }, ...prev.voided]
+        };
+      });
+    }
+  };
+
   const handleBack = () => {
     if (view === 'package') {
       setView('results');
@@ -196,6 +255,8 @@ const App = () => {
             onBack={handleBack}
             onLoadDraft={handleLoadDraft}
             workItems={workItems}
+            onVoidEnvelope={handleVoidEnvelope}
+            onEnvelopeStatusChange={handleEnvelopeStatusChange}
           />
         )}
 
