@@ -101,8 +101,7 @@ const App = () => {
           console.log('DocuSign envelope sent successfully:', result.envelopeId);
           setToast({
             type: 'success',
-            message: `DocuSign envelope sent to ${signerEmail}`,
-            subtitle: 'Check your email for the signing link'
+            message: `DocuSign envelope sent to ${signerEmail}`
           });
         } else {
           console.error('DocuSign error:', result.error);
@@ -303,7 +302,9 @@ const App = () => {
         }`}
       >
         {toast && (
-          <div className={`rounded-lg shadow-lg border p-4 flex items-start gap-3 min-w-[340px] ${
+          <div className={`rounded-lg shadow-lg border p-4 flex gap-3 min-w-[340px] ${
+            toast.subtitle ? 'items-start' : 'items-center'
+          } ${
             toast.type === 'success'
               ? 'bg-green-50 border-green-200'
               : 'bg-white border-gray-200'
