@@ -1,4 +1,4 @@
-# UBS Forms Library
+# Forms Library
 
 A client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature via DocuSign.
 
@@ -91,7 +91,7 @@ data/
   mockData.js               # Mock accounts, history, draft data, AI suggestions
   forms.js                  # Form catalog (20 form definitions)
 assets/
-  ubs_logo.png              # Header logo
+  logo.png                  # Header logo
 ```
 
 ## Tech Stack
