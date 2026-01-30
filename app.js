@@ -268,7 +268,7 @@ const App = () => {
       setView('landing');
       setCurrentAccount(null);
       setSearchError(null);
-    } else if (view === 'work') {
+    } else if (view === 'work' || view === 'formsLibrary') {
       setView('landing');
     }
   };
@@ -280,7 +280,7 @@ const App = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {view === 'landing' && (
           <>
-            <SearchView onSearch={handleSearch} />
+            <SearchView onSearch={handleSearch} onBrowseForms={() => setView('formsLibrary')} />
             {searchError && (
               <div className="mt-4 max-w-5xl p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-start gap-3">
@@ -316,6 +316,10 @@ const App = () => {
             onVoidEnvelope={handleVoidEnvelope}
             onEnvelopeStatusChange={handleEnvelopeStatusChange}
           />
+        )}
+
+        {view === 'formsLibrary' && (
+          <FormsLibraryView onBack={handleBack} />
         )}
 
         {view === 'package' && currentAccount && (
