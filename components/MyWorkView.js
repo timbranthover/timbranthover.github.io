@@ -235,15 +235,18 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
           <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium cursor-default ${badge.bg} ${badge.text}`}>
             {badge.label}
           </span>
-          {envStatus && envStatus.status !== 'completed' && envStatus.status !== 'voided' && recipientInfo && (
+          {/* Always show progress bar for in-progress items to prevent layout shift */}
+          {workTab === 'inProgress' && status !== 'completed' && status !== 'voided' && (
             <div className="flex items-center gap-2">
               <div className="w-32 h-2.5 bg-gray-200 rounded-full">
                 <div
                   className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                  style={{ width: `${recipientInfo.total > 0 ? (recipientInfo.completed / recipientInfo.total) * 100 : 0}%` }}
+                  style={{ width: `${recipientInfo && recipientInfo.total > 0 ? (recipientInfo.completed / recipientInfo.total) * 100 : 0}%` }}
                 />
               </div>
-              <span className="text-xs text-gray-500">{recipientInfo.completed}/{recipientInfo.total}</span>
+              <span className="text-xs text-gray-500">
+                {recipientInfo ? `${recipientInfo.completed}/${recipientInfo.total}` : '0/1'}
+              </span>
             </div>
           )}
           {envStatus && (recipientInfo || envStatus.voidedReason) && renderDetailPopup(recipientInfo, envStatus)}
