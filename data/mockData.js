@@ -1,6 +1,6 @@
 const MOCK_ACCOUNTS = {
-  "1B92008": {
-    accountNumber: "1B92008",
+  "ABC123": {
+    accountNumber: "ABC123",
     accountName: "Timothy & Sarah Branthover",
     accountType: "Joint",
     signers: [
@@ -100,7 +100,7 @@ const MOCK_ACCOUNTS = {
 };
 
 // Default account for backward compatibility
-const MOCK_ACCOUNT = MOCK_ACCOUNTS["1B92008"];
+const MOCK_ACCOUNT = MOCK_ACCOUNTS["ABC123"];
 
 const MOCK_DRAFT_DATA = {
   transferringFirm: "Fidelity Investments",

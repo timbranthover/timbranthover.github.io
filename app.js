@@ -57,10 +57,10 @@ const App = () => {
   };
 
   const handleSendForSignature = async (packageData) => {
-    // Check if we should send via DocuSign (AC-TF form with account 1B92008)
+    // Check if we should send via DocuSign (AC-TF form with account ABC123)
     // packageData.forms is an array of form code strings like ['AC-TF']
     const shouldUseDocuSign =
-      currentAccount.accountNumber === '1B92008' &&
+      currentAccount.accountNumber === 'ABC123' &&
       packageData.forms.includes('AC-TF');
 
     console.log('DocuSign check:', {
@@ -242,7 +242,7 @@ const App = () => {
                   <div>
                     <p className="text-sm font-medium text-red-800">{searchError}</p>
                     <p className="text-xs text-red-600 mt-1">
-                      Try one of these sample accounts: 1B92008, 1B92007, 1C88543, 1D12456, 1E99871, 1F44320
+                      Try one of these sample accounts: ABC123, 1B92007, 1C88543, 1D12456, 1E99871, 1F44320
                     </p>
                   </div>
                 </div>
