@@ -15,7 +15,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined' }
   };
 
-  // Fetch status for all items with DocuSign envelope IDs
+  // Fetch status for all items with DocuSign envelope IDs (in parallel)
   const fetchAllStatuses = async () => {
     const allItems = [
       ...workItems.inProgress,
@@ -27,28 +27,36 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
     setIsPolling(true);
 
-    for (const item of allItems) {
-      try {
-        const result = await DocuSignService.getEnvelopeStatus(item.docusignEnvelopeId);
-        if (result.success) {
-          setEnvelopeStatuses(prev => ({
-            ...prev,
-            [item.docusignEnvelopeId]: result
-          }));
+    // Fire all API calls in parallel
+    const results = await Promise.all(
+      allItems.map(async (item) => {
+        try {
+          const result = await DocuSignService.getEnvelopeStatus(item.docusignEnvelopeId);
+          return { item, result };
+        } catch (err) {
+          console.error('Error polling status for', item.docusignEnvelopeId, err);
+          return { item, result: null };
+        }
+      })
+    );
 
-          // Auto-move items if DocuSign status changed to terminal state
-          const isInProgress = workItems.inProgress.some(i => i.id === item.id);
-          if (isInProgress && onEnvelopeStatusChange) {
-            if (result.status === 'completed' || result.status === 'voided') {
-              onEnvelopeStatusChange(item.id, result);
-            }
+    // Process all results and batch update state
+    const newStatuses = {};
+    for (const { item, result } of results) {
+      if (result && result.success) {
+        newStatuses[item.docusignEnvelopeId] = result;
+
+        // Auto-move items if DocuSign status changed to terminal state
+        const isInProgress = workItems.inProgress.some(i => i.id === item.id);
+        if (isInProgress && onEnvelopeStatusChange) {
+          if (result.status === 'completed' || result.status === 'voided') {
+            onEnvelopeStatusChange(item.id, result);
           }
         }
-      } catch (err) {
-        console.error('Error polling status for', item.docusignEnvelopeId, err);
       }
     }
 
+    setEnvelopeStatuses(prev => ({ ...prev, ...newStatuses }));
     setIsPolling(false);
     setLastRefreshed(new Date());
   };
