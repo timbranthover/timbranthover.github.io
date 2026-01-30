@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**UBS Forms Library** -- a client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature via DocuSign. Built as a single-page React application hosted on GitHub Pages.
+**Forms Library** -- a client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature via DocuSign. Built as a single-page React application hosted on GitHub Pages.
 
 This is a **prototype / demo application** using mock data and a real DocuSign sandbox integration. There is no backend server, no build step, and no bundler. It runs entirely in the browser via CDN-loaded React 18 + Babel transpilation. API calls to DocuSign are routed through a Cloudflare Worker to bypass CORS.
 
@@ -24,13 +24,13 @@ This is a **prototype / demo application** using mock data and a real DocuSign s
 ├── index.html              # Entry point -- loads all scripts and renders <div id="root">
 ├── app.js                  # Root <App> component, view routing state machine
 ├── assets/
-│   └── ubs_logo.png        # Header logo
+│   └── logo.png            # Header logo
 ├── config/
 │   └── docusignConfig.js   # DOCUSIGN_CONFIG -- keys, IDs, proxy URL, RSA private key
 ├── services/
 │   └── docusignService.js  # DocuSignService -- JWT auth, send/status/void/resend/download
 ├── components/
-│   ├── Header.js           # Top nav bar with UBS logo + "My Work" button
+│   ├── Header.js           # Top nav bar with logo + "My Work" button
 │   ├── SearchView.js       # Landing page: account search + AI form suggestion
 │   ├── ResultsView.js      # Form selection grid with fuzzy search
 │   ├── PackageView.js      # Form fill + signer assignment sidebar + send/save actions
@@ -77,7 +77,7 @@ Real e-signature sending is wired up for **account ABC123 + form AC-TF**. The fl
 `DocuSignService` exposes: `sendEnvelope`, `getEnvelopeStatus`, `voidEnvelope`, `resendEnvelope`, `downloadDocument`.
 
 ### Styling
-100% Tailwind utility classes. No custom CSS files. The only `<style>` block sets Inter as the body font. Follow the existing Tailwind class conventions -- UBS blue is `blue-600`/`blue-700`, backgrounds are `gray-50`, cards use `bg-white rounded-lg shadow-sm border border-gray-200`.
+100% Tailwind utility classes. No custom CSS files. The only `<style>` block sets Inter as the body font. Follow the existing Tailwind class conventions -- primary blue is `blue-600`/`blue-700`, backgrounds are `gray-50`, cards use `bg-white rounded-lg shadow-sm border border-gray-200`.
 
 ## Development Workflow
 
@@ -93,7 +93,7 @@ python3 -m http.server
 Push to `main` on `timbranthover.github.io`. GitHub Pages serves it automatically. No build step required.
 
 ### Case Sensitivity
-GitHub Pages is **case-sensitive**. File paths in `index.html` script tags and asset references must match the actual filenames exactly (e.g., `./assets/ubs_logo.png`, not `UBS_Logo.PNG`).
+GitHub Pages is **case-sensitive**. File paths in `index.html` script tags and asset references must match the actual filenames exactly (e.g., `./assets/logo.png`, not `Logo.PNG`).
 
 ## Conventions & Standards
 

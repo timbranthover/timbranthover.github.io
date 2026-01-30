@@ -91,7 +91,7 @@ data/
   mockData.js               # Mock accounts, history, draft data, AI suggestions
   forms.js                  # Form catalog (20 form definitions)
 assets/
-  ubs_logo.png              # Header logo
+  logo.png                  # Header logo
 ```
 
 ## Tech Stack

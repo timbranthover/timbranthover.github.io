@@ -7,9 +7,9 @@ const ACFTForm = ({ formData, onUpdateField, selectedSigners, account }) => {
       </div>
 
       <div className="space-y-6">
-        {/* UBS Account Info */}
+        {/* Account Info */}
         <div>
-          <h3 className="font-semibold text-gray-900 mb-3">UBS Account Information</h3>
+          <h3 className="font-semibold text-gray-900 mb-3">Account Information</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Account Number</label>
@@ -121,7 +121,7 @@ const ACFTForm = ({ formData, onUpdateField, selectedSigners, account }) => {
        {/* Signature */}
         <div className="border-t-2 border-gray-900 pt-6">
           <h3 className="font-semibold text-gray-900 mb-4">Authorization Signature</h3>
-          <p className="text-xs text-gray-600 mb-4">By signing, you authorize UBS to initiate electronic fund transfers between the bank account specified above and your UBS account.</p>
+          <p className="text-xs text-gray-600 mb-4">By signing, you authorize electronic fund transfers between the bank account specified above and your brokerage account.</p>
           
           <div className="mb-6">
             <label className="block text-xs font-medium text-gray-700 mb-2">
@@ -148,7 +148,7 @@ const ACFTForm = ({ formData, onUpdateField, selectedSigners, account }) => {
         <div className="bg-gray-50 p-4 rounded text-xs text-gray-600 space-y-2">
           <p className="font-medium">Important Information:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Bank account must be in the same name(s) as the UBS account</li>
+            <li>Bank account must be in the same name(s) as the brokerage account</li>
             <li>Initial verification may take 2-3 business days</li>
             <li>Micro-deposits may be sent for verification purposes</li>
             <li>Standard ACH processing times apply (3-5 business days)</li>
