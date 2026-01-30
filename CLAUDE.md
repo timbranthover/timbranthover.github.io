@@ -62,14 +62,14 @@ Navigation is prop-driven (`onBack`, `onSearch`, `onContinue`, etc.). No router 
 Every component is a **top-level `const` function component** (not exported, not in modules). Components communicate via props passed down from `App`. State is managed with `React.useState` and `React.useEffect` -- no external state library.
 
 ### Data Pattern
-All data lives in global `const` variables (`MOCK_ACCOUNTS`, `FORMS_DATA`, `MOCK_HISTORY`, `AI_SUGGESTIONS`) loaded before components. Components reference these globals directly. Accounts are keyed by account number string (e.g., `"1B92008"`).
+All data lives in global `const` variables (`MOCK_ACCOUNTS`, `FORMS_DATA`, `MOCK_HISTORY`, `AI_SUGGESTIONS`) loaded before components. Components reference these globals directly. Accounts are keyed by account number string (e.g., `"ABC123"`).
 
 ### Persistence
 Work items (drafts, in-progress, completed, voided) are persisted to `localStorage` under the key `formsLibrary_workItems`. On load, `app.js` reads from localStorage and falls back to `MOCK_HISTORY` (which is empty by default). Every state change to `workItems` is auto-saved via a `useEffect`.
 
 ### DocuSign Integration
-Real e-signature sending is wired up for **account 1B92008 + form AC-TF**. The flow:
-1. `app.js` checks `shouldUseDocuSign` -- account must be `1B92008` and forms must include `AC-TF`
+Real e-signature sending is wired up for **account ABC123 + form AC-TF**. The flow:
+1. `app.js` checks `shouldUseDocuSign` -- account must be `ABC123` and forms must include `AC-TF`
 2. `DocuSignService.sendEnvelope()` creates a JWT assertion (RS256 via jsrsasign), exchanges it for an OAuth token, then creates an envelope via the DocuSign REST API v2.1
 3. All API calls route through a Cloudflare Worker proxy (configured in `DOCUSIGN_CONFIG.proxyUrl`) to bypass browser CORS restrictions
 4. The envelope ID is stored on the work item for live status polling, void, resend, and PDF download

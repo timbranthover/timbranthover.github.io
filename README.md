@@ -19,14 +19,14 @@ To deploy, push to `main` -- GitHub Pages picks it up automatically.
 ## How It Works
 
 ### The App Flow
-1. **Search** -- enter an account number (e.g. `1B92008`) on the landing page
+1. **Search** -- enter an account number (e.g. `ABC123`) on the landing page
 2. **Select Forms** -- pick one or more forms from the catalog
 3. **Fill & Assign** -- complete form fields, assign signers from the account
 4. **Send or Save** -- send for e-signature (real DocuSign for eligible combos) or save as draft
 5. **My Work** -- track envelopes across Drafts / In Progress / Completed / Voided tabs
 
 ### DocuSign Integration
-Real DocuSign envelope sending works for **account `1B92008` + form `AC-TF`**. All other combinations use mock behavior.
+Real DocuSign envelope sending works for **account `ABC123` + form `AC-TF`**. All other combinations use mock behavior.
 
 The DocuSign flow:
 - Browser creates a JWT (RS256 signed with jsrsasign library)
@@ -61,7 +61,7 @@ JSON.parse(localStorage.getItem('formsLibrary_workItems'));
 ### Test accounts
 | Account | Name | Signers |
 |---------|------|---------|
-| `1B92008` | Timothy & Sarah Branthover | 2 (DocuSign-enabled) |
+| `ABC123` | Timothy & Sarah Branthover | 2 (DocuSign-enabled) |
 | `1B92007` | Jennifer & Michael Rodriguez | 2 |
 | `1C88543` | David Park | 1 |
 | `1D12456` | Emily & Robert Chen | 2 |
