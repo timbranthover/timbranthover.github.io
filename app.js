@@ -5,6 +5,41 @@ const App = () => {
   const [draftData, setDraftData] = React.useState(null);
   const [searchError, setSearchError] = React.useState(null);
   const [toast, setToast] = React.useState(null);
+  const [confetti, setConfetti] = React.useState([]);
+
+  // Konami Code Easter Egg: ↑ ↑ ↓ ↓ ← → ← → B A
+  React.useEffect(() => {
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+    let konamiIndex = 0;
+
+    const handleKeyDown = (e) => {
+      if (e.code === konamiCode[konamiIndex]) {
+        konamiIndex++;
+        if (konamiIndex === konamiCode.length) {
+          // Trigger the party!
+          const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4'];
+          const newConfetti = Array.from({ length: 150 }, (_, i) => ({
+            id: i,
+            x: Math.random() * 100,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            delay: Math.random() * 0.5,
+            duration: 2 + Math.random() * 2,
+            size: 6 + Math.random() * 8,
+            rotation: Math.random() * 360
+          }));
+          setConfetti(newConfetti);
+          setToast({ type: 'party', message: '🎉 You found the secret! 🎉', subtitle: 'Nice work, code wizard!' });
+          setTimeout(() => setConfetti([]), 4000);
+          konamiIndex = 0;
+        }
+      } else {
+        konamiIndex = 0;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Auto-dismiss toast
   React.useEffect(() => {
@@ -307,15 +342,19 @@ const App = () => {
           } ${
             toast.type === 'success'
               ? 'bg-green-50 border-green-200'
+              : toast.type === 'party'
+              ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
               : 'bg-white border-gray-200'
           }`}>
             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-              toast.type === 'success' ? 'bg-green-100' : 'bg-blue-100'
+              toast.type === 'success' ? 'bg-green-100' : toast.type === 'party' ? 'bg-purple-100' : 'bg-blue-100'
             }`}>
               {toast.type === 'success' ? (
                 <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
+              ) : toast.type === 'party' ? (
+                <span className="text-lg">✨</span>
               ) : (
                 <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -323,11 +362,15 @@ const App = () => {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-sm font-medium ${toast.type === 'success' ? 'text-green-900' : 'text-gray-900'}`}>
+              <p className={`text-sm font-medium ${
+                toast.type === 'success' ? 'text-green-900' : toast.type === 'party' ? 'text-purple-900' : 'text-gray-900'
+              }`}>
                 {toast.message}
               </p>
               {toast.subtitle && (
-                <p className={`text-sm mt-0.5 ${toast.type === 'success' ? 'text-green-700' : 'text-gray-500'}`}>
+                <p className={`text-sm mt-0.5 ${
+                  toast.type === 'success' ? 'text-green-700' : toast.type === 'party' ? 'text-purple-600' : 'text-gray-500'
+                }`}>
                   {toast.subtitle}
                 </p>
               )}
@@ -343,6 +386,34 @@ const App = () => {
           </div>
         )}
       </div>
+
+      {/* Confetti */}
+      {confetti.length > 0 && (
+        <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+          {confetti.map((piece) => (
+            <div
+              key={piece.id}
+              className="absolute animate-confetti"
+              style={{
+                left: `${piece.x}%`,
+                top: '-20px',
+                width: `${piece.size}px`,
+                height: `${piece.size}px`,
+                backgroundColor: piece.color,
+                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                transform: `rotate(${piece.rotation}deg)`,
+                animation: `confetti-fall ${piece.duration}s ease-out ${piece.delay}s forwards`
+              }}
+            />
+          ))}
+          <style>{`
+            @keyframes confetti-fall {
+              0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+              100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 };
