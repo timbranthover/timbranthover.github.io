@@ -92,7 +92,8 @@ const App = () => {
         const result = await DocuSignService.sendEnvelope(
           signerEmail,
           signerName,
-          currentAccount.accountNumber
+          currentAccount.accountNumber,
+          packageData.customMessage
         );
 
         if (result.success) {
