@@ -86,7 +86,7 @@ const DocuSignService = {
   },
 
   // Send envelope using template
-  async sendEnvelope(recipientEmail, recipientName, accountNumber) {
+  async sendEnvelope(recipientEmail, recipientName, accountNumber, customMessage) {
     try {
       const accessToken = await this.getAccessToken();
 
@@ -109,6 +109,11 @@ const DocuSignService = {
         ],
         status: 'sent'
       };
+
+      // Add custom message to email if provided
+      if (customMessage) {
+        envelopeDefinition.emailBlurb = customMessage;
+      }
 
       const url = this._buildApiUrl('/envelopes');
       console.log('DocuSign: Sending envelope to', url);
