@@ -147,6 +147,17 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       ' at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
+  // Format date/time for sent envelopes (DD/MM/YYYY format)
+  const formatSentDate = (isoString) => {
+    if (!isoString) return '—';
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return `${day}/${month}/${year} at ${time}`;
+  };
+
   // Render the hover popup with recipient detail
   const renderDetailPopup = (recipientInfo, envStatus) => {
     if (!recipientInfo && !envStatus) return null;
@@ -433,13 +444,16 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
               {workTab === 'drafts' && (
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Saved</th>
               )}
+              {workTab === 'inProgress' && (
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Sent</th>
+              )}
               <th className="text-right px-6 py-3 text-xs font-medium text-gray-700 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {workItems[workTab].length === 0 && (
               <tr>
-                <td colSpan={workTab === 'drafts' ? 5 : 4} className="px-6 py-8 text-center text-sm text-gray-500">
+                <td colSpan={(workTab === 'drafts' || workTab === 'inProgress') ? 5 : 4} className="px-6 py-8 text-center text-sm text-gray-500">
                   No items in this tab
                 </td>
               </tr>
@@ -475,6 +489,11 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
                 {workTab === 'drafts' && (
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {formatDateTime(item.savedAt)}
+                  </td>
+                )}
+                {workTab === 'inProgress' && (
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {formatSentDate(item.sentAt)}
                   </td>
                 )}
                 <td className="px-6 py-4 text-right relative">

@@ -124,7 +124,8 @@ const App = () => {
         : `Waiting for ${packageData.signers[0]?.name || 'signer'}`,
       lastChange: 'Just now',
       progress: { signed: 0, total: packageData.signers.length },
-      docusignEnvelopeId: docusignEnvelopeId // Store envelope ID if sent via DocuSign
+      docusignEnvelopeId: docusignEnvelopeId, // Store envelope ID if sent via DocuSign
+      sentAt: new Date().toISOString()
     };
 
     // Add to in-progress items

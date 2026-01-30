@@ -6,6 +6,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
   const [expandedForms, setExpandedForms] = React.useState({ [selectedForms[0]]: true });
   const [showSaveDraftModal, setShowSaveDraftModal] = React.useState(false);
   const [toast, setToast] = React.useState(null);
+  const [isSending, setIsSending] = React.useState(false);
 
   // Auto-dismiss toast
   React.useEffect(() => {
@@ -66,7 +67,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
     setToast({ message: `Draft "${draftName}" saved`, subtitle: 'Check "My Work" to view your draft' });
   };
 
-  const handleSendForSignature = () => {
+  const handleSendForSignature = async () => {
     // Check if all forms have the required signers
     const missingSigners = [];
     selectedForms.forEach(formCode => {
@@ -97,11 +98,16 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
 
     // Call the parent's send for signature handler
     if (onSendForSignature) {
-      onSendForSignature({
-        forms: selectedForms,
-        signers: uniqueSigners,
-        formData: formDataMap
-      });
+      setIsSending(true);
+      try {
+        await onSendForSignature({
+          forms: selectedForms,
+          signers: uniqueSigners,
+          formData: formDataMap
+        });
+      } finally {
+        setIsSending(false);
+      }
     }
   };
 
@@ -380,12 +386,22 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
 
               <button
                 onClick={handleSendForSignature}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm flex items-center justify-center gap-2 font-medium"
+                disabled={isSending}
+                className={`w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm flex items-center justify-center gap-2 font-medium transition-all ${
+                  isSending ? 'opacity-75 cursor-not-allowed' : 'hover:bg-blue-700'
+                }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                Send for Signature
+                {isSending ? (
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                )}
+                {isSending ? 'Sending...' : 'Send for Signature'}
               </button>
             </div>
           </div>
