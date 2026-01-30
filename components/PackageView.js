@@ -103,8 +103,6 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
         formData: formDataMap
       });
     }
-
-    alert(`Forms sent for signature! Check "My Work" → "In Progress" to track the status.`);
   };
 
   const toggleSigner = (formCode, signer) => {

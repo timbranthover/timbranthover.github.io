@@ -4,6 +4,14 @@ const App = () => {
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [draftData, setDraftData] = React.useState(null);
   const [searchError, setSearchError] = React.useState(null);
+  const [toast, setToast] = React.useState(null);
+
+  // Auto-dismiss toast
+  React.useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   // Initialize workItems from localStorage or fall back to MOCK_HISTORY
   const [workItems, setWorkItems] = React.useState(() => {
@@ -90,7 +98,11 @@ const App = () => {
         if (result.success) {
           docusignEnvelopeId = result.envelopeId;
           console.log('DocuSign envelope sent successfully:', result.envelopeId);
-          alert(`Success! Real DocuSign envelope sent to ${signerEmail}!\n\nEnvelope ID: ${result.envelopeId}\n\nCheck your email!`);
+          setToast({
+            type: 'success',
+            message: `DocuSign envelope sent to ${signerEmail}`,
+            subtitle: 'Check your email for the signing link'
+          });
         } else {
           console.error('DocuSign error:', result.error);
           alert(`DocuSign Error: ${result.error}\n\nThe item will still be added to My Work for demo purposes.`);
@@ -279,6 +291,53 @@ const App = () => {
             onSendForSignature={handleSendForSignature}
             onSaveDraft={handleSaveDraft}
           />
+        )}
+      </div>
+
+      {/* Toast Notification */}
+      <div
+        className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
+          toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
+        }`}
+      >
+        {toast && (
+          <div className={`rounded-lg shadow-lg border p-4 flex items-start gap-3 min-w-[340px] ${
+            toast.type === 'success'
+              ? 'bg-green-50 border-green-200'
+              : 'bg-white border-gray-200'
+          }`}>
+            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+              toast.type === 'success' ? 'bg-green-100' : 'bg-blue-100'
+            }`}>
+              {toast.type === 'success' ? (
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-sm font-medium ${toast.type === 'success' ? 'text-green-900' : 'text-gray-900'}`}>
+                {toast.message}
+              </p>
+              {toast.subtitle && (
+                <p className={`text-sm mt-0.5 ${toast.type === 'success' ? 'text-green-700' : 'text-gray-500'}`}>
+                  {toast.subtitle}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setToast(null)}
+              className="flex-shrink-0 p-1 hover:bg-black/5 rounded transition-colors"
+            >
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         )}
       </div>
     </div>
