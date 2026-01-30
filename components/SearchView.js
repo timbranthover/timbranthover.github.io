@@ -1,4 +1,4 @@
-const SearchView = ({ onSearch }) => {
+const SearchView = ({ onSearch, onBrowseForms }) => {
   const [accountSearch, setAccountSearch] = React.useState('');
   const [aiQuery, setAiQuery] = React.useState('');
   const [aiSuggestion, setAiSuggestion] = React.useState(null);
@@ -98,14 +98,35 @@ const SearchView = ({ onSearch }) => {
         
         {showOtherOptions && (
           <div className="px-6 pb-6 pt-2 border-t border-gray-200 space-y-3">
-            <button className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 border border-gray-200 text-sm">
-              General Forms Search
+            <button
+              onClick={onBrowseForms}
+              className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 border border-gray-200 text-sm flex items-center gap-3"
+            >
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <div>
+                <span className="font-medium text-gray-900">General Forms Search</span>
+                <p className="text-xs text-gray-500 mt-0.5">Browse all {FORMS_DATA.length} forms in the library</p>
+              </div>
             </button>
-            <button className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 border border-gray-200 text-sm">
-              Saved Forms
+            <button className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 border border-gray-200 text-sm flex items-center gap-3 opacity-50 cursor-not-allowed">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+              <div>
+                <span className="font-medium text-gray-500">Saved Forms</span>
+                <p className="text-xs text-gray-400 mt-0.5">Coming soon</p>
+              </div>
             </button>
-            <button className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 border border-gray-200 text-sm">
-              Forms Category Search
+            <button className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 border border-gray-200 text-sm flex items-center gap-3 opacity-50 cursor-not-allowed">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <div>
+                <span className="font-medium text-gray-500">Forms Category Search</span>
+                <p className="text-xs text-gray-400 mt-0.5">Coming soon</p>
+              </div>
             </button>
           </div>
         )}
