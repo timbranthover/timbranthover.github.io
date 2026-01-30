@@ -216,16 +216,18 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       );
     }
 
-    // Real DocuSign status
-    if (envStatus) {
-      const badge = STATUS_BADGES[envStatus.status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: envStatus.status };
+    // Real DocuSign status (or pending fetch for DocuSign items)
+    if (item.docusignEnvelopeId) {
+      // If we have status from API, use it; otherwise default to 'sent' while loading
+      const status = envStatus?.status || 'sent';
+      const badge = STATUS_BADGES[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status };
 
       return (
         <div className="relative group inline-flex items-center gap-2">
           <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium cursor-default ${badge.bg} ${badge.text}`}>
             {badge.label}
           </span>
-          {envStatus.status !== 'completed' && envStatus.status !== 'voided' && recipientInfo && (
+          {envStatus && envStatus.status !== 'completed' && envStatus.status !== 'voided' && recipientInfo && (
             <div className="flex items-center gap-2">
               <div className="w-32 h-2.5 bg-gray-200 rounded-full">
                 <div
@@ -236,7 +238,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
               <span className="text-xs text-gray-500">{recipientInfo.completed}/{recipientInfo.total}</span>
             </div>
           )}
-          {(recipientInfo || (envStatus && envStatus.voidedReason)) && renderDetailPopup(recipientInfo, envStatus)}
+          {envStatus && (recipientInfo || envStatus.voidedReason) && renderDetailPopup(recipientInfo, envStatus)}
         </div>
       );
     }
