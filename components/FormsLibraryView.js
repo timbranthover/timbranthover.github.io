@@ -81,7 +81,7 @@ const FormsLibraryView = ({ onBack }) => {
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-200">
             {sortedForms.map(form => (
               <div
                 key={form.code}
