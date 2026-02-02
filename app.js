@@ -95,16 +95,16 @@ const App = () => {
     const account = MOCK_ACCOUNTS[draftItem.account];
     setCurrentAccount(account || MOCK_ACCOUNT);
     setSelectedForms(draftItem.forms);
-    setDraftData(draftItem.draftData ? { 'AC-TF': draftItem.draftData } : null);
+    setDraftData(draftItem.draftData || null);
     setView('package');
   };
 
   const handleSendForSignature = async (packageData) => {
-    // Check if we should send via DocuSign (AC-TF form with account ABC123)
-    // packageData.forms is an array of form code strings like ['AC-TF']
-    const shouldUseDocuSign =
-      currentAccount.accountNumber === 'ABC123' &&
-      packageData.forms.includes('AC-TF');
+    // Check if any selected form has DocuSign enabled via the docuSignEnabled flag
+    const shouldUseDocuSign = packageData.forms.some(formCode => {
+      const form = FORMS_DATA.find(f => f.code === formCode);
+      return form && form.docuSignEnabled;
+    });
 
     console.log('DocuSign check:', {
       account: currentAccount.accountNumber,
@@ -117,14 +117,18 @@ const App = () => {
     // Send via DocuSign if conditions are met
     if (shouldUseDocuSign) {
       try {
-        // Build signers array with routing order
-        const signers = packageData.signers.map((signer, index) => {
+        // Build signers array with routing order, using dropdown-selected emails
+        const signers = packageData.signers.map((signer) => {
           const routingOrder = packageData.sequentialSigning && packageData.signerOrder
             ? packageData.signerOrder.indexOf(signer.id) + 1
             : 1; // All get order 1 for parallel signing
 
+          const email = (packageData.signerDetails && packageData.signerDetails[signer.id])
+            ? packageData.signerDetails[signer.id].email
+            : (signer.emails ? signer.emails[0] : signer.email);
+
           return {
-            email: signer.emails ? signer.emails[0] : signer.email,
+            email: email,
             name: signer.name,
             routingOrder
           };
@@ -153,11 +157,11 @@ const App = () => {
           });
         } else {
           console.error('DocuSign error:', result.error);
-          alert(`DocuSign Error: ${result.error}\n\nThe item will still be added to My Work for demo purposes.`);
+          setToast({ message: 'DocuSign error', subtitle: result.error + ' — item still added to My Work' });
         }
       } catch (error) {
         console.error('Error sending DocuSign envelope:', error);
-        alert(`Error: ${error.message}\n\nThe item will still be added to My Work for demo purposes.`);
+        setToast({ message: 'DocuSign error', subtitle: error.message + ' — item still added to My Work' });
       }
     }
 
@@ -231,9 +235,9 @@ const App = () => {
           reason: reason
         }, ...prev.voided]
       }));
-      alert('Envelope voided successfully.');
+      setToast({ type: 'success', message: 'Envelope voided successfully' });
     } else {
-      alert(`Failed to void envelope: ${result.error}`);
+      setToast({ message: 'Failed to void envelope', subtitle: result.error });
     }
   };
 

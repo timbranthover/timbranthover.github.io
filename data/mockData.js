@@ -15,7 +15,7 @@ const MOCK_ACCOUNTS = {
         id: 2,
         name: "Sarah Branthover",
         role: "Joint",
-        emails: ["sarah.test@gmail.com"],
+        emails: ["sarah.test@gmail.com", "timbranthover@gmail.com"],
         phones: ["9085551234"]
       }
     ]
