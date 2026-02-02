@@ -117,18 +117,32 @@ const App = () => {
     // Send via DocuSign if conditions are met
     if (shouldUseDocuSign) {
       try {
-        // Use the email selected in the signer dropdown, fall back to first email
-        const primarySigner = packageData.signers[0];
-        const signerEmail = (packageData.signerDetails && packageData.signerDetails[primarySigner.id])
-          ? packageData.signerDetails[primarySigner.id].email
-          : (primarySigner.emails ? primarySigner.emails[0] : primarySigner.email);
-        const signerName = primarySigner.name;
+        // Build signers array with routing order, using dropdown-selected emails
+        const signers = packageData.signers.map((signer) => {
+          const routingOrder = packageData.sequentialSigning && packageData.signerOrder
+            ? packageData.signerOrder.indexOf(signer.id) + 1
+            : 1; // All get order 1 for parallel signing
 
-        console.log('DocuSign: Sending envelope to', signerEmail, signerName);
+          const email = (packageData.signerDetails && packageData.signerDetails[signer.id])
+            ? packageData.signerDetails[signer.id].email
+            : (signer.emails ? signer.emails[0] : signer.email);
+
+          return {
+            email: email,
+            name: signer.name,
+            routingOrder
+          };
+        });
+
+        // Sort by routing order for sequential signing
+        if (packageData.sequentialSigning) {
+          signers.sort((a, b) => a.routingOrder - b.routingOrder);
+        }
+
+        console.log('DocuSign: Sending envelope with signers:', signers);
 
         const result = await DocuSignService.sendEnvelope(
-          signerEmail,
-          signerName,
+          signers,
           currentAccount.accountNumber,
           packageData.customMessage
         );
@@ -136,9 +150,10 @@ const App = () => {
         if (result.success) {
           docusignEnvelopeId = result.envelopeId;
           console.log('DocuSign envelope sent successfully:', result.envelopeId);
+          const signerNames = signers.map(s => s.name).join(', ');
           setToast({
             type: 'success',
-            message: `DocuSign envelope sent to ${signerEmail}`
+            message: `DocuSign envelope sent to ${signerNames}`
           });
         } else {
           console.error('DocuSign error:', result.error);
