@@ -92,7 +92,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
     });
 
     if (missingSigners.length > 0) {
-      alert(`Please select signers for the following forms:\n${missingSigners.join(', ')}`);
+      setToast({ message: 'Signers required', subtitle: `Please select signers for: ${missingSigners.join(', ')}` });
       return;
     }
 
@@ -115,7 +115,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
           forms: selectedForms,
           signers: uniqueSigners,
           formData: formDataMap,
-          customMessage: customMessage.trim()
+          customMessage: customMessage.trim(),
+          signerDetails: signerDetails
         });
       } finally {
         setIsSending(false);
@@ -188,6 +189,24 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
       case 'AC-FT':
         return (
           <ACFTForm
+            formData={currentFormData}
+            onUpdateField={updateFormData}
+            selectedSigners={selectedSigners}
+            account={account}
+          />
+        );
+      case 'CL-ACRA':
+        return (
+          <CLACRAForm
+            formData={currentFormData}
+            onUpdateField={updateFormData}
+            selectedSigners={selectedSigners}
+            account={account}
+          />
+        );
+      case 'LA-GEN':
+        return (
+          <LAGENForm
             formData={currentFormData}
             onUpdateField={updateFormData}
             selectedSigners={selectedSigners}
