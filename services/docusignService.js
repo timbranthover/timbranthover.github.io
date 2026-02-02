@@ -86,27 +86,32 @@ const DocuSignService = {
   },
 
   // Send envelope using template
-  async sendEnvelope(recipientEmail, recipientName, accountNumber, customMessage) {
+  // signers: array of { email, name, routingOrder }
+  async sendEnvelope(signers, accountNumber, customMessage) {
     try {
       const accessToken = await this.getAccessToken();
 
+      // Build template roles from signers array
+      // For templates with single role, use first signer
+      // For templates with multiple roles (Signer1, Signer2), map accordingly
+      const templateRoles = signers.map((signer, index) => ({
+        email: signer.email,
+        name: signer.name,
+        roleName: index === 0 ? 'Signer' : `Signer${index + 1}`,
+        routingOrder: String(signer.routingOrder),
+        tabs: index === 0 ? {
+          textTabs: [
+            {
+              tabLabel: 'AccountNumber',
+              value: accountNumber
+            }
+          ]
+        } : undefined
+      }));
+
       const envelopeDefinition = {
         templateId: DOCUSIGN_CONFIG.templateId,
-        templateRoles: [
-          {
-            email: recipientEmail,
-            name: recipientName,
-            roleName: 'Signer',
-            tabs: {
-              textTabs: [
-                {
-                  tabLabel: 'AccountNumber',
-                  value: accountNumber
-                }
-              ]
-            }
-          }
-        ],
+        templateRoles: templateRoles,
         status: 'sent'
       };
 
@@ -114,6 +119,8 @@ const DocuSignService = {
       if (customMessage) {
         envelopeDefinition.emailBlurb = customMessage;
       }
+
+      console.log('DocuSign: Envelope definition:', JSON.stringify(envelopeDefinition, null, 2));
 
       const url = this._buildApiUrl('/envelopes');
       console.log('DocuSign: Sending envelope to', url);

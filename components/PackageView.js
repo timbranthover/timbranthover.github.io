@@ -8,6 +8,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
   const [toast, setToast] = React.useState(null);
   const [isSending, setIsSending] = React.useState(false);
   const [customMessage, setCustomMessage] = React.useState('');
+  const [sequentialSigning, setSequentialSigning] = React.useState(false);
+  const [signerOrder, setSignerOrder] = React.useState([]);
 
   const MAX_MESSAGE_LENGTH = 150;
 
@@ -29,6 +31,45 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
     const required = form?.requiresAllSigners ? account.signers.length : 1;
     return signers.length >= required;
   });
+
+  // Get unique signers across all forms
+  const uniqueSelectedSigners = React.useMemo(() => {
+    const allSigners = Object.values(formSigners).flat();
+    const uniqueIds = [...new Set(allSigners.map(s => s.id))];
+    return uniqueIds.map(id => allSigners.find(s => s.id === id));
+  }, [formSigners]);
+
+  // Update signer order when signers change
+  React.useEffect(() => {
+    const currentIds = uniqueSelectedSigners.map(s => s.id);
+    setSignerOrder(prev => {
+      // Keep existing order for signers still selected, add new ones at end
+      const kept = prev.filter(id => currentIds.includes(id));
+      const newIds = currentIds.filter(id => !prev.includes(id));
+      return [...kept, ...newIds];
+    });
+  }, [uniqueSelectedSigners]);
+
+  // Reorder helper functions
+  const moveSignerUp = (signerId) => {
+    setSignerOrder(prev => {
+      const idx = prev.indexOf(signerId);
+      if (idx <= 0) return prev;
+      const newOrder = [...prev];
+      [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
+      return newOrder;
+    });
+  };
+
+  const moveSignerDown = (signerId) => {
+    setSignerOrder(prev => {
+      const idx = prev.indexOf(signerId);
+      if (idx >= prev.length - 1) return prev;
+      const newOrder = [...prev];
+      [newOrder[idx], newOrder[idx + 1]] = [newOrder[idx + 1], newOrder[idx]];
+      return newOrder;
+    });
+  };
 
   // Initialize signer details with default email and phone
   React.useEffect(() => {
@@ -115,7 +156,9 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
           forms: selectedForms,
           signers: uniqueSigners,
           formData: formDataMap,
-          customMessage: customMessage.trim()
+          customMessage: customMessage.trim(),
+          sequentialSigning,
+          signerOrder: sequentialSigning ? signerOrder : null
         });
       } finally {
         setIsSending(false);
@@ -383,6 +426,83 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 );
               })}
             </div>
+
+            {/* Signing Order - only show with 2+ signers */}
+            {uniqueSelectedSigners.length >= 2 && (
+              <div className="pt-4 border-t border-gray-200">
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Signing Order
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="signingOrder"
+                      checked={!sequentialSigning}
+                      onChange={() => setSequentialSigning(false)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700">Send to all signers at once</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="signingOrder"
+                      checked={sequentialSigning}
+                      onChange={() => setSequentialSigning(true)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700">Send in sequence</span>
+                  </label>
+                </div>
+
+                {/* Sequential order list */}
+                {sequentialSigning && (
+                  <div className="mt-3 space-y-1">
+                    {signerOrder.map((signerId, index) => {
+                      const signer = account.signers.find(s => s.id === signerId);
+                      if (!signer) return null;
+                      return (
+                        <div key={signerId} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                          <span className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <span className="flex-1 text-sm text-gray-900 truncate">{signer.name}</span>
+                          <div className="flex gap-0.5">
+                            <button
+                              onClick={() => moveSignerUp(signerId)}
+                              disabled={index === 0}
+                              className={`p-1 rounded transition-colors ${
+                                index === 0
+                                  ? 'text-gray-300 cursor-not-allowed'
+                                  : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                              }`}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => moveSignerDown(signerId)}
+                              disabled={index === signerOrder.length - 1}
+                              className={`p-1 rounded transition-colors ${
+                                index === signerOrder.length - 1
+                                  ? 'text-gray-300 cursor-not-allowed'
+                                  : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                              }`}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Custom Message */}
             <div className="pt-4 border-t border-gray-200">

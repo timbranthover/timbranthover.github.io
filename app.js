@@ -117,16 +117,28 @@ const App = () => {
     // Send via DocuSign if conditions are met
     if (shouldUseDocuSign) {
       try {
-        // Get the first signer's email - signers have emails[] array, use first email
-        const primarySigner = packageData.signers[0];
-        const signerEmail = primarySigner.emails ? primarySigner.emails[0] : primarySigner.email;
-        const signerName = primarySigner.name;
+        // Build signers array with routing order
+        const signers = packageData.signers.map((signer, index) => {
+          const routingOrder = packageData.sequentialSigning && packageData.signerOrder
+            ? packageData.signerOrder.indexOf(signer.id) + 1
+            : 1; // All get order 1 for parallel signing
 
-        console.log('DocuSign: Sending envelope to', signerEmail, signerName);
+          return {
+            email: signer.emails ? signer.emails[0] : signer.email,
+            name: signer.name,
+            routingOrder
+          };
+        });
+
+        // Sort by routing order for sequential signing
+        if (packageData.sequentialSigning) {
+          signers.sort((a, b) => a.routingOrder - b.routingOrder);
+        }
+
+        console.log('DocuSign: Sending envelope with signers:', signers);
 
         const result = await DocuSignService.sendEnvelope(
-          signerEmail,
-          signerName,
+          signers,
           currentAccount.accountNumber,
           packageData.customMessage
         );
@@ -134,9 +146,10 @@ const App = () => {
         if (result.success) {
           docusignEnvelopeId = result.envelopeId;
           console.log('DocuSign envelope sent successfully:', result.envelopeId);
+          const signerNames = signers.map(s => s.name).join(', ');
           setToast({
             type: 'success',
-            message: `DocuSign envelope sent to ${signerEmail}`
+            message: `DocuSign envelope sent to ${signerNames}`
           });
         } else {
           console.error('DocuSign error:', result.error);
