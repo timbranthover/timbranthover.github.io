@@ -29,7 +29,7 @@ const SaveDraftModal = ({ isOpen, onClose, onSave, currentDraftName }) => {
             <input
               type="text"
               value={draftName}
-              onChange={(e) => setDraftName(e.target.value.slice(0, 50))}
+              onChange={(e) => setDraftName(e.target.value.slice(0, 40))}
               onKeyPress={(e) => e.key === 'Enter' && handleSave()}
               placeholder="e.g., Tim's Q3 account transfer"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -39,8 +39,8 @@ const SaveDraftModal = ({ isOpen, onClose, onSave, currentDraftName }) => {
               <p className="text-xs text-gray-500">
                 Give this draft a memorable name
               </p>
-              <span className={`text-xs ${draftName.length >= 50 ? 'text-amber-600' : 'text-gray-400'}`}>
-                {draftName.length}/50
+              <span className={`text-xs ${draftName.length >= 40 ? 'text-amber-600' : 'text-gray-400'}`}>
+                {draftName.length}/40
               </span>
             </div>
           </div>
