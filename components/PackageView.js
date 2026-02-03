@@ -31,6 +31,14 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
     return signers.length >= required;
   });
 
+  // How many additional signers are still needed (drives the tooltip)
+  const signerShortfall = hasRequiredSigners ? 0 : selectedForms.reduce((total, formCode) => {
+    const form = FORMS_DATA.find(f => f.code === formCode);
+    const signers = formSigners[formCode] || [];
+    const required = form?.requiresAllSigners ? account.signers.length : 1;
+    return total + Math.max(0, required - signers.length);
+  }, 0);
+
   // Get unique signers across all forms
   const uniqueSelectedSigners = React.useMemo(() => {
     const allSigners = Object.values(formSigners).flat();
@@ -119,23 +127,6 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
   };
 
   const handleSendForSignature = async () => {
-    // Check if all forms have the required signers
-    const missingSigners = [];
-    selectedForms.forEach(formCode => {
-      const form = FORMS_DATA.find(f => f.code === formCode);
-      const signers = formSigners[formCode] || [];
-      const required = form?.requiresAllSigners ? account.signers.length : 1;
-
-      if (signers.length < required) {
-        missingSigners.push(formCode);
-      }
-    });
-
-    if (missingSigners.length > 0) {
-      setToast({ message: 'Signers required', subtitle: `Please select signers for: ${missingSigners.join(', ')}` });
-      return;
-    }
-
     // Collect all unique signers across all forms
     const allSigners = Object.values(formSigners).flat();
     const uniqueSigners = Array.from(new Set(allSigners.map(s => s.id)))
@@ -548,25 +539,37 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 Save Draft
               </button>
 
-              <button
-                onClick={handleSendForSignature}
-                disabled={isSending}
-                className={`w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm flex items-center justify-center gap-2 font-medium transition-all ${
-                  isSending ? 'opacity-75 cursor-not-allowed' : 'hover:bg-blue-700'
-                }`}
-              >
-                {isSending ? (
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
+              <div className="relative group">
+                <button
+                  onClick={handleSendForSignature}
+                  disabled={isSending || !hasRequiredSigners}
+                  className={`w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition-all ${
+                    !hasRequiredSigners
+                      ? 'bg-blue-100 text-blue-400 cursor-not-allowed pointer-events-none'
+                      : isSending
+                        ? 'bg-blue-600 text-white shadow-sm opacity-75 cursor-not-allowed'
+                        : 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
+                  }`}
+                >
+                  {isSending ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                  )}
+                  {isSending ? 'Sending...' : 'Send for Signature'}
+                </button>
+                {!hasRequiredSigners && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 bg-opacity-90 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                    Select {signerShortfall} more {signerShortfall === 1 ? 'signer' : 'signers'} to continue
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  </div>
                 )}
-                {isSending ? 'Sending...' : 'Send for Signature'}
-              </button>
+              </div>
             </div>
           </div>
         </div>
