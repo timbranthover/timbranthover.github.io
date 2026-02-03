@@ -37,7 +37,7 @@ const SaveDraftModal = ({ isOpen, onClose, onSave, currentDraftName }) => {
             />
             <div className="flex items-center justify-between mt-1">
               <p className="text-xs text-gray-500">
-                Give this draft a memorable name · max 50 characters
+                Give this draft a memorable name
               </p>
               <span className={`text-xs ${draftName.length >= 50 ? 'text-amber-600' : 'text-gray-400'}`}>
                 {draftName.length}/50
