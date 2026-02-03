@@ -29,15 +29,20 @@ const SaveDraftModal = ({ isOpen, onClose, onSave, currentDraftName }) => {
             <input
               type="text"
               value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
+              onChange={(e) => setDraftName(e.target.value.slice(0, 50))}
               onKeyPress={(e) => e.key === 'Enter' && handleSave()}
-              placeholder="e.g., Tim Branthover's quarterly disbursement to Maddy"
+              placeholder="e.g., Tim's Q3 account transfer"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoFocus
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Give this draft a memorable name to find it easily later
-            </p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-gray-500">
+                Give this draft a memorable name · max 50 characters
+              </p>
+              <span className={`text-xs ${draftName.length >= 50 ? 'text-amber-600' : 'text-gray-400'}`}>
+                {draftName.length}/50
+              </span>
+            </div>
           </div>
 
           <div className="flex gap-3 justify-end">
