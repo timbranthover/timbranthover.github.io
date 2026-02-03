@@ -346,6 +346,18 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 const isCurrentForm = formIndex === currentFormIndex;
                 const formSignersList = formSigners[formCode] || [];
 
+                // When 2+ signers are selected package-wide, render selected
+                // signers first in true signing order, unselected signers below
+                const displaySigners = uniqueSelectedSigners.length >= 2
+                  ? [
+                      ...signerOrder
+                        .filter(id => formSignersList.find(s => s.id === id))
+                        .map(id => account.signers.find(s => s.id === id))
+                        .filter(Boolean),
+                      ...account.signers.filter(s => !formSignersList.find(fs => fs.id === s.id))
+                    ]
+                  : account.signers;
+
                 return (
                   <div key={formCode} className="border border-gray-200 rounded">
                     {/* Form header */}
@@ -384,7 +396,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                     {/* Signers list - shown when expanded */}
                     {isExpanded && (
                       <div className="border-t border-gray-200 px-3 py-2 space-y-3">
-                        {account.signers.map(signer => {
+                        {displaySigners.map(signer => {
                           const isSelected = formSignersList.find(s => s.id === signer.id);
                           const orderIndex = signerOrder.indexOf(signer.id);
                           const showOrder = isSelected && uniqueSelectedSigners.length >= 2;
