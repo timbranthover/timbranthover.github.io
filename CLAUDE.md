@@ -33,12 +33,15 @@ This is a **prototype / demo application** using mock data and a real DocuSign s
 │   ├── Header.js           # Top nav bar with logo + "My Work" button
 │   ├── SearchView.js       # Landing page: account search + AI form suggestion
 │   ├── ResultsView.js      # Form selection grid with fuzzy search
-│   ├── PackageView.js      # Form fill + signer assignment sidebar + send/save actions
+│   ├── PackageView.js      # Form fill + signer assignment sidebar + signing order + send/save
 │   ├── MyWorkView.js       # Tabbed work queue: Drafts / In Progress / Completed / Voided
 │   ├── SaveDraftModal.js   # Modal for naming and saving a draft
+│   ├── FormsLibraryView.js # Browse all 20 forms with detail panel
 │   └── forms/
 │       ├── ACTFform.js     # ACAT Account Transfer Form (AC-TF)
-│       └── ACFTform.js     # EFT Authorization Form (AC-FT)
+│       ├── ACFTform.js     # EFT Authorization Form (AC-FT)
+│       ├── CLACRAform.js   # Advisory Relationship Application (CL-ACRA)
+│       └── LAGENform.js    # Generic Letter of Authorization (LA-GEN)
 └── data/
     ├── mockData.js         # MOCK_ACCOUNTS, MOCK_HISTORY, MOCK_DRAFT_DATA, AI_SUGGESTIONS
     └── forms.js            # FORMS_DATA -- the full catalog of 20 form definitions
@@ -55,6 +58,7 @@ All files are plain `.js` with JSX, transpiled in-browser by Babel Standalone. S
 - `results` -- ResultsView (form selection for an account)
 - `package` -- PackageView (fill forms, assign signers, send/save)
 - `work` -- MyWorkView (tabbed work queue)
+- `formsLibrary` -- FormsLibraryView (browse all 20 forms)
 
 Navigation is prop-driven (`onBack`, `onSearch`, `onContinue`, etc.). No router library.
 
@@ -68,13 +72,26 @@ All data lives in global `const` variables (`MOCK_ACCOUNTS`, `FORMS_DATA`, `MOCK
 Work items (drafts, in-progress, completed, voided) are persisted to `localStorage` under the key `formsLibrary_workItems`. On load, `app.js` reads from localStorage and falls back to `MOCK_HISTORY` (which is empty by default). Every state change to `workItems` is auto-saved via a `useEffect`.
 
 ### DocuSign Integration
-Real e-signature sending is wired up for **account ABC123 + form AC-TF**. The flow:
-1. `app.js` checks `shouldUseDocuSign` -- account must be `ABC123` and forms must include `AC-TF`
-2. `DocuSignService.sendEnvelope()` creates a JWT assertion (RS256 via jsrsasign), exchanges it for an OAuth token, then creates an envelope via the DocuSign REST API v2.1
-3. All API calls route through a Cloudflare Worker proxy (configured in `DOCUSIGN_CONFIG.proxyUrl`) to bypass browser CORS restrictions
-4. The envelope ID is stored on the work item for live status polling, void, resend, and PDF download
+Real e-signature sending is enabled for any form with `docuSignEnabled: true` in its `FORMS_DATA` definition. Currently enabled: **AC-TF, AC-FT, CL-ACRA, LA-GEN**. All other forms go straight to My Work as in-progress items without hitting DocuSign. There is no account-level gate -- any mock account can trigger an envelope.
+
+The flow:
+1. `app.js` checks `shouldUseDocuSign` -- iterates the selected forms and returns true if any has `docuSignEnabled: true` in `FORMS_DATA`
+2. A `signers` array is built from the selected signers. Each signer's email is resolved from the **dropdown selection** in the sidebar (`signerDetails`), falling back to `emails[0]`. Each signer also gets a `routingOrder` value: `1` for parallel signing, or their position in the explicit signing order for sequential signing.
+3. If sequential signing is enabled, the array is sorted by `routingOrder` before sending.
+4. `DocuSignService.sendEnvelope(signers, accountNumber, customMessage)` creates a JWT assertion (RS256 via jsrsasign), exchanges it for an OAuth token, then creates a template-based envelope via the DocuSign REST API v2.1. Each signer in the array becomes a `templateRole` entry with its `routingOrder` set.
+5. All API calls route through a Cloudflare Worker proxy (configured in `DOCUSIGN_CONFIG.proxyUrl`) to bypass browser CORS restrictions.
+6. The envelope ID is stored on the work item for live status polling, void, resend, and PDF download.
+
+**Important:** Form field data typed into the UI (e.g. bank details, securities list) is **not** sent to DocuSign. Only signer emails/names, account number, routing order, and the optional custom message travel to the API. The DocuSign template handles the actual document layout.
 
 `DocuSignService` exposes: `sendEnvelope`, `getEnvelopeStatus`, `voidEnvelope`, `resendEnvelope`, `downloadDocument`.
+
+### Signing Order
+PackageView supports two signing modes when 2+ signers are selected:
+- **Parallel (default)** -- all signers receive the envelope simultaneously (all `routingOrder: 1`)
+- **Sequential** -- signers receive one at a time in a defined order. The UI shows a numbered list with up/down reorder buttons. Order is maintained across signer add/remove (new signers append to the end).
+
+The signing mode and order are passed up to `app.js` via `packageData.sequentialSigning` and `packageData.signerOrder`.
 
 ### Styling
 100% Tailwind utility classes. No custom CSS files. The only `<style>` block sets Inter as the body font. Follow the existing Tailwind class conventions -- primary blue is `blue-600`/`blue-700`, backgrounds are `gray-50`, cards use `bg-white rounded-lg shadow-sm border border-gray-200`.
@@ -103,13 +120,14 @@ GitHub Pages is **case-sensitive**. File paths in `index.html` script tags and a
 - **Inline SVG icons** -- no icon library; all icons are hand-written `<svg>` elements with Heroicon-style paths
 - **Tailwind only** -- no inline `style={}` except for rare dynamic values (e.g., progress bar width percentages)
 - **No semicolons** in JSX returns; standard semicolons in logic blocks
-- **Toast notifications** for user feedback instead of `alert()` -- use slide-in toasts with auto-dismiss
+- **Toast notifications** for user feedback instead of `alert()` -- use slide-in toasts with auto-dismiss. Each component that needs feedback has its own `toast` state + auto-dismiss `useEffect` + toast JSX block (see PackageView or MyWorkView for the pattern).
 
 ### Adding a New Form
 1. Create `components/forms/YourForm.js` following the pattern in `ACTFform.js` or `ACFTform.js`
 2. Add its `<script>` tag in `index.html` **before** `PackageView.js` (it must be loaded first)
 3. Add a `case` in `PackageView.js` `renderFormComponent()` switch statement
 4. Add the form definition to `data/forms.js` (`FORMS_DATA` array)
+5. If the form should route through DocuSign, set `docuSignEnabled: true` on its entry in `FORMS_DATA`
 
 ### Adding a New Account
 Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number string. Each account has: `accountNumber`, `accountName`, `accountType`, and a `signers` array. Each signer has `id`, `name`, `role`, `emails[]`, and `phones[]`.
@@ -120,8 +138,9 @@ Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number
 3. Wire navigation via props (`onBack`, etc.)
 
 ### Extending DocuSign
-- To enable DocuSign for other accounts/forms, update the `shouldUseDocuSign` check in `app.js`
-- To add new API operations, add methods to `DocuSignService` in `services/docusignService.js` using `_buildApiUrl()` and ensure the Cloudflare Worker supports any new HTTP methods
+- To enable DocuSign for a form, set `docuSignEnabled: true` on its definition in `data/forms.js`. That's it -- no code changes elsewhere. The gate in `app.js` reads the flag automatically.
+- To add new API operations, add methods to `DocuSignService` in `services/docusignService.js` using `_buildApiUrl()` and ensure the Cloudflare Worker supports any new HTTP methods.
+- The DocuSign template ID is in `DOCUSIGN_CONFIG.templateId`. Template role names follow the pattern `Signer`, `Signer2`, `Signer3`, etc. If you change the template, update role names to match.
 
 ## Key Design Decisions
 
@@ -129,9 +148,11 @@ Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number
 - **Global script loading** -- all components and data are globals. This is intentional for the CDN-React architecture. Do not refactor into ES modules unless the entire architecture is being migrated.
 - **Mock data is the "backend"** -- all account lookups, form catalogs, and work history are in-memory JS objects. Keep mock data realistic and consistent (real-ish form codes, plausible account structures).
 - **Dynamic account lookup** -- `handleSearch` in `app.js` looks up accounts from `MOCK_ACCOUNTS` by normalized (trimmed, uppercased) account number. New accounts just need to be added to the map.
-- **Signer logic per form** -- `requiresAllSigners` on each form definition controls whether the PackageView enforces selecting all account signers or just one.
+- **Signer logic per form** -- `requiresAllSigners` on each form definition controls whether the PackageView enforces selecting all account signers or just one. Independently, `docuSignEnabled` controls whether the form triggers a real DocuSign envelope.
+- **Signer email is dropdown-driven** -- the per-signer email selector in PackageView is not cosmetic. The selected email is what gets sent to DocuSign. This is resolved via `signerDetails` in the send payload.
 - **CORS proxy via Cloudflare Worker** -- browser-to-DocuSign API calls are blocked by CORS. A Cloudflare Worker (free tier) proxies requests, routing `/oauth/*` to `account-d.docusign.com` and `/restapi/*` to `demo.docusign.net`. The worker URL is set in `DOCUSIGN_CONFIG.proxyUrl`.
 - **localStorage for persistence** -- work items survive page reloads via localStorage. No server-side storage.
+- **Form data stays client-side** -- data entered into form fields (bank info, securities, etc.) is stored in component state and persisted only when saved as a draft. It is never sent to DocuSign. The DocuSign envelope is purely about routing the signature request.
 
 ## What NOT to Do
 
@@ -144,3 +165,4 @@ Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number
 - Do not hardcode account data in components -- always reference `MOCK_ACCOUNTS`
 - Do not commit real API keys or production DocuSign credentials -- current keys are for the demo sandbox only
 - Do not use `alert()` for user feedback -- use toast notifications instead
+- Do not gate DocuSign by account number -- the gate is form-level via `docuSignEnabled` in `FORMS_DATA`
