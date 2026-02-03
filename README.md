@@ -22,7 +22,7 @@ To deploy, push to `main` -- GitHub Pages picks it up automatically.
 1. **Search** -- enter an account number (e.g. `ABC123`) on the landing page
 2. **Select Forms** -- pick one or more forms from the catalog
 3. **Fill & Assign** -- complete form fields, assign signers from the account
-4. **Configure** -- set signing order (parallel or sequential), add a personal message
+4. **Configure** -- set signing order (parallel or sequential), add a personal message (150 char limit)
 5. **Send or Save** -- send for e-signature (real DocuSign for eligible combos) or save as draft
 6. **My Work** -- track envelopes across Drafts / In Progress / Completed / Voided tabs
 
@@ -124,7 +124,7 @@ Work items (drafts, in-progress, completed, voided) are stored in **localStorage
 6. Verify: Package sent successfully
 
 ### Flow 9: Single-Signer Account
-1. Search for account `1C88543` (David Park - single signer)
+1. Search for account `1C88543` (Michael Chen - single signer)
 2. Select any form
 3. Verify: Only one signer available to select
 4. Verify: "Signing Order" section does NOT appear (need 2+ signers)
@@ -158,14 +158,19 @@ JSON.parse(localStorage.getItem('formsLibrary_workItems'));
 ```
 
 ### Test accounts
-| Account | Name | Signers | Notes |
-|---------|------|---------|-------|
-| `ABC123` | Timothy & Sarah Branthover | 2 | DocuSign-enabled |
-| `1B92007` | Jennifer & Michael Rodriguez | 2 | Mock only |
-| `1C88543` | David Park | 1 | Single signer |
-| `1D12456` | Emily & Robert Chen | 2 | Mock only |
-| `1E99871` | Alexandra Thompson | 1 | Single signer |
-| `1F44320` | James & Maria Santos | 2 | Mock only |
+| Account | Name | Type | Signers | Notes |
+|---------|------|------|---------|-------|
+| `ABC123` | Timothy & Sarah Branthover | Joint | 2 | DocuSign-enabled |
+| `1B92007` | Timothy Branthover | Roth IRA | 1 | Single signer |
+| `1C88543` | Michael Chen | Individual | 1 | Single signer |
+| `1D12456` | Jennifer & Robert Martinez | Joint | 2 | Mock only |
+| `1E99871` | Sarah Johnson Living Trust | Trust | 1 | Single signer |
+| `1F44320` | David Williams | Traditional IRA | 1 | Single signer |
+
+### Forms requiring all signers
+These forms require all account holders to sign (others require just one):
+- `AC-TF` - Account Transfer Form
+- `CL-ACRA` - Advisory Relationship Application
 
 ---
 
