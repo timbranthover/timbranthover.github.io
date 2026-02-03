@@ -76,8 +76,8 @@ Real e-signature sending is enabled for any form with `docuSignEnabled: true` in
 
 The flow:
 1. `app.js` checks `shouldUseDocuSign` -- iterates the selected forms and returns true if any has `docuSignEnabled: true` in `FORMS_DATA`
-2. A `signers` array is built from the selected signers. Each signer's email is resolved from the **dropdown selection** in the sidebar (`signerDetails`), falling back to `emails[0]`. Each signer also gets a `routingOrder` value: `1` for parallel signing, or their position in the explicit signing order for sequential signing.
-3. If sequential signing is enabled, the array is sorted by `routingOrder` before sending.
+2. A `signers` array is built from the selected signers. Each signer's email is resolved from the **dropdown selection** in the sidebar (`signerDetails`), falling back to `emails[0]`. Each signer gets a `routingOrder` value equal to their position in the signing order. Sequential signing is always on when 2+ signers are selected -- this is a legal requirement; there is no parallel code path.
+3. The array is sorted by `routingOrder` before sending.
 4. `DocuSignService.sendEnvelope(signers, accountNumber, customMessage)` creates a JWT assertion (RS256 via jsrsasign), exchanges it for an OAuth token, then creates a template-based envelope via the DocuSign REST API v2.1. Each signer in the array becomes a `templateRole` entry with its `routingOrder` set.
 5. All API calls route through a Cloudflare Worker proxy (configured in `DOCUSIGN_CONFIG.proxyUrl`) to bypass browser CORS restrictions.
 6. The envelope ID is stored on the work item for live status polling, void, resend, and PDF download.
@@ -87,11 +87,9 @@ The flow:
 `DocuSignService` exposes: `sendEnvelope`, `getEnvelopeStatus`, `voidEnvelope`, `resendEnvelope`, `downloadDocument`.
 
 ### Signing Order
-PackageView supports two signing modes when 2+ signers are selected:
-- **Parallel (default)** -- all signers receive the envelope simultaneously (all `routingOrder: 1`)
-- **Sequential** -- signers receive one at a time in a defined order. The UI shows a numbered list with up/down reorder buttons. Order is maintained across signer add/remove (new signers append to the end).
+Sequential signing is **always on** when 2+ signers are selected -- this is a legal requirement. There is no parallel-signing toggle, UI option, or code path. Every signer receives a `routingOrder` equal to their position; the array is sorted before the envelope is created.
 
-The signing mode and order are passed up to `app.js` via `packageData.sequentialSigning` and `packageData.signerOrder`.
+The UI shows a numbered badge next to each selected signer with up/down reorder buttons. Order is maintained across signer add/remove (new signers append to the end). The order is passed up to `app.js` via `packageData.signerOrder`. `packageData.sequentialSigning` is always `true` when there are 2+ signers.
 
 ### Styling
 100% Tailwind utility classes. No custom CSS files. The only `<style>` block sets Inter as the body font. Follow the existing Tailwind class conventions -- primary blue is `blue-600`/`blue-700`, backgrounds are `gray-50`, cards use `bg-white rounded-lg shadow-sm border border-gray-200`.
@@ -105,6 +103,9 @@ npx serve .
 # or
 python3 -m http.server
 ```
+
+### Pull Requests
+**Always open a PR** for every feature or fix branch. Never merge directly to main. The PR body should summarise what changed and why.
 
 ### Deploying
 Push to `main` on `timbranthover.github.io`. GitHub Pages serves it automatically. No build step required.
@@ -121,6 +122,11 @@ GitHub Pages is **case-sensitive**. File paths in `index.html` script tags and a
 - **Tailwind only** -- no inline `style={}` except for rare dynamic values (e.g., progress bar width percentages)
 - **No semicolons** in JSX returns; standard semicolons in logic blocks
 - **Toast notifications** for user feedback instead of `alert()` -- use slide-in toasts with auto-dismiss. Each component that needs feedback has its own `toast` state + auto-dismiss `useEffect` + toast JSX block (see PackageView or MyWorkView for the pattern).
+
+### UI Patterns
+- **Conditional visibility, not conditional rendering** -- when a UI element appearing or disappearing would change its container's dimensions (e.g., a CTA button in a flex header row, order-number badges in signer rows), do **not** use `{condition && <Element />}`. Always render the element and toggle visibility with `opacity-0 pointer-events-none` ↔ `opacity-100`. Add `transition-opacity duration-150` for a smooth fade. This prevents layout shifts. Established in: ResultsView "Continue" CTA row, PackageView signer-order badges and reorder arrows.
+- **Disabled primary CTA with hover tooltip** -- when a primary action button must be blocked until a precondition is met (e.g., Send for Signature waiting for required signers), wrap it in `<div className="relative group">`. Apply `pointer-events-none` to the button itself so the wrapper receives hover events even when the button is native-`disabled`. Style the disabled state as `bg-blue-100 text-blue-400` (keeps brand color, clearly inactive). Render the tooltip as an absolutely-positioned sibling that fades in on `group-hover:opacity-100` with a dark semi-transparent background (`bg-gray-900 bg-opacity-90`) and a CSS-border arrow. See PackageView "Send for Signature" for the canonical example.
+- **Character-limited inputs with live counter** -- inputs with a hard character cap (draft name: 50 chars; Personal Message: 150 chars) slice in `onChange`, state the limit in the inline help text, and show a live `N/limit` counter aligned to the right of that same help row. The counter turns `text-amber-600` at the cap. See SaveDraftModal and PackageView custom-message textarea.
 
 ### Adding a New Form
 1. Create `components/forms/YourForm.js` following the pattern in `ACTFform.js` or `ACFTform.js`
