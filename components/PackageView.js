@@ -410,42 +410,40 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                                   onChange={() => {}}
                                   className="w-4 h-4 text-blue-600 rounded pointer-events-none"
                                 />
-                                {showOrder && (
-                                  <span className="w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                                    {orderIndex + 1}
-                                  </span>
-                                )}
-                                <span className={`text-sm text-gray-900 ${showOrder ? 'flex-1' : ''}`}>{signer.name}</span>
-                                {showOrder && (
-                                  <div className="flex gap-0.5" onClick={(e) => e.stopPropagation()}>
-                                    <button
-                                      onClick={() => moveSignerUp(signer.id)}
-                                      disabled={orderIndex === 0}
-                                      className={`p-1 rounded transition-colors ${
-                                        orderIndex === 0
-                                          ? 'text-gray-300 cursor-not-allowed'
-                                          : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-                                      }`}
-                                    >
-                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                      </svg>
-                                    </button>
-                                    <button
-                                      onClick={() => moveSignerDown(signer.id)}
-                                      disabled={orderIndex === signerOrder.length - 1}
-                                      className={`p-1 rounded transition-colors ${
-                                        orderIndex === signerOrder.length - 1
-                                          ? 'text-gray-300 cursor-not-allowed'
-                                          : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-                                      }`}
-                                    >
-                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                )}
+                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-all ${
+                                  showOrder ? 'bg-blue-100 text-blue-700' : 'opacity-0'
+                                }`}>
+                                  {showOrder ? orderIndex + 1 : ''}
+                                </span>
+                                <span className="text-sm text-gray-900 flex-1">{signer.name}</span>
+                                <div className={`flex gap-0.5 transition-opacity ${showOrder ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
+                                  <button
+                                    onClick={() => moveSignerUp(signer.id)}
+                                    disabled={orderIndex === 0}
+                                    className={`p-1 rounded transition-colors ${
+                                      orderIndex === 0
+                                        ? 'text-gray-300 cursor-not-allowed'
+                                        : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                                    }`}
+                                  >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    onClick={() => moveSignerDown(signer.id)}
+                                    disabled={orderIndex === signerOrder.length - 1}
+                                    className={`p-1 rounded transition-colors ${
+                                      orderIndex === signerOrder.length - 1
+                                        ? 'text-gray-300 cursor-not-allowed'
+                                        : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                                    }`}
+                                  >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
 
                               {isSelected && (
