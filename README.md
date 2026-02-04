@@ -197,8 +197,7 @@ components/
 data/
   mockData.js               # Mock accounts, history, draft data, AI suggestions
   forms.js                  # Form catalog (20 form definitions)
-assets/
-  logo.png                  # Header logo
+
 ```
 
 ## Tech Stack
