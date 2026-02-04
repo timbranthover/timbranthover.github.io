@@ -486,24 +486,42 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
               })}
             </div>
 
-            {/* Custom Message -- collapses when signers are missing; state preserves typed text */}
-            <div className={`overflow-hidden transition-all duration-200 ${hasRequiredSigners ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}`}>
-              <div className="pt-4 border-t border-gray-200">
+            {/* Custom Message */}
+            <div className="pt-4 border-t border-gray-200">
+              <div className="relative">
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Personal Message
                 </label>
-                <textarea
-                  value={customMessage}
-                  onChange={(e) => setCustomMessage(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
-                  placeholder="Add a note for the signer..."
-                  rows={2}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 bg-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <div className="flex justify-end mt-1">
-                  <span className={`text-xs ${customMessage.length >= MAX_MESSAGE_LENGTH ? 'text-amber-600' : 'text-gray-400'}`}>
-                    {customMessage.length}/{MAX_MESSAGE_LENGTH}
-                  </span>
+                <div className="relative">
+                  <textarea
+                    value={hasRequiredSigners ? customMessage : ''}
+                    onChange={(e) => setCustomMessage(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
+                    disabled={!hasRequiredSigners}
+                    placeholder={hasRequiredSigners ? "Add a note for the signer..." : ""}
+                    rows={2}
+                    className={`w-full px-3 py-2 text-sm border rounded-lg resize-none transition-all ${
+                      hasRequiredSigners
+                        ? 'border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                        : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                    }`}
+                  />
+                  {!hasRequiredSigners && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
                 </div>
+                {hasRequiredSigners && (
+                  <div className="flex justify-end mt-1">
+                    <span className={`text-xs ${customMessage.length >= MAX_MESSAGE_LENGTH ? 'text-amber-600' : 'text-gray-400'}`}>
+                      {customMessage.length}/{MAX_MESSAGE_LENGTH}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
