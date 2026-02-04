@@ -542,6 +542,9 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
         toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
       }`}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
     >
       {toast && (
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-start gap-3 min-w-[320px]">
