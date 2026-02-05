@@ -1,10 +1,4 @@
 const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
-  const handleOptionChange = (selectedOption) => {
-    ['option1', 'option2', 'option3'].forEach(opt => {
-      onUpdateField(opt, opt === selectedOption ? 'X' : '');
-    });
-  };
-
   return (
     <div className="bg-white shadow-lg max-w-3xl mx-auto p-8 space-y-6">
       <div className="border-b-2 border-gray-900 pb-4">
@@ -59,12 +53,11 @@ const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
                 onChange={(e) => onUpdateField('relationship', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white"
               >
-                <option value="">Select relationship...</option>
-                <option value="Spouse">Spouse</option>
-                <option value="Attorney">Attorney / Power of Attorney</option>
-                <option value="Financial Advisor">Financial Advisor</option>
-                <option value="Trustee">Trustee</option>
-                <option value="Other">Other</option>
+                <option value="">Select...</option>
+                <option value="Choice 1">Choice 1</option>
+                <option value="Choice 2">Choice 2</option>
+                <option value="Choice 3">Choice 3</option>
+                <option value="Choice 4">Choice 4</option>
               </select>
             </div>
           </div>
@@ -75,9 +68,9 @@ const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
           <h3 className="font-semibold text-gray-900 mb-3">Authorization Scope</h3>
           <div className="space-y-3">
             {[
-              { key: 'option1', label: 'View Account Information Only' },
-              { key: 'option2', label: 'Deposit and Withdraw Funds' },
-              { key: 'option3', label: 'Full Trading and Account Access' }
+              { key: 'option1', label: 'Option 1' },
+              { key: 'option2', label: 'Option 2' },
+              { key: 'option3', label: 'Option 3' }
             ].map(opt => (
               <label key={opt.key} className={`flex items-center gap-3 p-3 rounded border cursor-pointer transition-colors ${
                 formData[opt.key] === 'X'
@@ -85,10 +78,9 @@ const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
                   : 'border-gray-200 hover:bg-gray-50'
               }`}>
                 <input
-                  type="radio"
-                  name="authorizationScope"
+                  type="checkbox"
                   checked={formData[opt.key] === 'X'}
-                  onChange={() => handleOptionChange(opt.key)}
+                  onChange={() => onUpdateField(opt.key, formData[opt.key] === 'X' ? '' : 'X')}
                   className="w-4 h-4 text-blue-600"
                 />
                 <span className="text-sm text-gray-900">{opt.label}</span>

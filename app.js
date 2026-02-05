@@ -141,34 +141,46 @@ const App = () => {
 
         console.log('DocuSign: Sending envelope with signers:', signers);
 
-        // Find the first docuSignEnabled form for its template config
+        // Find the first docuSignEnabled form for its template/PDF config
         const docuSignForm = packageData.forms
           .map(code => FORMS_DATA.find(f => f.code === code))
           .find(f => f && f.docuSignEnabled);
 
-        // Build textTabs from filled form fields using each form's textTabFields mapping
-        const textTabs = [];
-        packageData.forms.forEach(formCode => {
-          const form = FORMS_DATA.find(f => f.code === formCode);
-          if (form && form.textTabFields && packageData.formData && packageData.formData[formCode]) {
-            const formFields = packageData.formData[formCode];
-            Object.entries(form.textTabFields).forEach(([dataKey, tabLabel]) => {
-              if (formFields[dataKey] != null && formFields[dataKey] !== '') {
-                textTabs.push({ tabLabel: tabLabel, value: String(formFields[dataKey]) });
-              }
-            });
-          }
-        });
-
-        const result = await DocuSignService.sendEnvelope(
-          signers,
-          currentAccount.accountNumber,
-          packageData.customMessage,
-          {
-            templateId: docuSignForm && docuSignForm.templateId ? docuSignForm.templateId : undefined,
-            textTabs: textTabs.length > 0 ? textTabs : undefined
-          }
-        );
+        let result;
+        if (docuSignForm && docuSignForm.pdfPath) {
+          // PDF fill path: fill the source PDF with form data, upload as document
+          result = await DocuSignService.sendDocumentEnvelope(
+            signers,
+            docuSignForm.pdfPath,
+            docuSignForm.pdfFieldMap,
+            packageData.formData[docuSignForm.code],
+            packageData.customMessage,
+            docuSignForm.signaturePosition
+          );
+        } else {
+          // Template path: use textTabs to pre-fill template fields
+          const textTabs = [];
+          packageData.forms.forEach(formCode => {
+            const form = FORMS_DATA.find(f => f.code === formCode);
+            if (form && form.textTabFields && packageData.formData && packageData.formData[formCode]) {
+              const formFields = packageData.formData[formCode];
+              Object.entries(form.textTabFields).forEach(([dataKey, tabLabel]) => {
+                if (formFields[dataKey] != null && formFields[dataKey] !== '') {
+                  textTabs.push({ tabLabel: tabLabel, value: String(formFields[dataKey]) });
+                }
+              });
+            }
+          });
+          result = await DocuSignService.sendEnvelope(
+            signers,
+            currentAccount.accountNumber,
+            packageData.customMessage,
+            {
+              templateId: docuSignForm && docuSignForm.templateId ? docuSignForm.templateId : undefined,
+              textTabs: textTabs.length > 0 ? textTabs : undefined
+            }
+          );
+        }
 
         if (result.success) {
           docusignEnvelopeId = result.envelopeId;

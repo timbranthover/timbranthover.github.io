@@ -290,5 +290,124 @@ const DocuSignService = {
       console.error('Error downloading document:', error);
       return { success: false, error: error.message };
     }
+  },
+
+  // Send envelope with a pre-filled PDF document (bypasses template tab-label matching)
+  // Fetches the source PDF, fills its AcroForm fields via pdf-lib, uploads the filled PDF
+  // as a document to DocuSign, and attaches signature tabs at the specified position.
+  async sendDocumentEnvelope(signers, pdfPath, pdfFieldMap, formData, customMessage, signaturePosition) {
+    try {
+      const accessToken = await this.getAccessToken();
+
+      // 1. Fetch the source PDF
+      const pdfResponse = await fetch(pdfPath);
+      if (!pdfResponse.ok) throw new Error('Failed to fetch PDF: ' + pdfResponse.statusText);
+      const pdfArrayBuffer = await pdfResponse.arrayBuffer();
+
+      // 2. Load with pdf-lib and fill AcroForm fields
+      const pdfDoc = await PDFLib.PDFDocument.load(pdfArrayBuffer);
+      const form = pdfDoc.getForm();
+
+      // Debug: log all field names so we can verify mapping
+      console.log('DocuSign PDF: Available fields:', form.getFields().map(f => f.getName()));
+
+      Object.entries(pdfFieldMap).forEach(([dataKey, fieldDef]) => {
+        const value = formData[dataKey];
+        if (value == null || value === '') return;
+        try {
+          switch (fieldDef.type) {
+            case 'text':
+              form.getTextField(fieldDef.name).setText(String(value));
+              break;
+            case 'checkbox':
+              if (value === 'X' || value === 'true') {
+                form.getCheckBox(fieldDef.name).check();
+              } else {
+                form.getCheckBox(fieldDef.name).uncheck();
+              }
+              break;
+            case 'dropdown':
+              form.getDropdown(fieldDef.name).select(String(value));
+              break;
+          }
+          console.log('DocuSign PDF: Filled', fieldDef.name, '=', value);
+        } catch (e) {
+          console.warn('DocuSign PDF: Could not fill', fieldDef.name, '-', e.message);
+        }
+      });
+
+      // Flatten text field appearances so values render when opened
+      const font = pdfDoc.embedStandardFont(PDFLib.StandardFonts.Helvetica);
+      form.updateTextFieldAppearances(font);
+
+      // 3. Save filled PDF and base64 encode
+      const filledPdfBytes = await pdfDoc.save();
+      const base64PDF = this._uint8ArrayToBase64(filledPdfBytes);
+
+      // 4. Build envelope definition with uploaded document + signature tabs
+      const envelopeDefinition = {
+        documents: [{
+          documentBase64: base64PDF,
+          documentId: '1',
+          title: 'Generic Letter of Authorization'
+        }],
+        recipients: {
+          signers: signers.map((signer, index) => ({
+            email: signer.email,
+            name: signer.name,
+            recipientId: String(index + 1),
+            routingOrder: String(signer.routingOrder),
+            tabs: {
+              signHereTabs: [{
+                xPosition: String(signaturePosition.x),
+                yPosition: String(signaturePosition.y),
+                documentId: '1',
+                pageNumber: String(signaturePosition.page)
+              }]
+            }
+          }))
+        },
+        status: 'sent'
+      };
+
+      if (customMessage) {
+        envelopeDefinition.emailBlurb = customMessage;
+      }
+
+      console.log('DocuSign PDF: Sending document envelope');
+
+      // 5. POST to DocuSign
+      const url = this._buildApiUrl('/envelopes');
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(envelopeDefinition)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to send envelope: ${errorData.message || response.statusText}`);
+      }
+
+      const data = await response.json();
+      return { success: true, envelopeId: data.envelopeId, status: data.status };
+    } catch (error) {
+      console.error('Error sending document envelope:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Helper: Uint8Array → base64 string (chunked to avoid stack overflow on large PDFs)
+  _uint8ArrayToBase64(uint8Array) {
+    let binary = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    return btoa(binary);
   }
 };
