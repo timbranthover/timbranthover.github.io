@@ -348,6 +348,7 @@ const DocuSignService = {
         documents: [{
           documentBase64: base64PDF,
           documentId: '1',
+          name: 'Generic Letter of Authorization.pdf',
           title: 'Generic Letter of Authorization'
         }],
         recipients: {
