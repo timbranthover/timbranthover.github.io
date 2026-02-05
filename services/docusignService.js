@@ -295,7 +295,7 @@ const DocuSignService = {
   // Send envelope with a pre-filled PDF document (bypasses template tab-label matching)
   // Fetches the source PDF, fills its AcroForm fields via pdf-lib, uploads the filled PDF
   // as a document to DocuSign, and attaches signature tabs at the specified position.
-  async sendDocumentEnvelope(signers, pdfPath, pdfFieldMap, formData, customMessage, signaturePosition) {
+  async sendDocumentEnvelope(signers, pdfPath, pdfFieldMap, formData, customMessage, signaturePosition, accountNumber) {
     try {
       const accessToken = await this.getAccessToken();
 
@@ -370,7 +370,8 @@ const DocuSignService = {
             }
           }))
         },
-        status: 'sent'
+        status: 'sent',
+        subject: 'Generic Letter of Authorization - Account ' + accountNumber
       };
 
       if (customMessage) {
