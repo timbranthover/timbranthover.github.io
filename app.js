@@ -155,7 +155,8 @@ const App = () => {
             docuSignForm.pdfFieldMap,
             packageData.formData[docuSignForm.code],
             packageData.customMessage,
-            docuSignForm.signaturePosition
+            docuSignForm.signaturePosition,
+            currentAccount.accountNumber
           );
         } else {
           // Template path: use textTabs to pre-fill template fields
