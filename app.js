@@ -141,10 +141,33 @@ const App = () => {
 
         console.log('DocuSign: Sending envelope with signers:', signers);
 
+        // Find the first docuSignEnabled form for its template config
+        const docuSignForm = packageData.forms
+          .map(code => FORMS_DATA.find(f => f.code === code))
+          .find(f => f && f.docuSignEnabled);
+
+        // Build textTabs from filled form fields using each form's textTabFields mapping
+        const textTabs = [];
+        packageData.forms.forEach(formCode => {
+          const form = FORMS_DATA.find(f => f.code === formCode);
+          if (form && form.textTabFields && packageData.formData && packageData.formData[formCode]) {
+            const formFields = packageData.formData[formCode];
+            Object.entries(form.textTabFields).forEach(([dataKey, tabLabel]) => {
+              if (formFields[dataKey] != null && formFields[dataKey] !== '') {
+                textTabs.push({ tabLabel: tabLabel, value: String(formFields[dataKey]) });
+              }
+            });
+          }
+        });
+
         const result = await DocuSignService.sendEnvelope(
           signers,
           currentAccount.accountNumber,
-          packageData.customMessage
+          packageData.customMessage,
+          {
+            templateId: docuSignForm && docuSignForm.templateId ? docuSignForm.templateId : undefined,
+            textTabs: textTabs.length > 0 ? textTabs : undefined
+          }
         );
 
         if (result.success) {
