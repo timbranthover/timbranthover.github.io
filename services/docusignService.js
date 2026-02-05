@@ -371,7 +371,8 @@ const DocuSignService = {
           }))
         },
         status: 'sent',
-        subject: 'Generic Letter of Authorization - Account ' + accountNumber
+        subject: 'Generic Letter of Authorization - Account ' + accountNumber,
+        emailSubject: 'Generic Letter of Authorization - Account ' + accountNumber
       };
 
       if (customMessage) {
