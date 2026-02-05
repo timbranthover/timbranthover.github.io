@@ -494,7 +494,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 </label>
                 <div className="relative">
                   <textarea
-                    value={customMessage}
+                    value={hasRequiredSigners ? customMessage : ''}
                     onChange={(e) => setCustomMessage(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
                     disabled={!hasRequiredSigners}
                     placeholder={hasRequiredSigners ? "Add a note for the signer..." : ""}

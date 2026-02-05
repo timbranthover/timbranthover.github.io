@@ -25,14 +25,13 @@ This is a **prototype / demo application** using mock data and a real DocuSign s
 ├── index.html              # Entry point -- loads all scripts and renders <div id="root">
 ├── app.js                  # Root <App> component, view routing state machine
 ├── assets/
-│   ├── logo.png            # Header logo
 │   └── LA-GEN-PDF.pdf      # Source PDF for LA-GEN -- AcroForm fields filled at send time via pdf-lib
 ├── config/
 │   └── docusignConfig.js   # DOCUSIGN_CONFIG -- keys, IDs, proxy URL, RSA private key
 ├── services/
 │   └── docusignService.js  # DocuSignService -- JWT auth, send/status/void/resend/download
 ├── components/
-│   ├── Header.js           # Top nav bar with logo + "My Work" button
+│   ├── Header.js           # Top nav bar with "My Work" button
 │   ├── SearchView.js       # Landing page: account search + AI form suggestion
 │   ├── ResultsView.js      # Form selection grid with fuzzy search
 │   ├── PackageView.js      # Form fill + signer assignment sidebar + signing order + send/save

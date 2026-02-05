@@ -217,7 +217,6 @@ data/
   mockData.js               # Mock accounts, history, draft data, AI suggestions
   forms.js                  # Form catalog (20 form definitions, incl. pdfPath config)
 assets/
-  logo.png                  # Header logo
   LA-GEN-PDF.pdf            # Source PDF for LA-GEN -- filled at send time via pdf-lib
 ```
 
