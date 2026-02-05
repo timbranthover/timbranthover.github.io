@@ -13,6 +13,7 @@ This is a **prototype / demo application** using mock data and a real DocuSign s
 - **Babel Standalone** (in-browser JSX transpilation via `type="text/babel"` scripts)
 - **Tailwind CSS** (CDN, `cdn.tailwindcss.com`)
 - **jsrsasign** (CDN, for JWT signing in the DocuSign auth flow)
+- **pdf-lib** (CDN UMD via unpkg -- fills PDF AcroForm fields in-browser before upload to DocuSign)
 - **Inter font** (Google Fonts)
 - **Cloudflare Worker** (external CORS proxy for DocuSign API calls -- not in this repo)
 - No build system. No npm. No bundler. No package.json.
@@ -23,6 +24,8 @@ This is a **prototype / demo application** using mock data and a real DocuSign s
 /
 ├── index.html              # Entry point -- loads all scripts and renders <div id="root">
 ├── app.js                  # Root <App> component, view routing state machine
+├── assets/
+│   └── LA-GEN-PDF.pdf      # Source PDF for LA-GEN -- AcroForm fields filled at send time via pdf-lib
 ├── config/
 │   └── docusignConfig.js   # DOCUSIGN_CONFIG -- keys, IDs, proxy URL, RSA private key
 ├── services/
@@ -70,19 +73,34 @@ All data lives in global `const` variables (`MOCK_ACCOUNTS`, `FORMS_DATA`, `MOCK
 Work items (drafts, in-progress, completed, voided) are persisted to `localStorage` under the key `formsLibrary_workItems`. On load, `app.js` reads from localStorage and falls back to `MOCK_HISTORY` (which is empty by default). Every state change to `workItems` is auto-saved via a `useEffect`.
 
 ### DocuSign Integration
-Real e-signature sending is enabled for any form with `docuSignEnabled: true` in its `FORMS_DATA` definition. Currently enabled: **AC-TF, AC-FT, CL-ACRA, LA-GEN**. All other forms go straight to My Work as in-progress items without hitting DocuSign. There is no account-level gate -- any mock account can trigger an envelope.
+Real e-signature sending is enabled for any form with `docuSignEnabled: true` in its `FORMS_DATA` definition. Currently enabled: **AC-TF, AC-FT, CL-ACRA** (template path) and **LA-GEN** (PDF fill path). All other forms go straight to My Work as in-progress items without hitting DocuSign. There is no account-level gate -- any mock account can trigger an envelope.
 
-The flow:
+**Common preamble (both paths):**
 1. `app.js` checks `shouldUseDocuSign` -- iterates the selected forms and returns true if any has `docuSignEnabled: true` in `FORMS_DATA`
 2. A `signers` array is built from the selected signers. Each signer's email is resolved from the **dropdown selection** in the sidebar (`signerDetails`), falling back to `emails[0]`. Each signer gets a `routingOrder` value equal to their position in the signing order. Sequential signing is always on when 2+ signers are selected -- this is a legal requirement; there is no parallel code path.
 3. The array is sorted by `routingOrder` before sending.
-4. `DocuSignService.sendEnvelope(signers, accountNumber, customMessage)` creates a JWT assertion (RS256 via jsrsasign), exchanges it for an OAuth token, then creates a template-based envelope via the DocuSign REST API v2.1. Each signer in the array becomes a `templateRole` entry with its `routingOrder` set.
+4. `app.js` checks whether the matched form has a `pdfPath`. If yes → PDF fill path. If no → template path.
+
+**Path A -- Template (AC-TF, AC-FT, CL-ACRA):**
+- `DocuSignService.sendEnvelope()` creates an envelope using `templateId` + `templateRoles`. Form field data typed in the UI is **not** sent to DocuSign; the DocuSign template controls document layout and field placement.
+- `textTabs` can be used to pre-fill sender-side fields on the template, keyed by `tabLabel`.
+
+**Path B -- PDF fill + document upload (LA-GEN):**
+- `DocuSignService.sendDocumentEnvelope()` fetches the source PDF from `pdfPath`, loads it with pdf-lib, fills its AcroForm fields from `formData` using the mapping in `pdfFieldMap`, flattens the form into static page content, base64-encodes the result, and uploads it as a raw document to DocuSign.
+- Form field data IS sent -- it is baked into the PDF before upload. The signer sees pre-filled values.
+- Signature placement is done via `signHereTabs` at coordinates from `signaturePosition` (DocuSign coordinate system: y=0 at top of page).
+- The envelope requires `emailSubject` (not `subject`) -- document-upload envelopes do not inherit a default subject from a template.
+
+**FORMS_DATA config fields that drive Path B:**
+- `pdfPath` -- relative path to the source PDF asset (e.g. `'assets/LA-GEN-PDF.pdf'`)
+- `pdfFieldMap` -- maps form state keys to PDF AcroForm field names and types. Types: `text`, `checkbox`, `dropdown`. Field names must match the PDF's internal AcroForm names exactly (including any special characters -- the LA-GEN PDF has a tab character in `'Age\t of Dependent'`).
+- `signaturePosition` -- `{ x, y, page }` for `signHereTabs` placement
+
+**Common tail:**
 5. All API calls route through a Cloudflare Worker proxy (configured in `DOCUSIGN_CONFIG.proxyUrl`) to bypass browser CORS restrictions.
 6. The envelope ID is stored on the work item for live status polling, void, resend, and PDF download.
 
-**Important:** Form field data typed into the UI (e.g. bank details, securities list) is **not** sent to DocuSign. Only signer emails/names, account number, routing order, and the optional custom message travel to the API. The DocuSign template handles the actual document layout.
-
-`DocuSignService` exposes: `sendEnvelope`, `getEnvelopeStatus`, `voidEnvelope`, `resendEnvelope`, `downloadDocument`.
+`DocuSignService` exposes: `sendEnvelope`, `sendDocumentEnvelope`, `getEnvelopeStatus`, `voidEnvelope`, `resendEnvelope`, `downloadDocument`.
 
 ### Signing Order
 Sequential signing is **always on** when 2+ signers are selected -- this is a legal requirement. There is no parallel-signing toggle, UI option, or code path. Every signer receives a `routingOrder` equal to their position; the array is sorted before the envelope is created.
@@ -143,8 +161,9 @@ Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number
 
 ### Extending DocuSign
 - To enable DocuSign for a form, set `docuSignEnabled: true` on its definition in `data/forms.js`. That's it -- no code changes elsewhere. The gate in `app.js` reads the flag automatically.
+- **Template path:** The DocuSign template ID is in `DOCUSIGN_CONFIG.templateId` (global fallback) or on the form definition (`templateId`). Template role names follow the pattern `Signer`, `Signer2`, `Signer3`, etc. If you change the template, update role names to match.
+- **PDF fill path:** To wire a new form for PDF fill, add a PDF to `assets/`, then add `pdfPath`, `pdfFieldMap`, and `signaturePosition` to its entry in `FORMS_DATA`. The presence of `pdfPath` is what routes the send to `sendDocumentEnvelope` -- no other code changes needed. To extract AcroForm field names from a PDF, use Python (`PyPDF2` or decompress `/Contents` streams) or inspect in a PDF editor. Field names must match byte-for-byte (watch for tab characters and trailing spaces).
 - To add new API operations, add methods to `DocuSignService` in `services/docusignService.js` using `_buildApiUrl()` and ensure the Cloudflare Worker supports any new HTTP methods.
-- The DocuSign template ID is in `DOCUSIGN_CONFIG.templateId`. Template role names follow the pattern `Signer`, `Signer2`, `Signer3`, etc. If you change the template, update role names to match.
 
 ## Key Design Decisions
 
@@ -156,7 +175,9 @@ Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number
 - **Signer email is dropdown-driven** -- the per-signer email selector in PackageView is not cosmetic. The selected email is what gets sent to DocuSign. This is resolved via `signerDetails` in the send payload.
 - **CORS proxy via Cloudflare Worker** -- browser-to-DocuSign API calls are blocked by CORS. A Cloudflare Worker (free tier) proxies requests, routing `/oauth/*` to `account-d.docusign.com` and `/restapi/*` to `demo.docusign.net`. The worker URL is set in `DOCUSIGN_CONFIG.proxyUrl`.
 - **localStorage for persistence** -- work items survive page reloads via localStorage. No server-side storage.
-- **Form data stays client-side** -- data entered into form fields (bank info, securities, etc.) is stored in component state and persisted only when saved as a draft. It is never sent to DocuSign. The DocuSign envelope is purely about routing the signature request.
+- **Dual send paths** -- template-based forms (AC-TF, AC-FT, CL-ACRA) use DocuSign templates where layout and fields are managed in DocuSign's template editor. PDF-fill forms (LA-GEN) use pdf-lib to fill a source PDF in-browser before uploading it as a raw document. The branch point is the presence of `pdfPath` on the form definition -- no conditional logic elsewhere.
+- **Form data handling depends on path** -- for template-based forms, data typed in the UI stays client-side; the template controls the document. For PDF-fill forms, data is baked into the PDF before upload and the signer sees it.
+- **pdf-lib flatten quirks** -- pdf-lib 1.17.1's `flatten()` does not update dropdown field appearances before flattening. The stale default appearance must be deleted manually (`acroField.dictionary.delete('AP')`) before flatten is called, or both the old default and new value render on the page. `form.updateTextFieldAppearances()` does not exist in this version. `flatten({ updateFieldAppearances: true })` is silently ignored.
 
 ## What NOT to Do
 
@@ -170,3 +191,5 @@ Add an entry to `MOCK_ACCOUNTS` in `data/mockData.js`. Key is the account number
 - Do not commit real API keys or production DocuSign credentials -- current keys are for the demo sandbox only
 - Do not use `alert()` for user feedback -- use toast notifications instead
 - Do not gate DocuSign by account number -- the gate is form-level via `docuSignEnabled` in `FORMS_DATA`
+- Do not use `subject` on document-upload envelopes -- DocuSign's REST API expects `emailSubject` for the notification email subject line and `emailBlurb` for the body. `subject` is silently ignored.
+- Do not rely on `flatten({ updateFieldAppearances: true })` -- it is silently ignored in pdf-lib 1.17.1. Handle dropdown appearance clearing manually before flatten.

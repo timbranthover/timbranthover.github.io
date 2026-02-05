@@ -34,9 +34,15 @@ Advisors can browse all 20 forms without selecting an account first:
 - Preview, Print, Download buttons (placeholders for future functionality)
 
 ### DocuSign Integration
-Real DocuSign envelope sending works for **account `ABC123` + form `AC-TF`**. All other combinations use mock behavior.
+Real DocuSign envelope sending works for any form with `docuSignEnabled: true` in the catalog. Currently: **AC-TF, AC-FT, CL-ACRA** (template mode) and **LA-GEN** (PDF fill mode). All other forms use mock behaviour.
 
-The DocuSign flow:
+Two send modes:
+- **Template mode** (AC-TF, AC-FT, CL-ACRA) -- envelope is created from a DocuSign template. Form field data typed in the app stays local; the template controls document layout.
+- **PDF fill mode** (LA-GEN) -- the source PDF (`assets/LA-GEN-PDF.pdf`) is fetched, its AcroForm fields are filled with the typed data using **pdf-lib**, the form is flattened into static content, and the result is uploaded to DocuSign as a raw document. The signer sees all pre-filled values.
+
+The routing decision is automatic: if the form definition in `FORMS_DATA` has a `pdfPath`, the PDF fill path is used. Otherwise, the template path is used.
+
+Common to both:
 - Browser creates a JWT (RS256 signed with jsrsasign library)
 - JWT is exchanged for an OAuth token via DocuSign's auth server
 - Envelope is created using the DocuSign REST API v2.1
@@ -136,6 +142,17 @@ Work items (drafts, in-progress, completed, voided) are stored in **localStorage
 3. Verify: Error alert appears with message
 4. Verify: Item is still added to My Work (for demo continuity)
 
+### Flow 11: PDF Fill Send (LA-GEN)
+1. Search for account `ABC123`
+2. Select form `LA-GEN` (Generic LOA)
+3. Fill in: Authorized Person Name, select a Relationship from the dropdown, check one or more Authorization Scope options, add Dependent Name and Age
+4. Add a signer (e.g. Timothy Branthover)
+5. Click "Send for Signature"
+6. Verify: success toast, item appears in My Work → In Progress
+7. Open DocuSign (check email or DocuSign dashboard) -- all filled values should appear on the document as static text
+8. Sign the document
+9. Verify: item moves to Completed tab
+
 ---
 
 ## Common Operations
@@ -194,10 +211,13 @@ components/
   forms/
     ACTFform.js             # ACAT Transfer Form (AC-TF)
     ACFTform.js             # EFT Authorization Form (AC-FT)
+    CLACRAform.js           # Advisory Relationship Application (CL-ACRA)
+    LAGENform.js            # Generic Letter of Authorization (LA-GEN) -- PDF fill path
 data/
   mockData.js               # Mock accounts, history, draft data, AI suggestions
-  forms.js                  # Form catalog (20 form definitions)
-
+  forms.js                  # Form catalog (20 form definitions, incl. pdfPath config)
+assets/
+  LA-GEN-PDF.pdf            # Source PDF for LA-GEN -- filled at send time via pdf-lib
 ```
 
 ## Tech Stack
@@ -206,12 +226,15 @@ data/
 - Babel Standalone (in-browser JSX transpilation)
 - Tailwind CSS (CDN)
 - jsrsasign (CDN, JWT signing)
+- pdf-lib (CDN UMD, in-browser PDF form filling)
 - Cloudflare Worker (CORS proxy, free tier)
 
 No npm. No bundler. No build step. Edit files and push.
 
 ## Recent Features
 
+- **PDF Form Fill (Option B)**: LA-GEN form data is filled directly into the source PDF via pdf-lib before uploading to DocuSign. The signer sees all pre-filled values -- no template tab-label matching required.
+- **Dual Send Paths**: Template-based forms use DocuSign templates; PDF-fill forms upload a pre-filled document. Routing is automatic based on `pdfPath` in the form definition.
 - **Signing Order**: Choose parallel (all at once) or sequential (one after another) signing
 - **Personal Message**: Add a custom note to the DocuSign email (150 char limit)
 - **Forms Library**: Browse all forms without searching for an account

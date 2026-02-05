@@ -326,9 +326,17 @@ const DocuSignService = {
                 form.getCheckBox(fieldDef.name).uncheck();
               }
               break;
-            case 'dropdown':
-              form.getDropdown(fieldDef.name).select(String(value));
+            case 'dropdown': {
+              const dd = form.getDropdown(fieldDef.name);
+              dd.select(String(value));
+              // pdf-lib updates the field value but leaves the old appearance
+              // stream (AP) intact. flatten() bakes that stale picture into the
+              // page, so both the old default and the new value render.
+              // Deleting AP before flatten removes the stale picture; flatten
+              // then only draws the current selected value.
+              try { dd.acroField.dictionary.delete('AP'); } catch(e) { /* noop */ }
               break;
+            }
           }
           console.log('DocuSign PDF: Filled', fieldDef.name, '=', value);
         } catch (e) {
