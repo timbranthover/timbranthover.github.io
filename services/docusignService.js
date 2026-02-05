@@ -341,7 +341,9 @@ const DocuSignService = {
 
       // 3. Save filled PDF and base64 encode
       const filledPdfBytes = await pdfDoc.save();
+      console.log('DocuSign PDF: Saved PDF, byte count:', filledPdfBytes.length);
       const base64PDF = this._uint8ArrayToBase64(filledPdfBytes);
+      console.log('DocuSign PDF: Base64 length:', base64PDF.length);
 
       // 4. Build envelope definition with uploaded document + signature tabs
       const envelopeDefinition = {
@@ -349,6 +351,7 @@ const DocuSignService = {
           documentBase64: base64PDF,
           documentId: '1',
           name: 'Generic Letter of Authorization.pdf',
+          fileExtension: 'pdf',
           title: 'Generic Letter of Authorization'
         }],
         recipients: {
@@ -374,22 +377,30 @@ const DocuSignService = {
         envelopeDefinition.emailBlurb = customMessage;
       }
 
-      console.log('DocuSign PDF: Sending document envelope');
+      // Debug: log envelope structure with truncated base64
+      const debugPayload = JSON.parse(JSON.stringify(envelopeDefinition));
+      debugPayload.documents[0].documentBase64 = debugPayload.documents[0].documentBase64.substring(0, 80) + '... (' + base64PDF.length + ' chars)';
+      console.log('DocuSign PDF: Envelope payload:', JSON.stringify(debugPayload, null, 2));
 
       // 5. POST to DocuSign
       const url = this._buildApiUrl('/envelopes');
+      const bodyStr = JSON.stringify(envelopeDefinition);
+      console.log('DocuSign PDF: Sending to', url, '| body length:', bodyStr.length, '| has "name":', bodyStr.includes('"name"'));
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(envelopeDefinition)
+        body: bodyStr
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to send envelope: ${errorData.message || response.statusText}`);
+        const errorText = await response.text();
+        console.error('DocuSign PDF: Full error response:', errorText);
+        let errorData;
+        try { errorData = JSON.parse(errorText); } catch (e) { /* fall through */ }
+        throw new Error(`Failed to send envelope: ${(errorData && errorData.message) || response.statusText}`);
       }
 
       const data = await response.json();
