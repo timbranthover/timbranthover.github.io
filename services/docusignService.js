@@ -328,13 +328,26 @@ const DocuSignService = {
               break;
             case 'dropdown': {
               const dd = form.getDropdown(fieldDef.name);
+              console.log(`[PDF Fill] Selecting dropdown "${fieldDef.name}" to "${value}"`);
               dd.select(String(value));
+
               // pdf-lib updates the field value but leaves the old appearance
               // stream (AP) intact. flatten() bakes that stale picture into the
               // page, so both the old default and the new value render.
               // Deleting AP before flatten removes the stale picture; flatten
               // then only draws the current selected value.
-              try { dd.acroField.dictionary.delete('AP'); } catch(e) { /* noop */ }
+              try {
+                const beforeAP = dd.acroField.dictionary.has('AP');
+                console.log(`[PDF Fill] Dropdown AP exists before delete: ${beforeAP}`);
+
+                dd.acroField.dictionary.delete('AP');
+
+                const afterAP = dd.acroField.dictionary.has('AP');
+                console.log(`[PDF Fill] Dropdown AP exists after delete: ${afterAP}`);
+                console.log(`[PDF Fill] AP deletion ${beforeAP && !afterAP ? 'SUCCEEDED' : 'MAY HAVE FAILED'}`);
+              } catch(e) {
+                console.log(`[PDF Fill] AP deletion error:`, e);
+              }
               break;
             }
           }
