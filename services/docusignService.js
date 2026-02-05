@@ -336,8 +336,10 @@ const DocuSignService = {
         }
       });
 
-      // Flatten form fields into page content so values render as static text
-      form.flatten();
+      // Flatten form fields into page content so values render as static text.
+      // updateFieldAppearances re-renders each field from its current value first,
+      // clearing stale default appearances (e.g. dropdown showing old + new value).
+      form.flatten({ updateFieldAppearances: true });
 
       // 3. Save filled PDF and base64 encode
       const filledPdfBytes = await pdfDoc.save();
