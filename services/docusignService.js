@@ -336,9 +336,8 @@ const DocuSignService = {
         }
       });
 
-      // Flatten text field appearances so values render when opened
-      const font = pdfDoc.embedStandardFont(PDFLib.StandardFonts.Helvetica);
-      form.updateTextFieldAppearances(font);
+      // Flatten form fields into page content so values render as static text
+      form.flatten();
 
       // 3. Save filled PDF and base64 encode
       const filledPdfBytes = await pdfDoc.save();
