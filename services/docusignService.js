@@ -87,30 +87,32 @@ const DocuSignService = {
 
   // Send envelope using template
   // signers: array of { email, name, routingOrder }
-  async sendEnvelope(signers, accountNumber, customMessage) {
+  async sendEnvelope(signers, accountNumber, customMessage, options) {
     try {
       const accessToken = await this.getAccessToken();
 
       // Build template roles from signers array
       // For templates with single role, use first signer
       // For templates with multiple roles (Signer1, Signer2), map accordingly
+      // Use form-specific templateId if provided, fall back to global config
+      const templateId = (options && options.templateId) || DOCUSIGN_CONFIG.templateId;
+
+      // Build textTabs: always include AccountNumber, append any form-specific tabs
+      const textTabs = [{ tabLabel: 'AccountNumber', value: accountNumber }];
+      if (options && options.textTabs) {
+        options.textTabs.forEach(tab => textTabs.push(tab));
+      }
+
       const templateRoles = signers.map((signer, index) => ({
         email: signer.email,
         name: signer.name,
         roleName: index === 0 ? 'Signer' : `Signer${index + 1}`,
         routingOrder: String(signer.routingOrder),
-        tabs: index === 0 ? {
-          textTabs: [
-            {
-              tabLabel: 'AccountNumber',
-              value: accountNumber
-            }
-          ]
-        } : undefined
+        tabs: index === 0 ? { textTabs: textTabs } : undefined
       }));
 
       const envelopeDefinition = {
-        templateId: DOCUSIGN_CONFIG.templateId,
+        templateId: templateId,
         templateRoles: templateRoles,
         status: 'sent'
       };

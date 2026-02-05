@@ -1,4 +1,10 @@
 const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
+  const handleOptionChange = (selectedOption) => {
+    ['option1', 'option2', 'option3'].forEach(opt => {
+      onUpdateField(opt, opt === selectedOption ? 'X' : '');
+    });
+  };
+
   return (
     <div className="bg-white shadow-lg max-w-3xl mx-auto p-8 space-y-6">
       <div className="border-b-2 border-gray-900 pb-4">
@@ -48,13 +54,18 @@ const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Relationship</label>
-              <input
-                type="text"
+              <select
                 value={formData.relationship || ''}
                 onChange={(e) => onUpdateField('relationship', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                placeholder="e.g., Spouse, Attorney, Financial Advisor"
-              />
+                className="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white"
+              >
+                <option value="">Select relationship...</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Attorney">Attorney / Power of Attorney</option>
+                <option value="Financial Advisor">Financial Advisor</option>
+                <option value="Trustee">Trustee</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
           </div>
         </div>
@@ -62,55 +73,54 @@ const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
         {/* Authorization Scope */}
         <div className="border-t pt-6">
           <h3 className="font-semibold text-gray-900 mb-3">Authorization Scope</h3>
-          <div className="space-y-4">
+          <div className="space-y-3">
+            {[
+              { key: 'option1', label: 'View Account Information Only' },
+              { key: 'option2', label: 'Deposit and Withdraw Funds' },
+              { key: 'option3', label: 'Full Trading and Account Access' }
+            ].map(opt => (
+              <label key={opt.key} className={`flex items-center gap-3 p-3 rounded border cursor-pointer transition-colors ${
+                formData[opt.key] === 'X'
+                  ? 'bg-blue-50 border-blue-300'
+                  : 'border-gray-200 hover:bg-gray-50'
+              }`}>
+                <input
+                  type="radio"
+                  name="authorizationScope"
+                  checked={formData[opt.key] === 'X'}
+                  onChange={() => handleOptionChange(opt.key)}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span className="text-sm text-gray-900">{opt.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Dependent Information */}
+        <div className="border-t pt-6">
+          <h3 className="font-semibold text-gray-900 mb-3">Dependent Information</h3>
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Scope Description</label>
-              <textarea
-                value={formData.scopeDescription || ''}
-                onChange={(e) => onUpdateField('scopeDescription', e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none"
-                placeholder="Describe what this person is authorized to do..."
+              <label className="block text-xs font-medium text-gray-700 mb-1">Dependent Name</label>
+              <input
+                type="text"
+                value={formData.dependentName || ''}
+                onChange={(e) => onUpdateField('dependentName', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                placeholder="Full name"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Expiration</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="expiration"
-                    value="permanent"
-                    checked={formData.expiration === 'permanent'}
-                    onChange={(e) => onUpdateField('expiration', e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-sm">Permanent</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="expiration"
-                    value="dated"
-                    checked={formData.expiration === 'dated'}
-                    onChange={(e) => onUpdateField('expiration', e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-sm">Specific Date</span>
-                </label>
-              </div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Age</label>
+              <input
+                type="text"
+                value={formData.dependentAge || ''}
+                onChange={(e) => onUpdateField('dependentAge', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                placeholder="Age"
+              />
             </div>
-            {formData.expiration === 'dated' && (
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Expiration Date</label>
-                <input
-                  type="date"
-                  value={formData.expirationDate || ''}
-                  onChange={(e) => onUpdateField('expirationDate', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                />
-              </div>
-            )}
           </div>
         </div>
 

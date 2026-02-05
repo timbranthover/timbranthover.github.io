@@ -5,7 +5,7 @@ const FORMS_DATA = [
   { code: "AC-DISB-LOA", name: "Consolidated Disbursement", description: "Authorization for consolidated disbursement", eSignEnabled: true, requiresAllSigners: false },
   { code: "CL-ACRA", name: "Advisory Relationship Application", description: "Investment advisory agreement", eSignEnabled: true, docuSignEnabled: true, requiresAllSigners: true },
   { code: "WP-MAINT-BA", name: "IRA Designation/Change of Beneficiary", description: "Update IRA beneficiary information", eSignEnabled: true, requiresAllSigners: false },
-  { code: "LA-GEN", name: "Generic LOA", description: "General letter of authorization", eSignEnabled: true, docuSignEnabled: true, requiresAllSigners: false },
+  { code: "LA-GEN", name: "Generic LOA", description: "General letter of authorization", eSignEnabled: true, docuSignEnabled: true, requiresAllSigners: false, templateId: 'd880d558-b959-4cc8-a4c1-2aff259c829f', textTabFields: { authorizedName: 'AuthorizedPartyName', relationship: 'Dropdown1', option1: 'Option1', option2: 'Option2', option3: 'Option3', dependentName: 'NameDependent', dependentAge: 'AgeDependent' } },
   { code: "SPER", name: "Structured Products Eligibility Request", description: "Eligibility request for structured products", eSignEnabled: true, requiresAllSigners: false },
   { code: "CL-W9", name: "TEFRA Form (Domestic)", description: "W-9 taxpayer identification", eSignEnabled: true, requiresAllSigners: false },
   { code: "AC-RC", name: "Roth IRA Conversion/IRA Recharacterization", description: "Convert traditional IRA to Roth IRA", eSignEnabled: true, requiresAllSigners: false },
