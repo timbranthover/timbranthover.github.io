@@ -239,36 +239,34 @@ const FormsLibraryView = ({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onToggleSaveForm) onToggleSaveForm(form.code);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-0.5 py-1 text-sm font-medium text-blue-700 hover:text-blue-800"
+                      >
+                        <svg className={`w-4 h-4 ${isSaved ? 'fill-blue-600 stroke-blue-600' : 'fill-none stroke-blue-600'}`} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                        {isSaved ? 'Saved' : 'Save'}
+                      </button>
+
                       {form.eSignEnabled ? (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                        <div className="flex items-center justify-center gap-1.5 w-24 px-2.5 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                           </svg>
                           eSign
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
+                        <div className="flex items-center justify-center gap-1.5 w-24 px-2.5 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                           </svg>
                           Print Only
                         </div>
-                      )}
-
-                      {isExpanded && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (onToggleSaveForm) onToggleSaveForm(form.code);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-0.5 py-1 text-sm font-medium text-blue-700 hover:text-blue-800"
-                        >
-                          <svg className={`w-4 h-4 ${isSaved ? 'fill-blue-600 stroke-blue-600' : 'fill-none stroke-blue-600'}`} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                          </svg>
-                          {isSaved ? 'Saved' : 'Save'}
-                        </button>
                       )}
 
                       <button
