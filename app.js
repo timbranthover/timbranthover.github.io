@@ -6,6 +6,16 @@ const App = () => {
   const [searchError, setSearchError] = React.useState(null);
   const [toast, setToast] = React.useState(null);
   const [confetti, setConfetti] = React.useState([]);
+  const [savedFormCodes, setSavedFormCodes] = React.useState(() => {
+    try {
+      const saved = localStorage.getItem('formsLibrary_savedFormCodes');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Error loading saved forms from localStorage:', error);
+      return [];
+    }
+  });
 
   // Konami Code Easter Egg: ↑ ↑ ↓ ↓ ← → ← → B A
   React.useEffect(() => {
@@ -68,6 +78,22 @@ const App = () => {
     }
   }, [workItems]);
 
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('formsLibrary_savedFormCodes', JSON.stringify(savedFormCodes));
+    } catch (error) {
+      console.error('Error saving saved forms to localStorage:', error);
+    }
+  }, [savedFormCodes]);
+
+  const handleToggleSavedForm = (formCode) => {
+    setSavedFormCodes((prev) => (
+      prev.includes(formCode)
+        ? prev.filter((code) => code !== formCode)
+        : [formCode, ...prev]
+    ));
+  };
+
   const handleSearch = (accountNumber) => {
     // Normalize account number (remove spaces, uppercase)
     const normalizedAccount = accountNumber.trim().toUpperCase();
@@ -87,6 +113,14 @@ const App = () => {
   const handleContinueToPackage = (forms) => {
     setSelectedForms(forms);
     setDraftData(null);
+    setView('package');
+  };
+
+  const handleContinueFromFormsLibrary = (forms, account) => {
+    setCurrentAccount(account);
+    setSelectedForms(forms);
+    setDraftData(null);
+    setSearchError(null);
     setView('package');
   };
 
@@ -321,7 +355,7 @@ const App = () => {
       setView('landing');
       setCurrentAccount(null);
       setSearchError(null);
-    } else if (view === 'work' || view === 'formsLibrary') {
+    } else if (view === 'work' || view === 'formsLibrary' || view === 'savedForms') {
       setView('landing');
     }
   };
@@ -333,7 +367,12 @@ const App = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {view === 'landing' && (
           <>
-            <SearchView onSearch={handleSearch} onBrowseForms={() => setView('formsLibrary')} />
+            <SearchView
+              onSearch={handleSearch}
+              onBrowseForms={() => setView('formsLibrary')}
+              onBrowseSavedForms={() => setView('savedForms')}
+              savedFormsCount={savedFormCodes.length}
+            />
             {searchError && (
               <div className="mt-4 max-w-5xl p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-start gap-3">
@@ -372,7 +411,24 @@ const App = () => {
         )}
 
         {view === 'formsLibrary' && (
-          <FormsLibraryView onBack={handleBack} />
+          <FormsLibraryView
+            onBack={handleBack}
+            savedFormCodes={savedFormCodes}
+            onToggleSaveForm={handleToggleSavedForm}
+            onContinue={handleContinueFromFormsLibrary}
+            initialAccountNumber={currentAccount?.accountNumber || ''}
+          />
+        )}
+
+        {view === 'savedForms' && (
+          <SavedFormsView
+            onBack={handleBack}
+            onBrowseForms={() => setView('formsLibrary')}
+            savedFormCodes={savedFormCodes}
+            onToggleSaveForm={handleToggleSavedForm}
+            onContinue={handleContinueFromFormsLibrary}
+            initialAccountNumber={currentAccount?.accountNumber || ''}
+          />
         )}
 
         {view === 'package' && currentAccount && (
