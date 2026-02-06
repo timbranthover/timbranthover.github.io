@@ -203,25 +203,9 @@ const FormsLibraryView = ({
 
                       {isExpanded && (
                         <div className="mt-4 pt-4 border-t border-gray-200 ml-8">
-                          <div className="flex items-start justify-between gap-4 mb-4 pr-1">
-                            {form.longDescription ? (
-                              <p className="text-sm text-gray-600 flex-1">{form.longDescription}</p>
-                            ) : (
-                              <div className="flex-1" />
-                            )}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (onToggleSaveForm) onToggleSaveForm(form.code);
-                              }}
-                              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800 flex-shrink-0"
-                            >
-                              <svg className={`w-4 h-4 ${isSaved ? 'fill-blue-600 stroke-blue-600' : 'fill-none stroke-blue-600'}`} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                              </svg>
-                              {isSaved ? 'Saved' : 'Save'}
-                            </button>
-                          </div>
+                          {form.longDescription && (
+                            <p className="text-sm text-gray-600 mb-4">{form.longDescription}</p>
+                          )}
 
                           <div className="space-y-2 text-sm">
                             <div>
@@ -255,7 +239,7 @@ const FormsLibraryView = ({
                       )}
                     </div>
 
-                    <div className="flex items-start gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {form.eSignEnabled ? (
                         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,6 +254,21 @@ const FormsLibraryView = ({
                           </svg>
                           Print Only
                         </div>
+                      )}
+
+                      {isExpanded && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onToggleSaveForm) onToggleSaveForm(form.code);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-0.5 py-1 text-sm font-medium text-blue-700 hover:text-blue-800"
+                        >
+                          <svg className={`w-4 h-4 ${isSaved ? 'fill-blue-600 stroke-blue-600' : 'fill-none stroke-blue-600'}`} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                          </svg>
+                          {isSaved ? 'Saved' : 'Save'}
+                        </button>
                       )}
 
                       <button
