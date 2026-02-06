@@ -55,7 +55,7 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
           style={{ transitionDelay: '80ms' }}
         >
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Search by Account</h2>
-          <p className="text-sm text-gray-600 mb-5">Enter account number or UAN to view available forms for e-signature.</p>
+          <p className="text-sm text-gray-600 mb-5">Enter account number or UAN to view available forms for eSign.</p>
 
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
