@@ -7,7 +7,7 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
 
   const operationsCallout = {
     label: 'Operations update',
-    message: 'AC-DEBIT-CARD is now enabled for e-sign on eligible account workflows.'
+    message: 'AC-DEBIT-CARD is now enabled for eSign on eligible account workflows.'
   };
 
   React.useEffect(() => {
