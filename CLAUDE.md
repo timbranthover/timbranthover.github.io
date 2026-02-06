@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Forms Library** -- a client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for e-signature via DocuSign. Built as a single-page React application hosted on GitHub Pages.
+**Forms Library** -- a client-facing prototype for financial advisors to search accounts, select forms, fill them out, assign signers, and send for eSign via DocuSign. Built as a single-page React application hosted on GitHub Pages.
 
 This is a **prototype / demo application** using mock data and a real DocuSign sandbox integration. There is no backend server, no build step, and no bundler. It runs entirely in the browser via CDN-loaded React 18 + Babel transpilation. API calls to DocuSign are routed through a Cloudflare Worker to bypass CORS.
 
@@ -73,7 +73,7 @@ All data lives in global `const` variables (`MOCK_ACCOUNTS`, `FORMS_DATA`, `MOCK
 Work items (drafts, in-progress, completed, voided) are persisted to `localStorage` under the key `formsLibrary_workItems`. On load, `app.js` reads from localStorage and falls back to `MOCK_HISTORY` (which is empty by default). Every state change to `workItems` is auto-saved via a `useEffect`.
 
 ### DocuSign Integration
-Real e-signature sending is enabled for any form with `docuSignEnabled: true` in its `FORMS_DATA` definition. Currently enabled: **AC-TF, AC-FT, CL-ACRA** (template path) and **LA-GEN** (PDF fill path). All other forms go straight to My Work as in-progress items without hitting DocuSign. There is no account-level gate -- any mock account can trigger an envelope.
+Real eSign sending is enabled for any form with `docuSignEnabled: true` in its `FORMS_DATA` definition. Currently enabled: **AC-TF, AC-FT, CL-ACRA** (template path) and **LA-GEN** (PDF fill path). All other forms go straight to My Work as in-progress items without hitting DocuSign. There is no account-level gate -- any mock account can trigger an envelope.
 
 **Common preamble (both paths):**
 1. `app.js` checks `shouldUseDocuSign` -- iterates the selected forms and returns true if any has `docuSignEnabled: true` in `FORMS_DATA`

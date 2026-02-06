@@ -121,7 +121,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
-                    e-Sign
+                    eSign
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm">
