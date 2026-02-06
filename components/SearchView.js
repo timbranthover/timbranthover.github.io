@@ -81,7 +81,7 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
         </div>
 
         <div
-          className={`bg-slate-50 rounded-lg border border-slate-300 p-6 lg:p-7 transition-all duration-500 ${
+          className={`bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg border border-slate-300 p-6 lg:p-7 transition-all duration-500 ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
           }`}
           style={{ transitionDelay: '140ms' }}
