@@ -20,8 +20,8 @@ const MOCK_ACCOUNTS = {
       }
     ]
   },
-  "1B92007": {
-    accountNumber: "1B92007",
+  "QWE123": {
+    accountNumber: "QWE123",
     accountName: "Timothy Branthover",
     accountType: "Roth IRA",
     signers: [
@@ -34,8 +34,8 @@ const MOCK_ACCOUNTS = {
       }
     ]
   },
-  "1C88543": {
-    accountNumber: "1C88543",
+  "RTY234": {
+    accountNumber: "RTY234",
     accountName: "Michael Chen",
     accountType: "Individual",
     signers: [
@@ -48,8 +48,8 @@ const MOCK_ACCOUNTS = {
       }
     ]
   },
-  "1D12456": {
-    accountNumber: "1D12456",
+  "UIO345": {
+    accountNumber: "UIO345",
     accountName: "Jennifer & Robert Martinez",
     accountType: "Joint",
     signers: [
@@ -69,8 +69,8 @@ const MOCK_ACCOUNTS = {
       }
     ]
   },
-  "1E99871": {
-    accountNumber: "1E99871",
+  "ASD456": {
+    accountNumber: "ASD456",
     accountName: "Sarah Johnson Living Trust",
     accountType: "Trust",
     signers: [
@@ -83,8 +83,8 @@ const MOCK_ACCOUNTS = {
       }
     ]
   },
-  "1F44320": {
-    accountNumber: "1F44320",
+  "FGH567": {
+    accountNumber: "FGH567",
     accountName: "David Williams",
     accountType: "Traditional IRA",
     signers: [
