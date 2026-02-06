@@ -1,30 +1,36 @@
-const FormsLibraryView = ({
+const SavedFormsView = ({
   onBack,
+  onBrowseForms = () => {},
   onContinue,
   savedFormCodes = [],
   onToggleSaveForm,
   initialAccountNumber = ''
 }) => {
-  const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedFormCode, setSelectedFormCode] = React.useState(null);
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [accountInput, setAccountInput] = React.useState(initialAccountNumber);
   const [accountError, setAccountError] = React.useState(null);
 
-  const searchResult = React.useMemo(
-    () => searchFormsCatalog(searchQuery, { limit: searchQuery.trim() ? 24 : FORMS_DATA.length }),
-    [searchQuery]
-  );
+  const savedForms = React.useMemo(() => {
+    const codeSet = new Set(savedFormCodes);
+    return FORMS_DATA
+      .filter((form) => codeSet.has(form.code))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [savedFormCodes]);
 
-  const visibleForms = searchResult.items;
   const normalizedAccount = accountInput.trim().toUpperCase();
   const resolvedAccount = normalizedAccount ? MOCK_ACCOUNTS[normalizedAccount] : null;
 
   React.useEffect(() => {
-    if (selectedFormCode && !visibleForms.some((form) => form.code === selectedFormCode)) {
+    if (selectedFormCode && !savedForms.some((form) => form.code === selectedFormCode)) {
       setSelectedFormCode(null);
     }
-  }, [visibleForms, selectedFormCode]);
+  }, [savedForms, selectedFormCode]);
+
+  React.useEffect(() => {
+    const currentCodes = new Set(savedForms.map((form) => form.code));
+    setSelectedForms((prev) => prev.filter((code) => currentCodes.has(code)));
+  }, [savedForms]);
 
   const toggleFormSelection = (form) => {
     if (!form.eSignEnabled) return;
@@ -53,8 +59,8 @@ const FormsLibraryView = ({
     <div className="space-y-6">
       <div className="flex items-start gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Forms Library</h2>
-          <p className="text-sm text-gray-500 mt-1">Browse and select from {FORMS_DATA.length} available forms</p>
+          <h2 className="text-2xl font-semibold text-gray-900">Saved Forms</h2>
+          <p className="text-sm text-gray-500 mt-1">Quick access to your saved forms list</p>
         </div>
 
         <div className="ml-auto flex flex-col items-end gap-3">
@@ -92,7 +98,7 @@ const FormsLibraryView = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Account/UAN for package</label>
           <input
@@ -116,57 +122,23 @@ const FormsLibraryView = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search forms by name, code, or description..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
-
-        {searchQuery && (
-          <p className="text-sm text-gray-500">
-            Showing {visibleForms.length}
-            {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
-            {' '}from {FORMS_DATA.length} total
-          </p>
-        )}
-      </div>
-
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {visibleForms.length === 0 ? (
+        {savedForms.length === 0 ? (
           <div className="p-12 text-center">
             <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
-            <p className="text-gray-500">No forms match your search</p>
+            <p className="text-gray-500">No saved forms yet</p>
             <button
-              onClick={() => setSearchQuery('')}
+              onClick={onBrowseForms}
               className="text-sm text-blue-600 hover:text-blue-700 mt-2"
             >
-              Clear search
+              Browse forms library
             </button>
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {visibleForms.map((form) => {
-              const isSaved = savedFormCodes.includes(form.code);
+            {savedForms.map((form) => {
               const isSelected = selectedForms.includes(form.code);
               const isExpanded = selectedFormCode === form.code;
 
@@ -216,10 +188,10 @@ const FormsLibraryView = ({
                               }}
                               className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800 flex-shrink-0"
                             >
-                              <svg className={`w-4 h-4 ${isSaved ? 'fill-blue-600 stroke-blue-600' : 'fill-none stroke-blue-600'}`} viewBox="0 0 24 24">
+                              <svg className="w-4 h-4 fill-blue-600 stroke-blue-600" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                               </svg>
-                              {isSaved ? 'Saved' : 'Save'}
+                              Saved
                             </button>
                           </div>
 
@@ -295,21 +267,6 @@ const FormsLibraryView = ({
             })}
           </div>
         )}
-      </div>
-
-      <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
-        <div className="flex items-center gap-1.5">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          {FORMS_DATA.length} Total Forms
-        </div>
-        <div className="flex items-center gap-1.5">
-          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {FORMS_DATA.filter((f) => f.eSignEnabled).length} eSign Enabled
-        </div>
       </div>
     </div>
   );
