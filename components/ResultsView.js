@@ -14,86 +14,12 @@ const ResultsView = ({ account, onBack, onContinue }) => {
     onContinue(selectedForms);
   };
 
-   // Enhanced fuzzy search function
-  const searchForms = (query) => {
-    if (!query.trim()) return FORMS_DATA;
-    
-    const lowerQuery = query.toLowerCase().trim();
-    const tokens = lowerQuery.split(/\s+/);
-    
-    // Helper: Calculate similarity score (simple Levenshtein-like)
-    const getSimilarity = (str1, str2) => {
-      str1 = str1.toLowerCase();
-      str2 = str2.toLowerCase();
-      
-      // Exact match
-      if (str1 === str2) return 100;
-      
-      // Contains match
-      if (str1.includes(str2) || str2.includes(str1)) return 80;
-      
-      // Fuzzy match - remove hyphens and spaces for comparison
-      const clean1 = str1.replace(/[-\s]/g, '');
-      const clean2 = str2.replace(/[-\s]/g, '');
-      
-      if (clean1.includes(clean2) || clean2.includes(clean1)) return 70;
-      
-      // Character overlap
-      const overlap = [...clean2].filter(char => clean1.includes(char)).length;
-      return (overlap / clean2.length) * 60;
-    };
-    
-    return FORMS_DATA.filter(form => {
-      // Direct matches
-      if (form.code.toLowerCase().includes(lowerQuery)) return true;
-      if (form.name.toLowerCase().includes(lowerQuery)) return true;
-      if (form.description.toLowerCase().includes(lowerQuery)) return true;
-      
-      // Fuzzy match on form code (e.g., "clacra" matches "CL-ACRA")
-      const codeScore = getSimilarity(form.code, lowerQuery);
-      if (codeScore > 60) return true;
-      
-      // Token-based search
-      const allText = `${form.code} ${form.name} ${form.description}`.toLowerCase();
-      const matchesAllTokens = tokens.every(token => allText.includes(token));
-      if (matchesAllTokens) return true;
-      
-      // Keyword aliases
-      const aliases = {
-        'acat': ['ac-tf', 'account transfer'],
-        'transfer': ['ac-tf', 'ac-ft'],
-        'eft': ['ac-ft', 'electronic funds'],
-        'wire': ['ac-ft'],
-        'ira': ['ac-dq', 'wp-maint-ba', 'ac-rc', 'la25', 'ac-dbt'],
-        'beneficiary': ['wp-maint-ba', 'bene'],
-        'loan': ['loan-u1', 'loan-ha'],
-        'advisory': ['cl-acra', 'acra'],
-        'w9': ['cl-w9', 'tefra'],
-        'tax': ['cl-w9', 'la25', 'withholding'],
-        'tod': ['ac-to', 'transfer on death'],
-        'options': ['ac-opi'],
-        'distribution': ['ac-dq', 'ac-dbt'],
-        'roth': ['ac-rc', 'conversion'],
-        'beneficiary': ['wp-maint-ba'],
-        'trustee': ['cl-ts'],
-        'entity': ['cl-boe']
-      };
-      
-      for (const [alias, targets] of Object.entries(aliases)) {
-        if (lowerQuery.includes(alias)) {
-          if (targets.some(target => form.code.toLowerCase().includes(target) || 
-                                     form.name.toLowerCase().includes(target) ||
-                                     form.description.toLowerCase().includes(target))) {
-            return true;
-          }
-        }
-      }
-      
-      return false;
-    });
-  };
+  const searchResult = React.useMemo(
+    () => searchFormsCatalog(searchQuery, { limit: searchQuery.trim() ? 40 : FORMS_DATA.length }),
+    [searchQuery]
+  );
 
-  const filteredForms = searchForms(searchQuery);
+  const filteredForms = searchResult.items;
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -154,7 +80,9 @@ const ResultsView = ({ account, onBack, onContinue }) => {
             )}
           </div>
           <p className="mt-2 text-xs text-gray-500">
-            Showing {filteredForms.length} of {FORMS_DATA.length} forms
+            Showing {filteredForms.length}
+            {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
+            {' '}from {FORMS_DATA.length} total
             {searchQuery && ` matching "${searchQuery}"`}
           </p>
         </div>

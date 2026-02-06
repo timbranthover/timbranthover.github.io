@@ -27,11 +27,11 @@ To deploy, push to `main` -- GitHub Pages picks it up automatically.
 6. **My Work** -- track envelopes across Drafts / In Progress / Completed / Voided tabs
 
 ### Forms Library
-Advisors can browse all 20 forms without selecting an account first:
+Advisors can browse all 100 forms without selecting an account first:
 - Click "Other search options" → "General Forms Search"
-- Search/filter forms by name, code, or description
-- Click any form to expand details (e-sign status, signer requirements)
-- Preview, Print, Download buttons (placeholders for future functionality)
+- Search/filter forms with weighted fuzzy matching across code, name, description, long description, and keywords
+- Click any form to expand details (e-sign status, signer requirements, and metadata)
+- Misspelled queries like `Account trnfer` still surface `AC-TF` as a top result
 
 ### DocuSign Integration
 Real DocuSign envelope sending works for any form with `docuSignEnabled: true` in the catalog. Currently: **AC-TF, AC-FT, CL-ACRA** (template mode) and **LA-GEN** (PDF fill mode). All other forms use mock behaviour.
@@ -93,8 +93,8 @@ Work items (drafts, in-progress, completed, voided) are stored in **localStorage
 ### Flow 4: Forms Library Browse
 1. From landing page, click "Other search options"
 2. Click "General Forms Search"
-3. Verify: All 20 forms displayed in alphabetical order
-4. Use search box to filter (try "IRA" or "transfer")
+3. Verify: All 100 forms are available when no search is entered
+4. Use search box to filter (try "IRA", "transfer", or "Account trnfer")
 5. Click a form row to expand details
 6. Verify: Form code, e-sign status, signer requirements shown
 7. Click "Back to search" to return
@@ -215,7 +215,7 @@ components/
     LAGENform.js            # Generic Letter of Authorization (LA-GEN) -- PDF fill path
 data/
   mockData.js               # Mock accounts, history, draft data, AI suggestions
-  forms.js                  # Form catalog (20 form definitions, incl. pdfPath config)
+  forms.js                  # Form catalog (100 form definitions, incl. pdfPath config)
 assets/
   LA-GEN-PDF.pdf            # Source PDF for LA-GEN -- filled at send time via pdf-lib
 ```
@@ -224,6 +224,7 @@ assets/
 
 - React 18 + ReactDOM 18 (CDN, no build)
 - Babel Standalone (in-browser JSX transpilation)
+- Fuse.js (client-side fuzzy search and ranking)
 - Tailwind CSS (CDN)
 - jsrsasign (CDN, JWT signing)
 - pdf-lib (CDN UMD, in-browser PDF form filling)
@@ -240,3 +241,4 @@ No npm. No bundler. No build step. Edit files and push.
 - **Forms Library**: Browse all forms without searching for an account
 - **Parallel Status Polling**: In Progress items load faster with concurrent API calls
 - **Toast Notifications**: Non-blocking feedback for successful actions
+

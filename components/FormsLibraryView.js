@@ -1,19 +1,19 @@
 const FormsLibraryView = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedForm, setSelectedForm] = React.useState(null);
+  const [selectedFormCode, setSelectedFormCode] = React.useState(null);
 
-  // Filter forms based on search query
-  const filteredForms = FORMS_DATA.filter(form => {
-    const query = searchQuery.toLowerCase();
-    return (
-      form.code.toLowerCase().includes(query) ||
-      form.name.toLowerCase().includes(query) ||
-      form.description.toLowerCase().includes(query)
-    );
-  });
+  const searchResult = React.useMemo(
+    () => searchFormsCatalog(searchQuery, { limit: searchQuery.trim() ? 24 : FORMS_DATA.length }),
+    [searchQuery]
+  );
 
-  // Sort forms alphabetically by name
-  const sortedForms = [...filteredForms].sort((a, b) => a.name.localeCompare(b.name));
+  const visibleForms = searchResult.items;
+
+  React.useEffect(() => {
+    if (selectedFormCode && !visibleForms.some((form) => form.code === selectedFormCode)) {
+      setSelectedFormCode(null);
+    }
+  }, [visibleForms, selectedFormCode]);
 
   return (
     <div className="space-y-6">
@@ -60,14 +60,16 @@ const FormsLibraryView = ({ onBack }) => {
         </div>
         {searchQuery && (
           <p className="text-sm text-gray-500 mt-2">
-            Showing {filteredForms.length} of {FORMS_DATA.length} forms
+            Showing {visibleForms.length}
+            {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
+            {' '}from {FORMS_DATA.length} total
           </p>
         )}
       </div>
 
       {/* Forms List */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {sortedForms.length === 0 ? (
+        {visibleForms.length === 0 ? (
           <div className="p-12 text-center">
             <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -82,10 +84,10 @@ const FormsLibraryView = ({ onBack }) => {
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {sortedForms.map(form => (
+            {visibleForms.map(form => (
               <div
                 key={form.code}
-                onClick={() => setSelectedForm(selectedForm?.code === form.code ? null : form)}
+                onClick={() => setSelectedFormCode(selectedFormCode === form.code ? null : form.code)}
                 className="px-4 py-4 cursor-pointer transition-colors hover:bg-gray-50"
               >
                 <div className="flex items-start justify-between gap-4">
@@ -99,8 +101,12 @@ const FormsLibraryView = ({ onBack }) => {
                     <p className="text-sm text-gray-500 mt-1">{form.description}</p>
 
                     {/* Expanded Details */}
-                    {selectedForm?.code === form.code && (
+                    {selectedFormCode === form.code && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
+                        {form.longDescription && (
+                          <p className="text-sm text-gray-600 mb-4">{form.longDescription}</p>
+                        )}
+
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
                             <span className="text-gray-500">Form Code:</span>
@@ -120,34 +126,22 @@ const FormsLibraryView = ({ onBack }) => {
                           </div>
                         </div>
 
-                        <div className="flex gap-2 mt-4">
-                          <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            Preview Form
-                          </button>
-                          <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                            </svg>
-                            Print
-                          </button>
-                          <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Download PDF
-                          </button>
-                        </div>
+                        {Array.isArray(form.keywords) && form.keywords.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {form.keywords.slice(0, 6).map((keyword) => (
+                              <span key={keyword} className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
+                                {keyword}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
 
                   <svg
                     className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${
-                      selectedForm?.code === form.code ? 'rotate-180' : ''
+                      selectedFormCode === form.code ? 'rotate-180' : ''
                     }`}
                     fill="none"
                     stroke="currentColor"
