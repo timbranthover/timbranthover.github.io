@@ -382,7 +382,7 @@ const App = () => {
                   <div>
                     <p className="text-sm font-medium text-red-800">{searchError}</p>
                     <p className="text-xs text-red-600 mt-1">
-                      Try one of these sample accounts: ABC123, 1B92007, 1C88543, 1D12456, 1E99871, 1F44320
+                      Try one of these sample accounts: ABC123, QWE123, RTY234, UIO345, ASD456, FGH567
                     </p>
                   </div>
                 </div>
