@@ -175,7 +175,7 @@ const FormsLibraryView = ({
                   className={`px-4 py-4 transition-all motion-press ${
                     form.eSignEnabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'
                   } ${
-                    isSelected ? 'bg-blue-50 border-l-2 border-blue-500' : 'hover:bg-gray-50'
+                    isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
