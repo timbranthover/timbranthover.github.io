@@ -68,27 +68,25 @@ const FormsLibraryView = ({
             Back to search
           </button>
 
-          {selectedForms.length > 0 && (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''} selected
-              </span>
-              <button
-                onClick={handleContinue}
-                disabled={!resolvedAccount || !selectedForms.length}
-                className={`px-6 py-2 rounded-lg flex items-center gap-2 font-medium transition-all ${
-                  !resolvedAccount || !selectedForms.length
-                    ? 'bg-blue-100 text-blue-400 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                Continue with {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </button>
-            </div>
-          )}
+          <div className={`flex items-center gap-4 min-h-[40px] transition-opacity duration-150 ${selectedForms.length > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <span className="text-sm text-gray-600">
+              {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''} selected
+            </span>
+            <button
+              onClick={handleContinue}
+              disabled={!resolvedAccount || !selectedForms.length}
+              className={`px-6 py-2 rounded-lg flex items-center gap-2 font-medium transition-all ${
+                !resolvedAccount || !selectedForms.length
+                  ? 'bg-blue-100 text-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+            >
+              Continue with {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
