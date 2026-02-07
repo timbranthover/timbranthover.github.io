@@ -399,7 +399,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
   const tabConfig = [
     { key: 'drafts', label: 'Drafts' },
-    { key: 'inProgress', label: 'In Progress' },
+    { key: 'inProgress', label: 'In progress' },
     { key: 'completed', label: 'Completed' },
     { key: 'voided', label: 'Voided' }
   ];
@@ -409,7 +409,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-semibold text-gray-900">My Work</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">My work</h2>
           {isPolling && (
             <svg className="w-4 h-4 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

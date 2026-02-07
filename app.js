@@ -227,11 +227,11 @@ const App = () => {
           });
         } else {
           console.error('DocuSign error:', result.error);
-          setToast({ message: 'DocuSign error', subtitle: result.error + ' — item still added to My Work' });
+          setToast({ message: 'DocuSign error', subtitle: result.error + ' — item still added to My work' });
         }
       } catch (error) {
         console.error('Error sending DocuSign envelope:', error);
-        setToast({ message: 'DocuSign error', subtitle: error.message + ' — item still added to My Work' });
+        setToast({ message: 'DocuSign error', subtitle: error.message + ' — item still added to My work' });
       }
     }
 
