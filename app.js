@@ -360,87 +360,107 @@ const App = () => {
     }
   };
 
+  const renderActiveView = () => {
+    if (view === 'landing') {
+      return (
+        <>
+          <SearchView
+            onSearch={handleSearch}
+            onBrowseForms={() => setView('formsLibrary')}
+            onBrowseSavedForms={() => setView('savedForms')}
+            savedFormsCount={savedFormCodes.length}
+          />
+          {searchError && (
+            <div className="mt-4 max-w-5xl p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-red-800">{searchError}</p>
+                  <p className="text-xs text-red-600 mt-1">
+                    Try one of these sample accounts: ABC123, QWE123, RTY234, UIO345, ASD456, FGH567
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    if (view === 'results' && currentAccount) {
+      return (
+        <ResultsView
+          account={currentAccount}
+          onBack={handleBack}
+          onContinue={handleContinueToPackage}
+        />
+      );
+    }
+
+    if (view === 'work') {
+      return (
+        <MyWorkView
+          onBack={handleBack}
+          onLoadDraft={handleLoadDraft}
+          onDeleteDraft={handleDeleteDraft}
+          workItems={workItems}
+          onVoidEnvelope={handleVoidEnvelope}
+          onEnvelopeStatusChange={handleEnvelopeStatusChange}
+        />
+      );
+    }
+
+    if (view === 'formsLibrary') {
+      return (
+        <FormsLibraryView
+          onBack={handleBack}
+          savedFormCodes={savedFormCodes}
+          onToggleSaveForm={handleToggleSavedForm}
+          onContinue={handleContinueFromFormsLibrary}
+          initialAccountNumber={currentAccount?.accountNumber || ''}
+        />
+      );
+    }
+
+    if (view === 'savedForms') {
+      return (
+        <SavedFormsView
+          onBack={handleBack}
+          onBrowseForms={() => setView('formsLibrary')}
+          savedFormCodes={savedFormCodes}
+          onToggleSaveForm={handleToggleSavedForm}
+          onContinue={handleContinueFromFormsLibrary}
+          initialAccountNumber={currentAccount?.accountNumber || ''}
+        />
+      );
+    }
+
+    if (view === 'package' && currentAccount) {
+      return (
+        <PackageView
+          account={currentAccount}
+          selectedForms={selectedForms}
+          onBack={handleBack}
+          initialData={draftData}
+          onSendForSignature={handleSendForSignature}
+          onSaveDraft={handleSaveDraft}
+        />
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header onNavigateToWork={() => setView('work')} currentView={view} />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {view === 'landing' && (
-          <>
-            <SearchView
-              onSearch={handleSearch}
-              onBrowseForms={() => setView('formsLibrary')}
-              onBrowseSavedForms={() => setView('savedForms')}
-              savedFormsCount={savedFormCodes.length}
-            />
-            {searchError && (
-              <div className="mt-4 max-w-5xl p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div>
-                    <p className="text-sm font-medium text-red-800">{searchError}</p>
-                    <p className="text-xs text-red-600 mt-1">
-                      Try one of these sample accounts: ABC123, QWE123, RTY234, UIO345, ASD456, FGH567
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {view === 'results' && currentAccount && (
-          <ResultsView
-            account={currentAccount}
-            onBack={handleBack}
-            onContinue={handleContinueToPackage}
-          />
-        )}
-
-        {view === 'work' && (
-          <MyWorkView
-            onBack={handleBack}
-            onLoadDraft={handleLoadDraft}
-            onDeleteDraft={handleDeleteDraft}
-            workItems={workItems}
-            onVoidEnvelope={handleVoidEnvelope}
-            onEnvelopeStatusChange={handleEnvelopeStatusChange}
-          />
-        )}
-
-        {view === 'formsLibrary' && (
-          <FormsLibraryView
-            onBack={handleBack}
-            savedFormCodes={savedFormCodes}
-            onToggleSaveForm={handleToggleSavedForm}
-            onContinue={handleContinueFromFormsLibrary}
-            initialAccountNumber={currentAccount?.accountNumber || ''}
-          />
-        )}
-
-        {view === 'savedForms' && (
-          <SavedFormsView
-            onBack={handleBack}
-            onBrowseForms={() => setView('formsLibrary')}
-            savedFormCodes={savedFormCodes}
-            onToggleSaveForm={handleToggleSavedForm}
-            onContinue={handleContinueFromFormsLibrary}
-            initialAccountNumber={currentAccount?.accountNumber || ''}
-          />
-        )}
-
-        {view === 'package' && currentAccount && (
-          <PackageView
-            account={currentAccount}
-            selectedForms={selectedForms}
-            onBack={handleBack}
-            initialData={draftData}
-            onSendForSignature={handleSendForSignature}
-            onSaveDraft={handleSaveDraft}
-          />
-        )}
+        <div key={view} className="view-enter">
+          {renderActiveView()}
+        </div>
       </div>
 
       {/* Toast Notification */}
