@@ -207,17 +207,17 @@ const FormsLibraryView = ({
 
                           <div className="space-y-2 text-sm">
                             <div>
-                              <span className="text-gray-500">Form Code:</span>
+                              <span className="text-gray-500">Form code:</span>
                               <span className="ml-2 font-medium text-gray-900">{form.code}</span>
                             </div>
                             <div>
                               <span className="text-gray-500">eSign:</span>
                               <span className={`ml-2 font-medium ${form.eSignEnabled ? 'text-green-600' : 'text-gray-400'}`}>
-                                {form.eSignEnabled ? 'Enabled' : 'Not Available'}
+                                {form.eSignEnabled ? 'Enabled' : 'Not available'}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-500">Signers Required:</span>
+                              <span className="text-gray-500">Signers required:</span>
                               <span className="ml-2 font-medium text-gray-900">
                                 {form.requiresAllSigners ? 'All account holders' : 'Single signer'}
                               </span>
@@ -264,7 +264,7 @@ const FormsLibraryView = ({
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
-                            Print Only
+                            Print only
                           </div>
                         )}
                       </div>
@@ -299,13 +299,13 @@ const FormsLibraryView = ({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          {FORMS_DATA.length} Total Forms
+          {FORMS_DATA.length} Total forms
         </div>
         <div className="flex items-center gap-1.5">
           <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          {FORMS_DATA.filter((f) => f.eSignEnabled).length} eSign Enabled
+          {FORMS_DATA.filter((f) => f.eSignEnabled).length} eSign enabled
         </div>
       </div>
     </div>

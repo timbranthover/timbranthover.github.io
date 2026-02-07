@@ -123,7 +123,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
       onSaveDraft(draftName, formDataMap);
     }
 
-    setToast({ message: `Draft "${draftName}" saved`, subtitle: 'Check "My Work" to view your draft' });
+    setToast({ message: `Draft "${draftName}" saved`, subtitle: 'Check "My work" to view your draft' });
   };
 
   const handleSendForSignature = async () => {
@@ -304,7 +304,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Previous Form
+                Previous form
               </button>
 
               <button
@@ -316,7 +316,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                     : 'text-blue-600 hover:bg-blue-50 font-medium'
                 }`}
               >
-                Next Form
+                Next form
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -329,7 +329,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
         <div className="w-96 space-y-4">
           {/* Signer Selection */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Select Signers</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Select signers</h3>
             <div className="space-y-3 mb-6">
               {selectedForms.map((formCode, formIndex) => {
                 const form = FORMS_DATA.find(f => f.code === formCode);
@@ -490,7 +490,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
             <div className="pt-4 border-t border-gray-200">
               <div className="relative">
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                  Personal Message
+                  Personal message
                 </label>
                 <div className="relative">
                   <textarea
@@ -534,7 +534,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
-                Save Draft
+                Save draft
               </button>
 
               <div className="relative group">
@@ -559,7 +559,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
                   )}
-                  {isSending ? 'Sending...' : 'Send for Signature'}
+                  {isSending ? 'Sending...' : 'Send for signature'}
                 </button>
                 {!hasRequiredSigners && (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 bg-opacity-90 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">

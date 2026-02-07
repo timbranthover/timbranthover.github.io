@@ -54,7 +54,7 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
           }`}
           style={{ transitionDelay: '80ms' }}
         >
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Search by Account</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Search by account</h2>
           <p className="text-sm text-gray-600 mb-5">Enter account number or UAN to view available forms for eSign.</p>
 
           <div className="flex flex-col sm:flex-row gap-3">
@@ -141,7 +141,7 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
               <div>
-                <span className="font-medium text-gray-900">General Forms Search</span>
+                <span className="font-medium text-gray-900">General forms search</span>
                 <p className="text-xs text-gray-500 mt-0.5">Browse all {FORMS_DATA.length} forms in the library</p>
               </div>
             </button>
@@ -153,7 +153,7 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
               <div>
-                <span className="font-medium text-gray-900">Saved Forms</span>
+                <span className="font-medium text-gray-900">Saved forms</span>
                 <p className="text-xs text-gray-500 mt-0.5">{savedFormsCount} saved form{savedFormsCount === 1 ? '' : 's'}</p>
               </div>
             </button>
@@ -162,7 +162,7 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
               <div>
-                <span className="font-medium text-gray-500">Forms Category Search</span>
+                <span className="font-medium text-gray-500">Forms category search</span>
                 <p className="text-xs text-gray-400 mt-0.5">Coming soon</p>
               </div>
             </button>

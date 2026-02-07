@@ -59,7 +59,7 @@ const SavedFormsView = ({
     <div className="space-y-6">
       <div className="flex items-start gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Saved Forms</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">Saved forms</h2>
           <p className="text-sm text-gray-500 mt-1">Quick access to your saved forms list</p>
         </div>
 
@@ -180,17 +180,17 @@ const SavedFormsView = ({
 
                           <div className="space-y-2 text-sm">
                             <div>
-                              <span className="text-gray-500">Form Code:</span>
+                              <span className="text-gray-500">Form code:</span>
                               <span className="ml-2 font-medium text-gray-900">{form.code}</span>
                             </div>
                             <div>
                               <span className="text-gray-500">eSign:</span>
                               <span className={`ml-2 font-medium ${form.eSignEnabled ? 'text-green-600' : 'text-gray-400'}`}>
-                                {form.eSignEnabled ? 'Enabled' : 'Not Available'}
+                                {form.eSignEnabled ? 'Enabled' : 'Not available'}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-500">Signers Required:</span>
+                              <span className="text-gray-500">Signers required:</span>
                               <span className="ml-2 font-medium text-gray-900">
                                 {form.requiresAllSigners ? 'All account holders' : 'Single signer'}
                               </span>
@@ -237,7 +237,7 @@ const SavedFormsView = ({
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
-                            Print Only
+                            Print only
                           </div>
                         )}
                       </div>
