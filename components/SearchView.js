@@ -120,10 +120,10 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
         </div>
       </div>
 
-      <div className="border border-gray-300 rounded-lg bg-white">
+      <div className="border border-gray-300 rounded-lg bg-white overflow-hidden transition-colors hover:border-gray-300">
         <button
           onClick={() => setShowOtherOptions(!showOtherOptions)}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
         >
           <span className="text-sm font-medium text-gray-700">Other search options</span>
           <svg className={`w-5 h-5 transition-transform ${showOtherOptions ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
