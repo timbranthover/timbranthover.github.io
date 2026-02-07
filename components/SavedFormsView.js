@@ -147,7 +147,7 @@ const SavedFormsView = ({
                 <div
                   key={form.code}
                   onClick={() => toggleFormSelection(form)}
-                  className={`px-4 py-4 transition-all ${
+                  className={`px-4 py-4 transition-all motion-press ${
                     form.eSignEnabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'
                   } ${
                     isSelected ? 'bg-blue-50 border-l-2 border-blue-500' : 'hover:bg-gray-50'
@@ -175,7 +175,7 @@ const SavedFormsView = ({
                       </div>
 
                       {isExpanded && (
-                        <div className="mt-4 pt-4 border-t border-gray-200 ml-8">
+                        <div className="mt-4 pt-4 border-t border-gray-200 ml-8 panel-enter">
                           {form.longDescription && (
                             <p className="text-sm text-gray-600 mb-4">{form.longDescription}</p>
                           )}

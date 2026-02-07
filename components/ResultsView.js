@@ -93,7 +93,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
               <div
                 key={form.code}
                 onClick={() => form.eSignEnabled && toggleFormSelection(form.code)}
-                className={`flex items-center gap-4 p-4 border rounded transition-all ${
+                className={`flex items-center gap-4 p-4 border rounded transition-all motion-press ${
                   form.eSignEnabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
                 } ${
                   selectedForms.includes(form.code)
