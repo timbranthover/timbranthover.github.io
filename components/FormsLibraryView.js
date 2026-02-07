@@ -53,7 +53,7 @@ const FormsLibraryView = ({
     <div className="space-y-6">
       <div className="flex items-start gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Forms Library</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">General forms search</h2>
           <p className="text-sm text-gray-500 mt-1">Browse and select from {FORMS_DATA.length} available forms</p>
         </div>
 
