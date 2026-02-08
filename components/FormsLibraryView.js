@@ -139,7 +139,7 @@ const FormsLibraryView = ({
         </div>
 
         {searchQuery && (
-          <p className="text-sm text-gray-500">
+          <p className="mt-1.5 text-sm text-gray-500">
             Showing {visibleForms.length}
             {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
             {' '}from {FORMS_DATA.length} total
