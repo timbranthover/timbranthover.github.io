@@ -368,6 +368,13 @@ const App = () => {
             onSearch={handleSearch}
             onBrowseForms={() => setView('formsLibrary')}
             onBrowseSavedForms={() => setView('savedForms')}
+            onResumeLastDraft={() => {
+              const latestDraft = workItems.drafts[0];
+              if (latestDraft) {
+                handleLoadDraft(latestDraft);
+              }
+            }}
+            hasSavedDrafts={workItems.drafts.length > 0}
             savedFormsCount={savedFormCodes.length}
           />
           {searchError && (
