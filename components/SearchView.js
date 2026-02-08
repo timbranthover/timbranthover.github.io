@@ -36,15 +36,15 @@ const SearchView = ({ onSearch, onBrowseForms, onBrowseSavedForms = () => {}, sa
   return (
     <div className="space-y-6 max-w-5xl">
       <div
-        className={`rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-slate-50 px-5 py-3 transition-all duration-500 ${
+        className={`rounded-lg border border-amber-300 bg-gradient-to-r from-amber-100 via-orange-50 to-slate-50 shadow-sm px-5 py-3 transition-all duration-500 ${
           isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
         }`}
       >
         <div className="flex items-center gap-3">
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-600 flex-shrink-0" />
-          <p className="text-xs font-semibold tracking-wide text-blue-800">{operationsCallout.label}</p>
+          <span className="h-2.5 w-2.5 rounded-full bg-amber-600 flex-shrink-0" />
+          <p className="text-xs font-semibold tracking-wide text-amber-900">{operationsCallout.label}</p>
         </div>
-        <p className="text-sm text-slate-700 mt-1.5">{operationsCallout.message}</p>
+        <p className="text-sm text-amber-900 mt-1.5">{operationsCallout.message}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
