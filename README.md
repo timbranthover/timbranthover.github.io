@@ -22,30 +22,32 @@ To deploy, push to `main` (GitHub Pages auto-deploys).
 
 ### App Flow
 1. Landing page has:
-- `Search by Account`
+- `Search by account`
+- account card status pills (`saved forms`, `eSign-enabled forms`)
 - `Need help finding the right form?`
-- expandable `Other search options` with `General Forms Search` and `Saved Forms`
+- `Quick start` actions (`Resume last draft`, `Open saved forms`)
+- expandable `Other search options` with `General forms search` and `Saved forms`
 2. Account search flow:
 - Enter account/UAN (example: `ABC123`)
 - Select forms in account context
 - Continue to package
-3. General Forms Search flow:
+3. General forms search flow:
 - Search all 100 forms with fuzzy matching
 - Select one or more eSign-enabled forms
 - Enter account/UAN for package
 - Continue to package from that screen
-4. Saved Forms flow:
-- Save/unsave forms from General Forms Search detail panel
-- Open `Saved Forms` from landing page
+4. Saved forms flow:
+- Save/unsave forms from General forms search detail panel
+- Open `Saved forms` from landing page
 - Select saved forms and continue to package
 5. Package flow:
 - Fill form fields
-- Assign signers
-- Choose parallel or sequential signing
+- Assign signers (and reorder signer routing when multiple signers are selected)
+- Sequential signing is enforced automatically when 2+ signers are selected
 - Optional personal message (150 char limit)
 - Send for signature or save draft
-6. My Work:
-- Track Drafts / In Progress / Completed / Voided
+6. My work:
+- Track Drafts / In progress / Completed / Voided
 
 ### Forms Search (Fuse.js)
 `services/formsSearch.js` powers weighted fuzzy search using Fuse.js plus domain-specific typo normalization.
@@ -100,35 +102,39 @@ Both persist across refreshes.
 1. Open landing page.
 2. Verify operations callout banner appears (`Operations update`).
 3. Verify side-by-side cards render:
-- `Search by Account`
+- `Search by account`
 - `Need help finding the right form?`
-4. Expand `Other search options`.
-5. Verify links for `General Forms Search` and `Saved Forms`.
+4. Verify account card pills render (`saved forms`, `eSign-enabled forms`).
+5. Verify `Quick start` renders:
+- `Resume last draft` (disabled if no drafts)
+- `Open saved forms`
+6. Expand `Other search options`.
+7. Verify links for `General forms search` and `Saved forms`.
 
 ### Flow 2: General Forms Search Fuzzy Matching
-1. Landing -> `Other search options` -> `General Forms Search`.
+1. Landing -> `Other search options` -> `General forms search`.
 2. Verify no query shows all forms.
 3. Search `Account trnfer`.
 4. Verify `AC-TF` appears at/near top.
 5. Search by code fragment (example: `ac-tf`) and keyword (example: `ira`) to confirm ranking.
 
 ### Flow 3: Continue to Package from General Forms Search
-1. Open `General Forms Search`.
+1. Open `General forms search`.
 2. Select one or more eSign-enabled forms (checkbox on row).
 3. Enter valid account/UAN (example: `ABC123`).
 4. Click `Continue with X form(s)`.
 5. Verify navigation to package flow with selected forms.
 
 ### Flow 4: Save and Unsave Forms
-1. In `General Forms Search`, expand a row.
+1. In `General forms search`, expand a row.
 2. Click `Save` bookmark action in detail panel.
 3. Verify label changes to `Saved`.
 4. Click again to unsave.
 5. Verify label toggles back to `Save`.
 
 ### Flow 5: Saved Forms View
-1. Save at least 2 forms from General Forms Search.
-2. Return to landing page -> `Saved Forms`.
+1. Save at least 2 forms from General forms search.
+2. Return to landing page -> `Saved forms`.
 3. Verify saved items are listed and sortable actions work:
 - expand details
 - select eSign-enabled forms
@@ -138,34 +144,34 @@ Both persist across refreshes.
 ### Flow 6: Saved Forms Persistence
 1. Save one form.
 2. Refresh browser.
-3. Verify landing page `Saved Forms` count remains.
-4. Open Saved Forms and confirm item is still present.
+3. Verify landing page saved-forms count remains.
+4. Open Saved forms and confirm item is still present.
 
 ### Flow 7: Basic DocuSign Send (Happy Path)
 1. Search account `ABC123`.
 2. Select `AC-TF`.
 3. Fill fields (or defaults), keep required signers.
 4. Click `Send for Signature`.
-5. Verify success toast and item in `My Work -> In Progress`.
+5. Verify success toast and item in `My work -> In progress`.
 6. Verify DocuSign email is received.
 
 ### Flow 8: Sequential Signing Order
 1. Search `ABC123`, select `AC-TF`.
-2. Enable sequential signing.
+2. Select 2+ signers across package forms.
 3. Reorder signers.
 4. Send.
-5. Verify routing order in logs/API behavior (`1`, `2`, ...).
+5. Verify routing order in logs/API behavior (`1`, `2`, ...) and signer sequence follows configured order.
 
 ### Flow 9: Save and Resume Draft
 1. Search `ABC123`, select a form.
 2. Enter some values.
 3. Click `Save Draft` and name it.
-4. Open `My Work -> Drafts`.
-5. Resume draft and verify data rehydrates.
+4. Verify `Resume last draft` in `Quick start` is enabled on landing page.
+5. Use `Resume last draft` and verify it opens package edit mode with rehydrated draft data.
 
 ### Flow 10: Void and Resend
 1. Create in-progress envelope (Flow 7).
-2. In `My Work -> In Progress`, use overflow menu.
+2. In `My work -> In progress`, use overflow menu.
 3. Test `Resend notification`.
 4. Test `Void envelope` with reason.
 5. Verify item moves to `Voided`.
@@ -181,7 +187,7 @@ Both persist across refreshes.
 1. Block network or proxy endpoint.
 2. Attempt DocuSign send for eligible form.
 3. Verify error messaging appears.
-4. Verify My Work item still gets created for continuity.
+4. Verify My work item still gets created for continuity.
 
 ---
 
@@ -242,7 +248,7 @@ services/
   docusignService.js        # DocuSign send/status/void/resend/download APIs
 components/
   Header.js                 # Top navigation
-  SearchView.js             # Landing page with account search and alternate options
+  SearchView.js             # Landing page with account search, quick start, and alternate options
   ResultsView.js            # Account-scoped form selection
   FormsLibraryView.js       # General Forms Search with select + save + continue
   SavedFormsView.js         # Saved forms list with select + continue
@@ -282,10 +288,15 @@ No npm build step required for runtime.
 - Weighted fuzzy General Forms Search with typo tolerance and ranking.
 - Fully functional Saved Forms workflow with localStorage persistence.
 - Continue-to-package support from both General Forms Search and Saved Forms.
-- General Forms Search UI polish:
+- General forms search UI polish:
 - separate account/UAN and form-search cards
 - right-aligned `Back to search` control
 - expanded-row save control placement and cleaned metadata layout
+- no-layout-shift selection CTA behavior in General forms search + Saved forms
+- compact selected row styling (no thick left stripe)
 - Landing page polish:
-- operations callout banner
-- improved two-column card layout for account + guided search assistance
+- operations callout with elevated orange gradient styling + update timestamp pill
+- improved two-column card hierarchy with stronger primary account card
+- quick-start module on landing page
+- quick start `Resume last draft` support (disabled when no drafts)
+- sentence-case copy consistency for core headings/buttons
