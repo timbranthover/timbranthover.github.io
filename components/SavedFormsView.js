@@ -36,8 +36,16 @@ const SavedFormsView = ({
     setSelectedForms((prev) => prev.filter((code) => currentCodes.has(code)));
   }, [savedForms]);
 
+  React.useEffect(() => {
+    const formsByCode = new Map(savedForms.map((form) => [form.code, form]));
+    setSelectedForms((prev) => prev.filter((code) => {
+      const form = formsByCode.get(code);
+      return form ? isFormSelectableForAccount(form, resolvedAccount) : false;
+    }));
+  }, [resolvedAccount, savedForms]);
+
   const toggleFormSelection = (form) => {
-    if (!form.eSignEnabled) return;
+    if (!isFormSelectableForAccount(form, resolvedAccount)) return;
 
     setSelectedForms((prev) => (
       prev.includes(form.code)
@@ -47,7 +55,11 @@ const SavedFormsView = ({
   };
 
   const handleContinue = () => {
-    if (!selectedForms.length) return;
+    const selectableForms = selectedForms.filter((code) => {
+      const form = savedForms.find((item) => item.code === code);
+      return form ? isFormSelectableForAccount(form, resolvedAccount) : false;
+    });
+    if (!selectableForms.length) return;
 
     if (!resolvedAccount) {
       setAccountError('Enter a valid account/UAN to continue.');
@@ -55,7 +67,7 @@ const SavedFormsView = ({
     }
 
     if (onContinue) {
-      onContinue(selectedForms, resolvedAccount);
+      onContinue(selectableForms, resolvedAccount);
     }
   };
 
@@ -128,13 +140,15 @@ const SavedFormsView = ({
               const isSaved = savedFormCodes.includes(form.code);
               const isSelected = selectedForms.includes(form.code);
               const isExpanded = selectedFormCode === form.code;
+              const canSelectForm = isFormSelectableForAccount(form, resolvedAccount);
+              const disabledReason = getFormSelectionDisabledReason(form, resolvedAccount);
 
               return (
                 <div
                   key={form.code}
                   onClick={() => toggleFormSelection(form)}
                   className={`px-4 py-4 transition-all motion-press ${
-                    form.eSignEnabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'
+                    canSelectForm ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'
                   } ${
                     isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
                   }`}
@@ -146,7 +160,7 @@ const SavedFormsView = ({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => {}}
-                          disabled={!form.eSignEnabled}
+                          disabled={!canSelectForm}
                           className="w-5 h-5 mt-0.5 text-blue-600 rounded pointer-events-none"
                         />
                         <div className="flex-1 min-w-0">
@@ -157,6 +171,9 @@ const SavedFormsView = ({
                             <h3 className="font-medium text-gray-900 truncate">{form.name}</h3>
                           </div>
                           <p className="text-sm text-gray-500 mt-1">{form.description}</p>
+                          {disabledReason && (
+                            <p className="text-xs text-amber-700 mt-1">{disabledReason}</p>
+                          )}
                         </div>
                       </div>
 
@@ -213,7 +230,14 @@ const SavedFormsView = ({
                       </button>
 
                       <div className="w-24 flex justify-start">
-                        {form.eSignEnabled ? (
+                        {!form.eSignEnabled ? (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium whitespace-nowrap">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            Print only
+                          </div>
+                        ) : canSelectForm ? (
                           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium whitespace-nowrap">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -221,11 +245,11 @@ const SavedFormsView = ({
                             eSign
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-700 rounded text-xs font-medium whitespace-nowrap">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3.7c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" />
                             </svg>
-                            Print only
+                            Unavailable
                           </div>
                         )}
                       </div>

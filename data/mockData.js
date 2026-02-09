@@ -3,6 +3,7 @@ const MOCK_ACCOUNTS = {
     accountNumber: "ABC123",
     accountName: "Timothy & Sarah Branthover",
     accountType: "Joint",
+    accountTypeKey: "RMA_JOINT",
     signers: [
       {
         id: 1,
@@ -24,6 +25,7 @@ const MOCK_ACCOUNTS = {
     accountNumber: "QWE123",
     accountName: "Timothy Branthover",
     accountType: "Roth IRA",
+    accountTypeKey: "IRA_ROTH",
     signers: [
       {
         id: 1,
@@ -38,6 +40,7 @@ const MOCK_ACCOUNTS = {
     accountNumber: "RTY234",
     accountName: "Michael Chen",
     accountType: "Individual",
+    accountTypeKey: "RMA_INDIVIDUAL",
     signers: [
       {
         id: 1,
@@ -52,6 +55,7 @@ const MOCK_ACCOUNTS = {
     accountNumber: "UIO345",
     accountName: "Jennifer & Robert Martinez",
     accountType: "Joint",
+    accountTypeKey: "RMA_JOINT",
     signers: [
       {
         id: 1,
@@ -73,6 +77,7 @@ const MOCK_ACCOUNTS = {
     accountNumber: "ASD456",
     accountName: "Sarah Johnson Living Trust",
     accountType: "Trust",
+    accountTypeKey: "TRUST",
     signers: [
       {
         id: 1,
@@ -87,6 +92,7 @@ const MOCK_ACCOUNTS = {
     accountNumber: "FGH567",
     accountName: "David Williams",
     accountType: "Traditional IRA",
+    accountTypeKey: "IRA_TRADITIONAL",
     signers: [
       {
         id: 1,
