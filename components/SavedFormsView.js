@@ -257,24 +257,20 @@ const SavedFormsView = ({
 
       {hasSelection && (
         <div className="fixed bottom-5 inset-x-4 sm:inset-x-auto sm:right-6 z-30 flex justify-end pointer-events-none">
-          <div className="pointer-events-auto floating-glass px-3 py-2 flex items-center gap-3">
+          <div className="pointer-events-auto floating-glass">
             <button
               onClick={() => setSelectedForms([])}
-              className="hidden sm:inline-flex items-center px-2 py-1 text-sm font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+              className="floating-clear hidden sm:inline-flex"
             >
               Clear selection
             </button>
             <button
               onClick={handleContinue}
               disabled={!resolvedAccount}
-              className={`w-[246px] px-5 py-2 rounded-lg flex items-center justify-center gap-2 font-medium whitespace-nowrap transition-all ${
-                !resolvedAccount
-                  ? 'bg-blue-100 text-blue-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
+              className={`floating-action ${!resolvedAccount ? 'is-disabled' : ''}`}
             >
               Continue with {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </button>
