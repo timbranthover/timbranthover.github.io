@@ -22,6 +22,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     voided: { bg: 'bg-red-100', text: 'text-red-800', label: 'Voided' },
     declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined' }
   };
+  const MAX_VISIBLE_FORM_CHIPS = 3;
 
   // Fetch status for all items with DocuSign envelope IDs (in parallel)
   const fetchAllStatuses = async () => {
@@ -163,15 +164,14 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       ' at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
-  // Format date/time for sent envelopes (DD/MM/YYYY format)
+  // Format date for sent envelopes (M/D/YY format)
   const formatSentDate = (isoString) => {
     if (!isoString) return '—';
     const date = new Date(isoString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    return `${day}/${month}/${year} at ${time}`;
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = String(date.getFullYear()).slice(-2);
+    return `${month}/${day}/${year}`;
   };
 
   // Render the hover popup with recipient detail
@@ -232,6 +232,35 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       );
     }
 
+    if (workTab === 'inProgress') {
+      const signedCount = recipientInfo
+        ? recipientInfo.completed
+        : item.progress
+          ? item.progress.signed
+          : 0;
+      const totalCount = recipientInfo
+        ? recipientInfo.total
+        : item.progress
+          ? item.progress.total
+          : 1;
+      const progressPct = totalCount > 0 ? (signedCount / totalCount) * 100 : 0;
+
+      return (
+        <div className="inline-flex items-center gap-2.5">
+          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+            Sent
+          </span>
+          <div className="w-32 h-2.5 bg-gray-200 rounded-full">
+            <div
+              className="h-full bg-blue-600 rounded-full transition-all duration-500"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          <span className="text-xs text-gray-600">{signedCount}/{totalCount}</span>
+        </div>
+      );
+    }
+
     // Real DocuSign status (or pending fetch for DocuSign items)
     if (item.docusignEnvelopeId) {
       // If we have status from API, use it; otherwise default to 'sent' while loading
@@ -265,17 +294,6 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     // Default mock display
     return (
       <div className="flex items-center gap-2">
-        {item.progress && workTab === 'inProgress' && (
-          <div className="flex items-center gap-2">
-            <div className="w-32 h-2.5 bg-gray-200 rounded-full">
-              <div
-                className="h-full bg-blue-600 rounded-full"
-                style={{ width: `${(item.progress.signed / item.progress.total) * 100}%` }}
-              />
-            </div>
-            <span className="text-xs text-gray-600">{item.progress.signed}/{item.progress.total}</span>
-          </div>
-        )}
         {workTab === 'completed' && (
           <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -404,6 +422,29 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     { key: 'voided', label: 'Voided' }
   ];
 
+  const renderFormChips = (forms = []) => {
+    const visibleForms = forms.slice(0, MAX_VISIBLE_FORM_CHIPS);
+    const hiddenForms = forms.slice(MAX_VISIBLE_FORM_CHIPS);
+
+    return (
+      <div className="flex flex-wrap items-start gap-1.5">
+        {visibleForms.map(form => (
+          <span key={form} className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700">
+            {form}
+          </span>
+        ))}
+        {hiddenForms.length > 0 && (
+          <span
+            title={hiddenForms.join(', ')}
+            className="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-gray-500"
+          >
+            +{hiddenForms.length} more
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
     <div className="space-y-6">
@@ -440,7 +481,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="border-b border-gray-200 flex gap-1 p-2">
           {tabConfig.map(tab => (
             <button
@@ -457,22 +498,22 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
           ))}
         </div>
 
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b">
+        <table className="w-full table-fixed">
+          <thead className="bg-gray-50/90 border-b border-gray-200">
             <tr className="h-11">
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">To</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Forms</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Status</th>
+              <th className="w-[30%] text-left px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-gray-500">To</th>
+              <th className="w-[23%] text-left px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Forms</th>
+              <th className="w-[23%] text-left px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Status</th>
               {workTab === 'drafts' && (
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Saved</th>
+                <th className="w-[14%] text-left px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Saved</th>
               )}
               {workTab === 'inProgress' && (
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-700 uppercase">Sent</th>
+                <th className="w-[14%] text-left px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Sent</th>
               )}
-              <th className="text-right px-6 py-3 text-xs font-medium text-gray-700 uppercase">Actions</th>
+              <th className="w-[10%] whitespace-nowrap text-right px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-gray-200/90">
             {workItems[workTab].length === 0 && (
               <tr>
                 <td colSpan={(workTab === 'drafts' || workTab === 'inProgress') ? 5 : 4} className="px-6 py-8 text-center text-sm text-gray-500">
@@ -481,14 +522,16 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
               </tr>
             )}
             {workItems[workTab].map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">{item.account}</span>
-                    <span className="text-sm text-gray-500">{item.names}</span>
+              <tr key={item.id} className="group odd:bg-white even:bg-gray-50/20 hover:bg-blue-50/30 transition-colors">
+                <td className="px-6 py-4 align-middle">
+                  <div className="space-y-1.5">
+                    <span className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-semibold tracking-wide text-gray-700">
+                      {item.account}
+                    </span>
+                    <p className="text-sm font-medium text-gray-900 leading-5">{item.names}</p>
                   </div>
                   {item.draftName && workTab === 'drafts' && (
-                    <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                    <div className="text-xs text-blue-700 mt-1.5 flex items-center gap-1">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
@@ -496,34 +539,33 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
                     </div>
                   )}
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1">
-                    {item.forms.map(form => (
-                      <span key={form} className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                        {form}
-                      </span>
-                    ))}
-                  </div>
+                <td className="px-6 py-4 align-middle">
+                  {renderFormChips(item.forms)}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 align-middle">
                   {renderStatusCell(item)}
                 </td>
                 {workTab === 'drafts' && (
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-gray-500 align-middle">
                     {formatDateTime(item.savedAt)}
                   </td>
                 )}
                 {workTab === 'inProgress' && (
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-gray-500 align-middle">
                     {formatSentDate(item.sentAt)}
                   </td>
                 )}
-                <td className="px-6 py-4 text-right relative">
+                <td className="px-6 py-4 text-right align-middle relative">
                   <button
                     onClick={(e) => { e.stopPropagation(); setActiveActionMenu(activeActionMenu === item.id ? null : item.id); }}
-                    className="p-1 hover:bg-gray-100 rounded"
+                    aria-label="Open row actions"
+                    className={`inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
+                      activeActionMenu === item.id
+                        ? 'border-blue-200 bg-blue-50 text-blue-600'
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                    }`}
                   >
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                     </svg>
                   </button>
