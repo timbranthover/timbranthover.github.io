@@ -49,7 +49,7 @@ const SearchView = ({
   return (
     <div className="space-y-6 max-w-5xl">
       <div
-        className={`rounded-lg border border-amber-300 bg-gradient-to-r from-amber-100 via-orange-50 to-slate-50 shadow-md px-5 py-3 transition-all duration-500 ${
+        className={`operations-glass sticky top-4 z-20 px-5 py-3 transition-all duration-500 ${
           isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
         }`}
       >
@@ -184,7 +184,7 @@ const SearchView = ({
             disabled={!hasSavedDrafts}
             className={`w-full text-left rounded-lg border px-4 py-3 text-sm transition-colors ${
               hasSavedDrafts
-                ? 'border-indigo-200 bg-indigo-50/60 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2'
+                ? 'quick-wash-surface quick-wash-purple hover:brightness-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2'
                 : 'border-gray-200 bg-gray-50 opacity-75 cursor-not-allowed'
             }`}
           >
@@ -195,7 +195,7 @@ const SearchView = ({
           </button>
           <button
             onClick={onBrowseSavedForms}
-            className="w-full text-left rounded-lg border border-blue-200 bg-blue-50/60 px-4 py-3 text-sm hover:bg-blue-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className="w-full text-left rounded-lg border quick-wash-surface quick-wash-blue px-4 py-3 text-sm hover:brightness-[1.015] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             <p className="font-medium text-blue-900">Open saved forms</p>
             <p className="text-xs text-blue-700 mt-0.5">{savedFormsCount} saved form{savedFormsCount === 1 ? '' : 's'}</p>
