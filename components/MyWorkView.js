@@ -156,12 +156,14 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     return `${diffDays}d ago`;
   };
 
-  // Format date/time elegantly for saved drafts
+  // Format date for saved drafts (M/D/YY format)
   const formatDateTime = (isoString) => {
     if (!isoString) return '—';
     const date = new Date(isoString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
-      ' at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = String(date.getFullYear()).slice(-2);
+    return `${month}/${day}/${year}`;
   };
 
   // Format date for sent envelopes (M/D/YY format)
@@ -244,12 +246,16 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
           ? item.progress.total
           : 1;
       const progressPct = totalCount > 0 ? (signedCount / totalCount) * 100 : 0;
+      const hasDetailPopup = !!(envStatus && (recipientInfo || envStatus.voidedReason));
 
       return (
         <div className="inline-flex items-center gap-2.5">
-          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-            Sent
-          </span>
+          <div className="relative group">
+            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 cursor-default">
+              Sent
+            </span>
+            {hasDetailPopup && renderDetailPopup(recipientInfo, envStatus)}
+          </div>
           <div className="w-32 h-2.5 bg-gray-200 rounded-full">
             <div
               className="h-full bg-blue-600 rounded-full transition-all duration-500"
@@ -522,7 +528,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
               </tr>
             )}
             {workItems[workTab].map((item) => (
-              <tr key={item.id} className="group odd:bg-white even:bg-gray-50/20 hover:bg-blue-50/30 transition-colors">
+              <tr key={item.id} className="odd:bg-white even:bg-gray-50/20 hover:bg-blue-50/30 transition-colors">
                 <td className="px-6 py-4 align-middle">
                   <div className="space-y-1.5">
                     <span className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-semibold tracking-wide text-gray-700">
