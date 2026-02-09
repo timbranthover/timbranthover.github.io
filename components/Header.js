@@ -8,7 +8,7 @@ const Header = ({ onNavigateToWork, currentView }) => {
         <button
           onClick={isInMyWork ? undefined : onNavigateToWork}
           disabled={isInMyWork}
-          className={`flex items-center gap-2 px-5 py-2 rounded transition-colors ${
+          className={`flex items-center gap-2 px-5 py-2 rounded-lg transition-colors ${
             isInMyWork
               ? 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-60'
               : 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'

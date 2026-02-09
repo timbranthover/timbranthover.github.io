@@ -19,6 +19,10 @@ const FormsLibraryView = ({
   const visibleForms = searchResult.items;
   const normalizedAccount = accountInput.trim().toUpperCase();
   const resolvedAccount = normalizedAccount ? MOCK_ACCOUNTS[normalizedAccount] : null;
+  const hasSelection = selectedForms.length > 0;
+  const accountStatusMessage = accountError
+    ? accountError
+    : (resolvedAccount ? `${resolvedAccount.accountNumber} - ${resolvedAccount.accountName} (${resolvedAccount.accountType})` : '');
 
   React.useEffect(() => {
     if (selectedFormCode && !visibleForms.some((form) => form.code === selectedFormCode)) {
@@ -50,14 +54,14 @@ const FormsLibraryView = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       <div className="flex items-start gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-gray-900">General forms search</h2>
           <p className="text-sm text-gray-500 mt-1">Browse and select from {FORMS_DATA.length} available forms</p>
         </div>
 
-        <div className="ml-auto flex flex-col items-end gap-3">
+        <div className="ml-auto">
           <button
             onClick={onBack}
             className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
@@ -67,26 +71,6 @@ const FormsLibraryView = ({
             </svg>
             Back to search
           </button>
-
-          <div className={`flex items-center gap-4 min-h-[40px] transition-opacity duration-150 ${selectedForms.length > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <span className="text-sm text-gray-600">
-              {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''} selected
-            </span>
-            <button
-              onClick={handleContinue}
-              disabled={!resolvedAccount || !selectedForms.length}
-              className={`px-6 py-2 rounded-lg flex items-center gap-2 font-medium transition-all ${
-                !resolvedAccount || !selectedForms.length
-                  ? 'bg-blue-100 text-blue-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              Continue with {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -105,12 +89,16 @@ const FormsLibraryView = ({
               accountError ? 'border-red-300' : 'border-gray-300'
             }`}
           />
-          {accountError && <p className="text-xs text-red-600 mt-1.5">{accountError}</p>}
-          {resolvedAccount && (
-            <p className="text-xs text-green-700 mt-1.5">
-              {resolvedAccount.accountNumber} - {resolvedAccount.accountName} ({resolvedAccount.accountType})
+          <div className="mt-1.5 h-5 flex items-center" aria-live="polite">
+            <p
+              className={`text-xs truncate transition-opacity duration-150 ${
+                accountStatusMessage ? 'opacity-100' : 'opacity-0'
+              } ${accountError ? 'text-red-600' : 'text-green-700'}`}
+              title={accountStatusMessage || undefined}
+            >
+              {accountStatusMessage || ' '}
             </p>
-          )}
+          </div>
         </div>
       </div>
 
@@ -308,6 +296,33 @@ const FormsLibraryView = ({
           {FORMS_DATA.filter((f) => f.eSignEnabled).length} eSign enabled
         </div>
       </div>
+
+      {hasSelection && (
+        <div className="fixed bottom-5 inset-x-4 sm:inset-x-auto sm:right-6 z-30 flex justify-end pointer-events-none">
+          <div className="pointer-events-auto floating-glass px-3 py-2 flex items-center gap-3">
+            <button
+              onClick={() => setSelectedForms([])}
+              className="hidden sm:inline-flex items-center px-2 py-1 text-sm font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+            >
+              Clear selection
+            </button>
+            <button
+              onClick={handleContinue}
+              disabled={!resolvedAccount}
+              className={`w-[246px] px-5 py-2 rounded-lg flex items-center justify-center gap-2 font-medium whitespace-nowrap transition-all ${
+                !resolvedAccount
+                  ? 'bg-blue-100 text-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+            >
+              Continue with {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
