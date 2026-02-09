@@ -1,5 +1,23 @@
+/**
+ * # Forms Search Engine
+ *
+ * Search pipeline used by General forms search and Saved forms search.
+ *
+ * ## Goals
+ * - Handle advisor-style fuzzy input (partial words, typos, form-code fragments).
+ * - Keep results relevant (high confidence first, limited noise).
+ * - Return stable, deterministic ordering for a finite catalog.
+ *
+ * ## Production Porting Notes
+ * - Keep this scoring logic even if data source changes (JSON, CSV, DB).
+ * - Rebuild `FORM_SEARCH_INDEX` whenever forms metadata changes.
+ * - Tune Fuse thresholds/weights with real query logs from advisors.
+ */
+
+/** Stop words removed before expansion/scoring to reduce low-signal noise. */
 const FORM_SEARCH_STOP_WORDS = new Set(["a", "an", "and", "for", "of", "on", "the", "to", "with"]);
 
+/** Manual typo map for high-frequency advisor misspellings. */
 const FORM_SEARCH_TYPO_CORRECTIONS = {
   trnfer: "transfer",
   transfre: "transfer",
@@ -13,6 +31,7 @@ const FORM_SEARCH_TYPO_CORRECTIONS = {
   acount: "account"
 };
 
+/** Domain synonym graph (finance + operations vocabulary). */
 const FORM_SEARCH_SYNONYMS = {
   transfer: ["acat", "journal", "rollover", "wire", "ach", "move assets"],
   acat: ["account transfer", "transfer account", "external transfer"],
@@ -31,6 +50,10 @@ const FORM_SEARCH_SYNONYMS = {
   death: ["estate", "decedent", "beneficiary"]
 };
 
+/**
+ * ## Normalization utilities
+ * These make query/doc matching resilient to punctuation, spacing, and casing.
+ */
 const normalizeSearchText = (value = "") =>
   String(value)
     .toLowerCase()
@@ -49,6 +72,7 @@ const tokenizeSearchText = (value = "") =>
     .filter(Boolean)
     .filter((token) => !FORM_SEARCH_STOP_WORDS.has(token));
 
+/** Creates one normalized searchable record per form. */
 const buildSearchIndexEntry = (form) => {
   const keywordsText = Array.isArray(form.keywords) ? form.keywords.join(" ") : "";
   const searchableText = normalizeSearchText(
@@ -67,8 +91,14 @@ const buildSearchIndexEntry = (form) => {
   };
 };
 
+/** Precomputed in-memory index (fast lookups for a finite catalog). */
 const FORM_SEARCH_INDEX = FORMS_DATA.map(buildSearchIndexEntry);
 
+/**
+ * ## Two-stage Fuse strategy
+ * - STRICT: high precision first pass.
+ * - BROAD: lower precision recovery pass when strict results are sparse.
+ */
 const FORM_FUSE_STRICT =
   typeof Fuse !== "undefined"
     ? new Fuse(FORM_SEARCH_INDEX, {
@@ -105,6 +135,12 @@ const FORM_FUSE_BROAD =
       })
     : null;
 
+/**
+ * Expands tokens via:
+ * - typo correction
+ * - direct synonyms
+ * - reverse synonym lookup (related term -> root term)
+ */
 const expandSearchTokens = (tokens) => {
   const expanded = new Set();
 
@@ -130,6 +166,12 @@ const expandSearchTokens = (tokens) => {
   return [...expanded];
 };
 
+/**
+ * Blends fuzzy score with deterministic business boosts:
+ * - exact/prefix code matches
+ * - exact/prefix name matches
+ * - token and synonym hit density
+ */
 const calculateAdjustedScore = (entry, baseScore, queryInfo) => {
   const { normalizedQuery, normalizedCodeQuery, correctedTokens, expandedTokens } = queryInfo;
   let score = typeof baseScore === "number" ? baseScore : 0.62;
@@ -173,6 +215,7 @@ const calculateAdjustedScore = (entry, baseScore, queryInfo) => {
   return Math.max(score, 0);
 };
 
+/** Adds Fuse hits into a deduped candidate map keyed by form code. */
 const collectFuseCandidates = (fuse, query, limit, collection) => {
   if (!fuse || !query) return;
 
@@ -184,6 +227,10 @@ const collectFuseCandidates = (fuse, query, limit, collection) => {
   });
 };
 
+/**
+ * Non-Fuse fallback for runtime safety:
+ * substring/code/token matching with baseline ranking.
+ */
 const fallbackSearch = (queryInfo) => {
   const { normalizedQuery, normalizedCodeQuery, expandedTokens } = queryInfo;
   const candidates = FORM_SEARCH_INDEX.filter((entry) => {
@@ -200,6 +247,21 @@ const fallbackSearch = (queryInfo) => {
     .sort((a, b) => a.baseScore - b.baseScore);
 };
 
+/**
+ * ## Public API: searchFormsCatalog(query, { limit })
+ *
+ * Flow:
+ * 1) Normalize/tokenize query.
+ * 2) Correct typos + expand synonyms.
+ * 3) Pull candidates (strict Fuse, then broad Fuse if needed).
+ * 4) Re-rank with adjusted score.
+ * 5) Apply score gate and limit.
+ *
+ * Returns:
+ * - `items`: ranked forms
+ * - `totalMatches`: count before limit slice
+ * - `limited`: whether results were truncated by `limit`
+ */
 const searchFormsCatalog = (query, options = {}) => {
   const limit = Number.isFinite(options.limit) ? options.limit : 24;
   const normalizedQuery = normalizeSearchText(query || "");
