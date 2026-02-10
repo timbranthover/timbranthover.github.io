@@ -6,14 +6,20 @@ const FormsLibraryView = ({
   initialAccountNumber = ''
 }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [debouncedQuery, setDebouncedQuery] = React.useState('');
   const [selectedFormCode, setSelectedFormCode] = React.useState(null);
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [accountInput, setAccountInput] = React.useState(initialAccountNumber);
   const [accountError, setAccountError] = React.useState(null);
 
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 150);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const searchResult = React.useMemo(
-    () => searchFormsCatalog(searchQuery, { limit: searchQuery.trim() ? 24 : FORMS_DATA.length }),
-    [searchQuery]
+    () => searchFormsCatalog(debouncedQuery, { limit: debouncedQuery.trim() ? 24 : FORMS_DATA.length }),
+    [debouncedQuery]
   );
 
   const visibleForms = searchResult.items;
@@ -147,7 +153,7 @@ const FormsLibraryView = ({
             )}
           </div>
 
-          {searchQuery && (
+          {debouncedQuery && (
             <p className="mt-1.5 text-sm text-gray-500">
               Showing {visibleForms.length}
               {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
