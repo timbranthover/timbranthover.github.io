@@ -1,7 +1,13 @@
 const ResultsView = ({ account, onBack, onContinue }) => {
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [debouncedQuery, setDebouncedQuery] = React.useState('');
   const hasSelection = selectedForms.length > 0;
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 150);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const toggleFormSelection = (form) => {
     if (!isFormSelectableForAccount(form, account)) return;
@@ -24,8 +30,8 @@ const ResultsView = ({ account, onBack, onContinue }) => {
   };
 
   const searchResult = React.useMemo(
-    () => searchFormsCatalog(searchQuery, { limit: searchQuery.trim() ? 40 : FORMS_DATA.length }),
-    [searchQuery]
+    () => searchFormsCatalog(debouncedQuery, { limit: debouncedQuery.trim() ? 40 : FORMS_DATA.length }),
+    [debouncedQuery]
   );
 
   const filteredForms = searchResult.items;
@@ -83,7 +89,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
             Showing {filteredForms.length}
             {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
             {' '}from {FORMS_DATA.length} total
-            {searchQuery && ` matching "${searchQuery}"`}
+            {debouncedQuery && ` matching "${debouncedQuery}"`}
           </p>
         </div>
 
