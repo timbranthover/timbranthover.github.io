@@ -45,27 +45,6 @@
       --floating-action-disabled-text: #93c5fd;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --floating-rim: color-mix(in srgb, var(--floating-tint) 58%, #e2e8f0 42%);
-        --floating-surface-top: color-mix(in srgb, #1e293b 78%, var(--floating-tint) 22%);
-        --floating-surface-bottom: color-mix(in srgb, #0f172a 68%, var(--floating-tint) 32%);
-        --floating-glass-mix: 62%;
-        --floating-blur: 16px;
-        --floating-saturation: 135%;
-        --floating-brightness: 1.04;
-        --floating-contact-shadow: 0 2px 7px rgba(2, 6, 23, 0.55);
-        --floating-ambient-shadow: 0 16px 34px -22px rgba(2, 6, 23, 0.75);
-        --floating-inner-highlight: rgba(255, 255, 255, 0.24);
-        --floating-inner-depth: rgba(2, 6, 23, 0.48);
-        --floating-specular: rgba(255, 255, 255, 0.3);
-        --floating-text: #bfdbfe;
-        --floating-action-top: #3b82f6;
-        --floating-action-bottom: #1d4ed8;
-        --floating-action-highlight: rgba(255, 255, 255, 0.22);
-      }
-    }
-
     .floating-glass {
       position: relative;
       isolation: isolate;
@@ -424,6 +403,7 @@
   <script type="text/babel" src="./components/forms/CLACRAform.js"></script>
   <script type="text/babel" src="./components/forms/LAGENform.js"></script>
   <script type="text/babel" src="./components/SaveDraftModal.js"></script>
+  <script type="text/babel" src="./components/VoidReasonModal.js"></script>
   <script type="text/babel" src="./components/Header.js"></script>
   <script type="text/babel" src="./components/SearchView.js"></script>
   <script type="text/babel" src="./components/ResultsView.js"></script>

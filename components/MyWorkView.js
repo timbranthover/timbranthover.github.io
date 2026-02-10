@@ -6,6 +6,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
   const [isPolling, setIsPolling] = React.useState(false);
   const [lastRefreshed, setLastRefreshed] = React.useState(null);
   const [toast, setToast] = React.useState(null);
+  const [voidModal, setVoidModal] = React.useState({ isOpen: false, item: null });
 
   // Auto-dismiss toast
   React.useEffect(() => {
@@ -102,13 +103,17 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     setLoadingActions(prev => { const next = { ...prev }; delete next[item.id]; return next; });
   };
 
-  const handleVoid = async (item) => {
+  const handleVoid = (item) => {
     if (!item.docusignEnvelopeId) return;
-    const reason = prompt('Enter reason for voiding this envelope:');
-    if (!reason) return;
+    setActiveActionMenu(null);
+    setVoidModal({ isOpen: true, item });
+  };
+
+  const handleVoidConfirm = async (reason) => {
+    const item = voidModal.item;
+    if (!item) return;
 
     setLoadingActions(prev => ({ ...prev, [item.id]: 'voiding' }));
-    setActiveActionMenu(null);
 
     if (onVoidEnvelope) {
       await onVoidEnvelope(item, reason);
@@ -584,6 +589,14 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
         </table>
       </div>
     </div>
+
+    {/* Void Reason Modal */}
+    <VoidReasonModal
+      isOpen={voidModal.isOpen}
+      onClose={() => setVoidModal({ isOpen: false, item: null })}
+      onConfirm={handleVoidConfirm}
+      envelopeName={voidModal.item ? `${voidModal.item.account} — ${voidModal.item.names}` : ''}
+    />
 
     {/* Toast Notification */}
     <div
