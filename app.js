@@ -1,5 +1,10 @@
 const App = () => {
-  const [view, setView] = React.useState('landing');
+  const [isAdmin] = React.useState(() => initializeAdminSessionFromUrl());
+  const [formsCatalog, setFormsCatalog] = React.useState(() => initializeAdminFormsCatalog());
+  const [operationsUpdate, setOperationsUpdate] = React.useState(() => getAdminOperationsUpdate());
+  const [view, setView] = React.useState(() => (
+    window.location.hash === '#admin' && isAdminUser() ? 'admin' : 'landing'
+  ));
   const [currentAccount, setCurrentAccount] = React.useState(null);
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [draftData, setDraftData] = React.useState(null);
@@ -58,6 +63,56 @@ const App = () => {
     return () => clearTimeout(timer);
   }, [toast]);
 
+  const clearAdminHash = React.useCallback(() => {
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.hash !== '#admin') return;
+    currentUrl.hash = '';
+    window.history.replaceState({}, '', currentUrl.toString());
+  }, []);
+
+  React.useEffect(() => {
+    if (view === 'admin') {
+      if (!isAdmin) {
+        clearAdminHash();
+        setView('landing');
+        setToast({
+          message: 'Admin access required',
+          subtitle: 'This workspace is only available to admin users.'
+        });
+        return;
+      }
+
+      if (window.location.hash !== '#admin') {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.hash = 'admin';
+        window.history.replaceState({}, '', currentUrl.toString());
+      }
+      return;
+    }
+
+    clearAdminHash();
+  }, [view, isAdmin, clearAdminHash]);
+
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash !== '#admin') return;
+
+      if (isAdmin) {
+        setView('admin');
+      } else {
+        clearAdminHash();
+        setView('landing');
+        setToast({
+          message: 'Admin access required',
+          subtitle: 'Direct access to /#admin is blocked for non-admin users.'
+        });
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [isAdmin, clearAdminHash]);
+
   // Initialize workItems from localStorage or fall back to MOCK_HISTORY
   const [workItems, setWorkItems] = React.useState(() => {
     try {
@@ -92,6 +147,36 @@ const App = () => {
         ? prev.filter((code) => code !== formCode)
         : [formCode, ...prev]
     ));
+  };
+
+  const handleAdminSaveForm = (formPayload) => {
+    const result = upsertAdminForm(formPayload);
+    setFormsCatalog(result.formsCatalog);
+    return result;
+  };
+
+  const handleAdminSaveOperationsUpdate = (nextValue) => {
+    const saved = saveAdminOperationsUpdate(nextValue);
+    setOperationsUpdate(saved);
+    return saved;
+  };
+
+  const handleAdminResetOperationsUpdate = () => {
+    const reset = resetAdminOperationsUpdate();
+    setOperationsUpdate(reset);
+    return reset;
+  };
+
+  const handleNavigateToAdmin = () => {
+    if (!isAdmin) {
+      setToast({
+        message: 'Admin access required',
+        subtitle: 'You do not have permission to open the admin workspace.'
+      });
+      return;
+    }
+
+    setView('admin');
   };
 
   const handleSearch = (accountNumber) => {
@@ -359,7 +444,7 @@ const App = () => {
       setView('landing');
       setCurrentAccount(null);
       setSearchError(null);
-    } else if (view === 'work' || view === 'formsLibrary' || view === 'savedForms') {
+    } else if (view === 'work' || view === 'formsLibrary' || view === 'savedForms' || view === 'admin') {
       setView('landing');
     }
   };
@@ -382,6 +467,7 @@ const App = () => {
             }}
             hasSavedDrafts={workItems.drafts.length > 0}
             savedFormsCount={savedFormCodes.length}
+            operationsUpdate={operationsUpdate}
           />
         </>
       );
@@ -406,6 +492,24 @@ const App = () => {
           workItems={workItems}
           onVoidEnvelope={handleVoidEnvelope}
           onEnvelopeStatusChange={handleEnvelopeStatusChange}
+        />
+      );
+    }
+
+    if (view === 'admin') {
+      if (!isAdmin) {
+        return null;
+      }
+
+      return (
+        <AdminView
+          onBack={handleBack}
+          formsCatalog={formsCatalog}
+          operationsUpdate={operationsUpdate}
+          defaultOperationsUpdate={getAdminDefaultOperationsUpdate()}
+          onSaveForm={handleAdminSaveForm}
+          onSaveOperationsUpdate={handleAdminSaveOperationsUpdate}
+          onResetOperationsUpdate={handleAdminResetOperationsUpdate}
         />
       );
     }
@@ -453,7 +557,12 @@ const App = () => {
 
   return (
     <div className="min-h-screen site-grid-bg">
-      <Header onNavigateToWork={() => setView('work')} currentView={view} />
+      <Header
+        onNavigateToWork={() => setView('work')}
+        onNavigateToAdmin={handleNavigateToAdmin}
+        currentView={view}
+        isAdmin={isAdmin}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div key={view} className="view-enter">

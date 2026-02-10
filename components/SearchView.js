@@ -6,7 +6,8 @@ const SearchView = ({
   onAccountInputChange = () => {},
   searchError = null,
   hasSavedDrafts = false,
-  savedFormsCount = 0
+  savedFormsCount = 0,
+  operationsUpdate = null
 }) => {
   const [accountSearch, setAccountSearch] = React.useState('');
   const [aiQuery, setAiQuery] = React.useState('');
@@ -17,10 +18,16 @@ const SearchView = ({
     []
   );
 
-  const operationsCallout = {
+  const defaultOperationsCallout = {
     label: 'Operations update',
     message: 'AC-DEBIT-CARD is now enabled for eSign on eligible account workflows.',
     updatedAt: 'Updated today'
+  };
+
+  const operationsCallout = {
+    label: operationsUpdate?.label || defaultOperationsCallout.label,
+    message: operationsUpdate?.message || defaultOperationsCallout.message,
+    updatedAt: operationsUpdate?.updatedAt || defaultOperationsCallout.updatedAt
   };
 
   React.useEffect(() => {

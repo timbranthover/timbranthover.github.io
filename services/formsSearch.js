@@ -91,49 +91,53 @@ const buildSearchIndexEntry = (form) => {
   };
 };
 
-/** Precomputed in-memory index (fast lookups for a finite catalog). */
-const FORM_SEARCH_INDEX = FORMS_DATA.map(buildSearchIndexEntry);
+/** Runtime search source + index; rebuilt when forms catalog changes. */
+let FORM_SEARCH_SOURCE = Array.isArray(FORMS_DATA) ? [...FORMS_DATA] : [];
+let FORM_SEARCH_INDEX = [];
+let FORM_FUSE_STRICT = null;
+let FORM_FUSE_BROAD = null;
+
+const buildFuseIndex = (indexData, threshold, keyWeights) =>
+  typeof Fuse !== "undefined"
+    ? new Fuse(indexData, {
+        includeScore: true,
+        shouldSort: true,
+        threshold,
+        ignoreLocation: true,
+        minMatchCharLength: 2,
+        keys: keyWeights
+      })
+    : null;
 
 /**
- * ## Two-stage Fuse strategy
- * - STRICT: high precision first pass.
- * - BROAD: lower precision recovery pass when strict results are sparse.
+ * Rebuilds all in-memory search structures after forms metadata updates.
+ * Returns the number of indexed forms.
  */
-const FORM_FUSE_STRICT =
-  typeof Fuse !== "undefined"
-    ? new Fuse(FORM_SEARCH_INDEX, {
-        includeScore: true,
-        shouldSort: true,
-        threshold: 0.34,
-        ignoreLocation: true,
-        minMatchCharLength: 2,
-        keys: [
-          { name: "code", weight: 0.34 },
-          { name: "name", weight: 0.29 },
-          { name: "description", weight: 0.21 },
-          { name: "keywords", weight: 0.11 },
-          { name: "longDescription", weight: 0.05 }
-        ]
-      })
-    : null;
+const rebuildFormsSearchIndex = (forms = FORMS_DATA) => {
+  FORM_SEARCH_SOURCE = Array.isArray(forms) ? [...forms] : [];
+  FORM_SEARCH_INDEX = FORM_SEARCH_SOURCE.map(buildSearchIndexEntry);
 
-const FORM_FUSE_BROAD =
-  typeof Fuse !== "undefined"
-    ? new Fuse(FORM_SEARCH_INDEX, {
-        includeScore: true,
-        shouldSort: true,
-        threshold: 0.48,
-        ignoreLocation: true,
-        minMatchCharLength: 2,
-        keys: [
-          { name: "code", weight: 0.32 },
-          { name: "name", weight: 0.28 },
-          { name: "description", weight: 0.22 },
-          { name: "keywords", weight: 0.12 },
-          { name: "longDescription", weight: 0.06 }
-        ]
-      })
-    : null;
+  FORM_FUSE_STRICT = buildFuseIndex(FORM_SEARCH_INDEX, 0.34, [
+    { name: "code", weight: 0.34 },
+    { name: "name", weight: 0.29 },
+    { name: "description", weight: 0.21 },
+    { name: "keywords", weight: 0.11 },
+    { name: "longDescription", weight: 0.05 }
+  ]);
+
+  FORM_FUSE_BROAD = buildFuseIndex(FORM_SEARCH_INDEX, 0.48, [
+    { name: "code", weight: 0.32 },
+    { name: "name", weight: 0.28 },
+    { name: "description", weight: 0.22 },
+    { name: "keywords", weight: 0.12 },
+    { name: "longDescription", weight: 0.06 }
+  ]);
+
+  return FORM_SEARCH_INDEX.length;
+};
+
+// Initialize once at boot with the default catalog.
+rebuildFormsSearchIndex(FORMS_DATA);
 
 /**
  * Expands tokens via:
@@ -267,7 +271,7 @@ const searchFormsCatalog = (query, options = {}) => {
   const normalizedQuery = normalizeSearchText(query || "");
 
   if (!normalizedQuery) {
-    const allForms = [...FORMS_DATA].sort((a, b) => a.name.localeCompare(b.name));
+    const allForms = [...FORM_SEARCH_SOURCE].sort((a, b) => a.name.localeCompare(b.name));
     return {
       items: allForms.slice(0, limit),
       totalMatches: allForms.length,

@@ -18,6 +18,30 @@ Then open `http://localhost:3000` (or `:8000` for Python).
 
 To deploy, push to `main` (GitHub Pages auto-deploys).
 
+## Admin Mode Access (Prototype)
+
+Admin mode is controlled by URL query flag and stored in browser localStorage.
+
+Enable admin:
+- `http://localhost:3000/index.html?admin=pm`
+- `http://localhost:3000/index.html?admin=admin`
+- `http://localhost:3000/index.html?admin=true`
+- `http://localhost:3000/index.html?admin=1`
+- On any deployed URL, append `?admin=pm` to the page URL you are currently using.
+
+Disable admin:
+- `http://localhost:3000/index.html?admin=off`
+- `http://localhost:3000/index.html?admin=false`
+- `http://localhost:3000/index.html?admin=0`
+
+After enabling, the header shows:
+- `Admin mode` badge
+- `Admin` button (left of `My work`)
+
+Admin route:
+- `/#admin` opens Admin workspace for admin users.
+- Non-admin users are redirected to landing and shown an access-required toast.
+
 ## How It Works
 
 ### App Flow
@@ -33,13 +57,16 @@ To deploy, push to `main` (GitHub Pages auto-deploys).
 - Continue to package
 3. General forms search flow:
 - Search all 100 forms with fuzzy matching
-- Select one or more eSign-enabled forms
+- Forms that are not eSign-enabled or not valid for the entered account type stay visible but are disabled
+- Select one or more forms that are both eSign-enabled and account-eligible
 - Enter account/UAN for package
+- Footer counters show `Total forms`, `eSign enabled`, and `Eligible for entered account`
 - Continue to package from that screen
 4. Saved forms flow:
 - Save/unsave forms from General forms search detail panel
 - Open `Saved forms` from landing page
-- Select saved forms and continue to package
+- Saved forms follow the same account-type eligibility + eSign selection rules
+- Select eligible saved forms and continue to package
 5. Package flow:
 - Fill form fields
 - Assign signers (and reorder signer routing when multiple signers are selected)
@@ -48,6 +75,12 @@ To deploy, push to `main` (GitHub Pages auto-deploys).
 - Send for signature or save draft
 6. My work:
 - Track Drafts / In progress / Completed / Voided
+7. Admin flow (admin users only):
+- Open Admin from header
+- Left panel: scrollable forms catalog
+- Right panel: add/edit form metadata
+- Edit and save landing-page operations update text
+- Changes persist locally and update runtime search/catalog immediately
 
 ### Forms Search (Fuse.js)
 `services/formsSearch.js` powers weighted fuzzy search using Fuse.js plus domain-specific typo normalization.
@@ -63,6 +96,44 @@ Behavior highlights:
 - typo tolerance (example: `Account trnfer` still ranks `AC-TF`)
 - ranking tuned for finite form catalogs where names are similar
 - capped top results for broad queries to avoid noisy overload
+- runtime index rebuild when admin updates form catalog (no reload required)
+
+### Account-Type Eligibility Rules
+
+Forms now support account-type eligibility using `validAccountTypeKeys`.
+
+Supported account type keys:
+- `RMA_INDIVIDUAL`
+- `RMA_JOINT`
+- `TRUST`
+- `IRA_ROTH`
+- `IRA_TRADITIONAL`
+
+Selection behavior:
+- A form is selectable only when `eSignEnabled === true`.
+- A form is selectable only when account type is included in `validAccountTypeKeys`.
+- Ineligible forms stay visible with disabled state and reason text.
+- If account input changes, invalid selected forms are auto-removed from selection state.
+
+### Admin Workspace
+
+Admin workspace is a prototype control plane for forms and operations messaging.
+
+Capabilities:
+- Add new forms (validated required fields and limits)
+- Edit existing forms
+- Keyword chip input
+- Account-type eligibility editor
+- eSign / DocuSign flags
+- Optional template ID / PDF path
+- Attachment placeholder (stores filename only, no upload backend)
+- Operations update editor with preview + save + revert-to-default
+
+UI highlights:
+- Header shows persistent `Admin mode` badge when enabled.
+- Forms catalog + form editor are combined in a single card with internal divider.
+- Forms catalog scrolls in place for rapid click-to-edit.
+- Save actions show toast notifications.
 
 ### DocuSign Integration
 Real DocuSign send is enabled for forms with `docuSignEnabled: true` in `data/forms.js`.
@@ -91,6 +162,9 @@ The Cloudflare Worker URL is configured in `config/docusignConfig.js` (`proxyUrl
 localStorage keys used by the app:
 - `formsLibrary_workItems` -> My Work data (draft/in-progress/completed/voided)
 - `formsLibrary_savedFormCodes` -> saved form codes for Saved Forms
+- `formsLibrary_userRole` -> current role flag (`admin` when enabled)
+- `formsLibrary_adminFormsCatalog` -> admin-edited forms catalog
+- `formsLibrary_operationsUpdate` -> admin-edited landing operations callout
 
 Both persist across refreshes.
 
@@ -189,6 +263,24 @@ Both persist across refreshes.
 3. Verify error messaging appears.
 4. Verify My work item still gets created for continuity.
 
+### Flow 13: Account Eligibility Gating
+1. Open `General forms search`.
+2. Enter account `ABC123` (Joint).
+3. Verify forms not valid for Joint are shown but disabled.
+4. Verify `Print only` forms are shown but disabled.
+5. Verify footer shows all three counters: total forms, eSign enabled, eligible for entered account.
+6. Change to account `ASD456` (Trust) and verify eligible count and disabled states update.
+
+### Flow 14: Admin Mode
+1. Open app with `?admin=pm`.
+2. Verify header shows `Admin mode` badge and `Admin` button.
+3. Open `Admin`.
+4. In forms catalog, click a form and edit description.
+5. Save and verify success toast.
+6. Return to forms search and verify updated form metadata appears in results.
+7. In Admin, update operations callout and save.
+8. Return to landing and verify updated callout text.
+
 ---
 
 ## Common Operations
@@ -210,6 +302,27 @@ localStorage.removeItem('formsLibrary_savedFormCodes'); location.reload();
 ```js
 JSON.parse(localStorage.getItem('formsLibrary_workItems'));
 JSON.parse(localStorage.getItem('formsLibrary_savedFormCodes'));
+localStorage.getItem('formsLibrary_userRole');
+JSON.parse(localStorage.getItem('formsLibrary_adminFormsCatalog'));
+JSON.parse(localStorage.getItem('formsLibrary_operationsUpdate'));
+```
+
+### Enable/Disable admin in console
+
+```js
+// enable
+localStorage.setItem('formsLibrary_userRole', 'admin'); location.reload();
+
+// disable
+localStorage.removeItem('formsLibrary_userRole'); location.reload();
+```
+
+### Reset admin-only prototype data
+
+```js
+localStorage.removeItem('formsLibrary_adminFormsCatalog');
+localStorage.removeItem('formsLibrary_operationsUpdate');
+location.reload();
 ```
 
 ### Full reset
@@ -245,6 +358,8 @@ config/
   docusignConfig.js         # DocuSign config and proxy URL
 services/
   formsSearch.js            # Weighted fuzzy search/ranking logic (Fuse.js)
+  formEligibility.js        # Account-type eligibility and form selectability rules
+  adminDataService.js       # Admin mode/session + catalog + operations update persistence
   docusignService.js        # DocuSign send/status/void/resend/download APIs
 components/
   Header.js                 # Top navigation
@@ -252,6 +367,7 @@ components/
   ResultsView.js            # Account-scoped form selection
   FormsLibraryView.js       # General Forms Search with select + save + continue
   SavedFormsView.js         # Saved forms list with select + continue
+  AdminView.js              # Admin workspace for forms and operations update editing
   PackageView.js            # Form fill + signer assignment + send/save
   MyWorkView.js             # Drafts/In Progress/Completed/Voided queue
   SaveDraftModal.js         # Draft naming modal
@@ -288,15 +404,12 @@ No npm build step required for runtime.
 - Weighted fuzzy General Forms Search with typo tolerance and ranking.
 - Fully functional Saved Forms workflow with localStorage persistence.
 - Continue-to-package support from both General Forms Search and Saved Forms.
-- General forms search UI polish:
-- separate account/UAN and form-search cards
-- right-aligned `Back to search` control
-- expanded-row save control placement and cleaned metadata layout
-- no-layout-shift selection CTA behavior in General forms search + Saved forms
-- compact selected row styling (no thick left stripe)
-- Landing page polish:
-- operations callout with elevated orange gradient styling + update timestamp pill
-- improved two-column card hierarchy with stronger primary account card
-- quick-start module on landing page
-- quick start `Resume last draft` support (disabled when no drafts)
-- sentence-case copy consistency for core headings/buttons
+- Account-type eligibility model added for form selection (`validAccountTypeKeys`).
+- Ineligible and print-only forms remain visible but disabled with reason text.
+- Eligibility-aware selection behavior applied across Results, General Forms Search, and Saved Forms.
+- General Forms Search footer counters now include `Eligible for entered account` in addition to total/eSign counts.
+- Search index rebuild support added so admin catalog edits are immediately searchable.
+- Admin mode system added with URL-based enable/disable and role persistence.
+- Admin workspace added for create/edit forms, keyword chips, account-type eligibility, operations update preview/save/revert, and attachment placeholder handling.
+- Header now shows admin-only `Admin` navigation plus a persistent `Admin mode` badge.
+- Admin UI layout now uses a shared catalog+editor card with internal divider, scroll-in-place catalog, and toast save feedback.
