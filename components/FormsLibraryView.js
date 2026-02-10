@@ -20,6 +20,15 @@ const FormsLibraryView = ({
   const normalizedAccount = accountInput.trim().toUpperCase();
   const resolvedAccount = normalizedAccount ? MOCK_ACCOUNTS[normalizedAccount] : null;
   const hasSelection = selectedForms.length > 0;
+  const totalFormsCount = FORMS_DATA.length;
+  const eSignEnabledFormsCount = React.useMemo(
+    () => FORMS_DATA.filter((form) => form.eSignEnabled).length,
+    []
+  );
+  const eligibleFormsCount = React.useMemo(() => {
+    if (!resolvedAccount) return 0;
+    return FORMS_DATA.filter((form) => isFormSelectableForAccount(form, resolvedAccount)).length;
+  }, [resolvedAccount]);
   const accountStatusMessage = accountError
     ? accountError
     : (resolvedAccount ? `${resolvedAccount.accountNumber} - ${resolvedAccount.accountName} (${resolvedAccount.accountType})` : '');
@@ -307,18 +316,24 @@ const FormsLibraryView = ({
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+      <div className="flex items-center justify-center flex-wrap gap-6 text-sm text-gray-500">
         <div className="flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          {FORMS_DATA.length} Total forms
+          {totalFormsCount} Total forms
         </div>
         <div className="flex items-center gap-1.5">
           <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          {FORMS_DATA.filter((f) => f.eSignEnabled).length} eSign enabled
+          {eSignEnabledFormsCount} eSign enabled
+        </div>
+        <div className={`flex items-center gap-1.5 ${resolvedAccount ? 'text-blue-600' : 'text-gray-400'}`}>
+          <svg className={`w-4 h-4 ${resolvedAccount ? 'text-blue-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          {eligibleFormsCount} Eligible for entered account
         </div>
       </div>
 
