@@ -127,7 +127,11 @@ const App = () => {
   const handleLoadDraft = (draftItem) => {
     // Look up the account from the draft
     const account = MOCK_ACCOUNTS[draftItem.account];
-    setCurrentAccount(account || MOCK_ACCOUNT);
+    if (!account) {
+      setToast({ message: 'Draft account not found', subtitle: `Account ${draftItem.account} no longer exists` });
+      return;
+    }
+    setCurrentAccount(account);
     setSelectedForms(draftItem.forms);
     setDraftData(draftItem.draftData || null);
     setView('package');
