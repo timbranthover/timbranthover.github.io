@@ -11,6 +11,7 @@ const FormsLibraryView = ({
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [accountInput, setAccountInput] = React.useState(initialAccountNumber);
   const [accountError, setAccountError] = React.useState(null);
+  const [selectedCategory, setSelectedCategory] = React.useState(null);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(searchQuery), 150);
@@ -22,22 +23,35 @@ const FormsLibraryView = ({
     [debouncedQuery]
   );
 
-  const visibleForms = searchResult.items;
+  const searchedForms = searchResult.items;
   const normalizedAccount = accountInput.trim().toUpperCase();
   const resolvedAccount = normalizedAccount ? MOCK_ACCOUNTS[normalizedAccount] : null;
   const hasSelection = selectedForms.length > 0;
-  const totalFormsCount = FORMS_DATA.length;
-  const eSignEnabledFormsCount = React.useMemo(
-    () => FORMS_DATA.filter((form) => form.eSignEnabled).length,
-    []
-  );
+
   const eligibleFormsCount = React.useMemo(() => {
     if (!resolvedAccount) return 0;
     return FORMS_DATA.filter((form) => isFormSelectableForAccount(form, resolvedAccount)).length;
   }, [resolvedAccount]);
+
+  const categoryCounts = React.useMemo(() => {
+    const counts = {};
+    FORM_CATEGORIES.forEach(cat => {
+      counts[cat.id] = searchedForms.filter(form => formMatchesCategory(form, cat)).length;
+    });
+    return counts;
+  }, [searchedForms]);
+
+  const visibleForms = React.useMemo(() => {
+    if (!selectedCategory) return searchedForms;
+    const cat = FORM_CATEGORIES.find(c => c.id === selectedCategory);
+    return cat ? searchedForms.filter(form => formMatchesCategory(form, cat)) : searchedForms;
+  }, [searchedForms, selectedCategory]);
+
   const accountStatusMessage = accountError
     ? accountError
-    : (resolvedAccount ? `${resolvedAccount.accountNumber} - ${resolvedAccount.accountName} (${resolvedAccount.accountType})` : '');
+    : (resolvedAccount
+      ? `${resolvedAccount.accountName} \u00b7 ${resolvedAccount.accountType}${eligibleFormsCount ? ` \u00b7 ${eligibleFormsCount} eligible` : ''}`
+      : '');
 
   React.useEffect(() => {
     if (selectedFormCode && !visibleForms.some((form) => form.code === selectedFormCode)) {
@@ -79,14 +93,26 @@ const FormsLibraryView = ({
     }
   };
 
+  const activeCategory = selectedCategory ? FORM_CATEGORIES.find(c => c.id === selectedCategory) : null;
+  let statusText;
+  if (debouncedQuery && activeCategory) {
+    statusText = `${visibleForms.length} result${visibleForms.length !== 1 ? 's' : ''} in ${activeCategory.label}`;
+  } else if (debouncedQuery) {
+    statusText = `${visibleForms.length}${searchResult.limited ? ' top' : ''} of ${searchResult.totalMatches} matching form${searchResult.totalMatches !== 1 ? 's' : ''}`;
+  } else if (activeCategory) {
+    statusText = `${visibleForms.length} ${activeCategory.label} form${visibleForms.length !== 1 ? 's' : ''}`;
+  } else {
+    statusText = `${FORMS_DATA.length} forms`;
+  }
+
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-4 pb-24">
+      {/* Header */}
       <div className="flex items-start gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-gray-900">General forms search</h2>
           <p className="text-sm text-gray-500 mt-1">Browse and select from {FORMS_DATA.length} available forms</p>
         </div>
-
         <div className="ml-auto">
           <button
             onClick={onBack}
@@ -100,10 +126,12 @@ const FormsLibraryView = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Account/UAN for package</label>
+      {/* Unified toolbar card */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Account input */}
+          <div className="lg:w-[280px] flex-shrink-0">
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Account / UAN</label>
             <input
               type="text"
               placeholder="e.g. ABC123"
@@ -112,70 +140,123 @@ const FormsLibraryView = ({
                 setAccountInput(e.target.value);
                 if (accountError) setAccountError(null);
               }}
-              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 accountError ? 'border-red-300' : 'border-gray-300'
               }`}
             />
-            <div className="mt-1.5 h-5 flex items-center" aria-live="polite">
+            <div className="mt-1 h-5 flex items-center" aria-live="polite">
               <p
                 className={`text-xs truncate transition-opacity duration-150 ${
                   accountStatusMessage ? 'opacity-100' : 'opacity-0'
                 } ${accountError ? 'text-red-600' : 'text-green-700'}`}
                 title={accountStatusMessage || undefined}
               >
-                {accountStatusMessage || ' '}
+                {accountStatusMessage || '\u00a0'}
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full">
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search forms by name, code, or description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+          {/* Search input */}
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Search forms</label>
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search by name, code, or keyword..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <div className="mt-1 h-5 flex items-center">
+              <p className="text-xs text-gray-500">{statusText}</p>
+            </div>
           </div>
-
-          {debouncedQuery && (
-            <p className="mt-1.5 text-sm text-gray-500">
-              Showing {visibleForms.length}
-              {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
-              {' '}from {FORMS_DATA.length} total
-            </p>
-          )}
         </div>
       </div>
 
+      {/* Category filter chips */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setSelectedCategory(null)}
+          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+            !selectedCategory
+              ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          All
+        </button>
+        {FORM_CATEGORIES.map(cat => {
+          const count = categoryCounts[cat.id];
+          const isActive = selectedCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(isActive ? null : cat.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                isActive
+                  ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200'
+                  : count === 0
+                    ? 'bg-gray-50 text-gray-400'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {cat.label}
+              <span className={`ml-1 ${isActive ? 'text-blue-500' : 'text-gray-400'}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Forms list */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {visibleForms.length === 0 ? (
           <div className="p-12 text-center">
             <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-gray-500">No forms match your search</p>
-            <button
-              onClick={() => setSearchQuery('')}
-              className="text-sm text-blue-600 hover:text-blue-700 mt-2"
-            >
-              Clear search
-            </button>
+            <p className="text-gray-500">
+              {activeCategory && debouncedQuery
+                ? `No ${activeCategory.label.toLowerCase()} forms match "${debouncedQuery}"`
+                : activeCategory
+                  ? `No forms in ${activeCategory.label}`
+                  : `No forms match "${searchQuery}"`
+              }
+            </p>
+            <div className="flex items-center justify-center gap-3 mt-2">
+              {selectedCategory && (
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  Clear filter
+                </button>
+              )}
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
@@ -320,27 +401,6 @@ const FormsLibraryView = ({
             })}
           </div>
         )}
-      </div>
-
-      <div className="flex items-center justify-center flex-wrap gap-6 text-sm text-gray-500">
-        <div className="flex items-center gap-1.5">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          {totalFormsCount} Total forms
-        </div>
-        <div className="flex items-center gap-1.5">
-          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {eSignEnabledFormsCount} eSign enabled
-        </div>
-        <div className={`flex items-center gap-1.5 ${resolvedAccount ? 'text-blue-600' : 'text-gray-400'}`}>
-          <svg className={`w-4 h-4 ${resolvedAccount ? 'text-blue-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          {eligibleFormsCount} Eligible for entered account
-        </div>
       </div>
 
       {hasSelection && (

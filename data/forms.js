@@ -100,3 +100,64 @@ const FORMS_DATA = [
   { code: "LA-STANDING", name: "Standing Instruction LOA", description: "General standing account instruction letter", longDescription: "Creates general standing account instructions where standard operations forms do not fully apply.", keywords: ["standing instruction", "general loa", "written direction", "account instruction"], validAccountTypeKeys: ["RMA_INDIVIDUAL", "RMA_JOINT", "TRUST"], eSignEnabled: true, requiresAllSigners: true },
   { code: "LA-3RDPAY", name: "Third-Party Payment Authorization LOA", description: "Authorize payment to third-party payee", longDescription: "Authorizes payment to a third-party payee with compliance justification and verification controls.", keywords: ["third party payment", "loa", "payee authorization", "disbursement control"], validAccountTypeKeys: ["RMA_INDIVIDUAL", "RMA_JOINT", "TRUST"], eSignEnabled: false, requiresAllSigners: true }
 ];
+
+/**
+ * Form categories derived from keyword analysis across the catalog.
+ * Each trigger is matched as a substring against form keywords.
+ * A form can appear in multiple categories.
+ */
+const FORM_CATEGORIES = [
+  {
+    id: 'money-movement',
+    label: 'Money Movement',
+    triggers: ['wire', 'ach', 'eft', 'bank link', 'journal', 'disbursement', 'money movement', 'move assets', 'acat', 'cash out', 'loan', 'credit line', 'pledged asset', 'collateral', 'borrowing', 'statement of purpose']
+  },
+  {
+    id: 'retirement',
+    label: 'Retirement & IRA',
+    triggers: ['ira', 'roth', 'rmd', 'required minimum', 'retirement', '401k', 'qualified plan', 'sep ira', 'simple ira', 'qcd', 'charitable distribution']
+  },
+  {
+    id: 'maintenance',
+    label: 'Account Maintenance',
+    triggers: ['name change', 'address', 'contact update', 'registration', 'paperless', 'electronic delivery', 'edocs', 'email consent', 'undeliverable', 'returned mail', 'duplicate statement', 'profile update', 'profile maintenance', 'email change', 'phone change', 'mailing', 'document preference', 'account maintenance', 'authorized user', 'trading authorization']
+  },
+  {
+    id: 'beneficiary',
+    label: 'Beneficiary & Estate',
+    triggers: ['beneficiary', 'tod', 'transfer on death', 'estate', 'death', 'decedent', 'successor', 'probate', '529', 'education', 'custodial', 'utma', 'ugma', 'college', 'age of majority', 'minor account', 'charitable gift', 'donation', 'donor', 'gift securities', 'stock gift', 'gift transfer', 'asset donation']
+  },
+  {
+    id: 'trading',
+    label: 'Trading & Options',
+    triggers: ['options', 'margin', 'spread', 'futures', 'derivatives', 'penny stock', 'speculative', 'alternative investment', 'private placement', 'private fund', 'structured', 'municipal bond', 'muni', 'fx', 'foreign exchange', 'currency risk', 'international trading', 'global markets', 'adr', 'american depositary', 'leverage', 'complex products', 'trading level', 'trading permission']
+  },
+  {
+    id: 'compliance',
+    label: 'Compliance & Tax',
+    triggers: ['w9', 'w-8', 'kyc', 'aml', 'fatca', 'crs', 'ofac', 'sanctions', 'cost basis', 'tax lot', 'lot relief', 'capital gains', 'boe', 'beneficial owner', 'nra', '1446', 'tefra', 'tin', 'tax id', 'tax certification', 'tax residency', 'compliance', 'due diligence', 'recertification', 'withholding', 'trustee', 'corporate resolution', 'llc', 'partnership', 'entity', 'managing member', 'general partner', 'fiduciary', 'officer authority', 'signer certification']
+  },
+  {
+    id: 'loa',
+    label: 'LOA & Authorization',
+    triggers: ['loa', 'letter of authorization', 'poa', 'power of attorney', 'standing instruction', 'written direction', 'trade correction', 'cancel rebill', 'third party payment', 'payee authorization', 'agent authority', 'legal representative']
+  },
+  {
+    id: 'advisory',
+    label: 'Advisory & Programs',
+    triggers: ['advisory', 'managed', 'fee waiver', 'fee schedule', 'risk profile', 'risk tolerance', 'suitability', 'investment objective', 'program account', 'managed solutions', 'advisory enrollment', 'billing adjustment', 'client profile', 'time horizon']
+  },
+  {
+    id: 'cash-mgmt',
+    label: 'Cash Management',
+    triggers: ['sweep', 'checkwriting', 'checks', 'debit card', 'bill pay', 'atm', 'money market', 'drip', 'dividend reinvestment', 'income reinvestment', 'cash management', 'cash access', 'core position', 'core option', 'sweep fund', 'distribution election', 'card enrollment']
+  }
+];
+
+/** Returns true when any form keyword includes any category trigger as a substring. */
+const formMatchesCategory = (form, category) => {
+  const keywords = form.keywords || [];
+  return category.triggers.some(trigger =>
+    keywords.some(kw => kw.toLowerCase().includes(trigger))
+  );
+};
