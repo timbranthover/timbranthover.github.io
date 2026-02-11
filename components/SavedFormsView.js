@@ -72,8 +72,8 @@ const SavedFormsView = ({
   };
 
   return (
-    <div className="space-y-6 pb-24">
-      <div className="flex items-start gap-4">
+    <div className="mobile-saved-forms-view space-y-6 pb-24">
+      <div className="mobile-section-header flex items-start gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-gray-900">Saved forms</h2>
           <p className="text-sm text-gray-500 mt-1">Quick access to your saved forms list</p>
@@ -92,7 +92,7 @@ const SavedFormsView = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-4">
+      <div className="mobile-toolbar-card bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Account/UAN for package</label>
           <input
@@ -153,7 +153,7 @@ const SavedFormsView = ({
                     isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="mobile-form-list-row-top flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-3">
                         <input
@@ -215,7 +215,7 @@ const SavedFormsView = ({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="mobile-form-list-actions flex items-center gap-3 flex-shrink-0">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -280,7 +280,7 @@ const SavedFormsView = ({
       </div>
 
       {hasSelection && (
-        <div className="fixed bottom-5 inset-x-4 sm:inset-x-auto sm:right-6 z-30 flex justify-end pointer-events-none">
+        <div className="mobile-floating-action-wrap fixed bottom-5 inset-x-4 sm:inset-x-auto sm:right-6 z-30 flex justify-end pointer-events-none">
           <div className="pointer-events-auto floating-glass">
             <button
               onClick={() => setSelectedForms([])}

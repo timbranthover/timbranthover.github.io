@@ -16,7 +16,7 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
   };
 
   return (
-    <div className="bg-white shadow-lg max-w-3xl mx-auto p-8 space-y-6">
+    <div className="mobile-form-shell bg-white shadow-lg max-w-3xl mx-auto p-8 space-y-6">
       <div className="border-b-2 border-gray-900 pb-4">
         <h2 className="text-xl font-bold">ACATS Account Transfer Form</h2>
         <p className="text-sm text-gray-600 mt-1">Transfer assets from external financial institution</p>
@@ -149,8 +149,8 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
             <h3 className="font-semibold text-gray-900 mb-3">Partial Transfer Details</h3>
             <div className="space-y-3">
               {(formData.securities || []).map((security, index) => (
-                <div key={index} className="flex gap-3 items-start">
-                  <div className="flex-1 grid grid-cols-3 gap-3">
+                <div key={index} className="mobile-security-row flex gap-3 items-start">
+                  <div className="mobile-security-grid flex-1 grid grid-cols-3 gap-3">
                     <input
                       type="text"
                       value={security.symbol}

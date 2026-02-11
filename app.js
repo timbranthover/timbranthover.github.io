@@ -564,7 +564,7 @@ const App = () => {
         isAdmin={isAdmin}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div key={view} className="view-enter">
           {renderActiveView()}
         </div>
@@ -572,12 +572,12 @@ const App = () => {
 
       {/* Toast Notification */}
       <div
-        className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
+        className={`mobile-toast fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
           toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
         }`}
       >
         {toast && (
-          <div className={`rounded-lg shadow-lg border p-4 flex gap-3 min-w-[340px] ${
+          <div className={`mobile-toast-card rounded-lg shadow-lg border p-4 flex gap-3 min-w-[340px] ${
             toast.subtitle ? 'items-start' : 'items-center'
           } ${
             toast.type === 'success'

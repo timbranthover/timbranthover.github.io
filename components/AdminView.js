@@ -286,7 +286,7 @@ const AdminView = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mobile-admin-view space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-gray-900">Admin</h2>
@@ -510,12 +510,12 @@ const AdminView = ({
       />
 
       <div
-        className={`fixed bottom-6 right-6 z-40 transition-all duration-300 ease-out ${
+        className={`mobile-toast fixed bottom-6 right-6 z-40 transition-all duration-300 ease-out ${
           toast ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
         }`}
       >
         {toast && (
-          <div className={`rounded-lg shadow-lg border p-4 flex items-center gap-3 min-w-[260px] ${
+          <div className={`mobile-toast-card rounded-lg shadow-lg border p-4 flex items-center gap-3 min-w-[260px] ${
             toast.type === "success"
               ? "bg-green-50 border-green-200"
               : "bg-red-50 border-red-200"

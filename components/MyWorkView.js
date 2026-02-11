@@ -320,7 +320,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     const hasEnvelope = !!item.docusignEnvelopeId;
 
     return (
-      <div className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+      <div className="mobile-actions-menu absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
         {workTab === 'drafts' && (
           <>
             <button
@@ -458,8 +458,8 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
   return (
     <>
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="mobile-my-work-view space-y-6">
+      <div className="mobile-work-header flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-semibold text-gray-900">My work</h2>
           {isPolling && (
@@ -469,7 +469,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             </svg>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="mobile-work-header-actions flex items-center gap-3">
           {lastRefreshed && (
             <span className="text-xs text-gray-400">Updated {formatTime(lastRefreshed.toISOString())}</span>
           )}
@@ -493,7 +493,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200 flex gap-1 p-2">
+        <div className="mobile-work-tabs border-b border-gray-200 flex gap-1 p-2">
           {tabConfig.map(tab => (
             <button
               key={tab.key}
@@ -509,7 +509,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
           ))}
         </div>
 
-        <table className="w-full table-fixed">
+        <table className="mobile-work-table w-full table-fixed">
           <thead className="bg-gray-50/90 border-b border-gray-200">
             <tr className="h-11">
               <th className="w-[30%] text-left px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-gray-500">To</th>
@@ -534,7 +534,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             )}
             {workItems[workTab].map((item) => (
               <tr key={item.id} className="odd:bg-white even:bg-gray-50/20 hover:bg-blue-50/30 transition-colors">
-                <td className="px-6 py-4 align-middle">
+                <td data-label="To" className="px-6 py-4 align-middle">
                   <div className="space-y-1.5">
                     <span className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-semibold tracking-wide text-gray-700">
                       {item.account}
@@ -550,23 +550,23 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
                     </div>
                   )}
                 </td>
-                <td className="px-6 py-4 align-middle">
+                <td data-label="Forms" className="px-6 py-4 align-middle">
                   {renderFormChips(item.forms)}
                 </td>
-                <td className="px-6 py-4 align-middle">
+                <td data-label="Status" className="px-6 py-4 align-middle">
                   {renderStatusCell(item)}
                 </td>
                 {workTab === 'drafts' && (
-                  <td className="px-6 py-4 text-sm text-gray-500 align-middle">
+                  <td data-label="Saved" className="px-6 py-4 text-sm text-gray-500 align-middle">
                     {formatDateTime(item.savedAt)}
                   </td>
                 )}
                 {workTab === 'inProgress' && (
-                  <td className="px-6 py-4 text-sm text-gray-500 align-middle">
+                  <td data-label="Sent" className="px-6 py-4 text-sm text-gray-500 align-middle">
                     {formatSentDate(item.sentAt)}
                   </td>
                 )}
-                <td className="px-6 py-4 text-right align-middle relative">
+                <td data-label="Actions" className="px-6 py-4 text-right align-middle relative">
                   <button
                     onClick={(e) => { e.stopPropagation(); setActiveActionMenu(activeActionMenu === item.id ? null : item.id); }}
                     aria-label="Open row actions"
@@ -600,12 +600,12 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
     {/* Toast Notification */}
     <div
-      className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
+      className={`mobile-toast fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
         toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
       }`}
     >
       {toast && (
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-start gap-3 min-w-[320px]">
+        <div className="mobile-toast-card bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-start gap-3 min-w-[320px]">
           <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${toast.type === 'success' ? 'bg-green-100' : 'bg-blue-100'}`}>
             {toast.type === 'success' ? (
               <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,0 +1,285 @@
+@media (max-width: 1023px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  .mobile-app-header .max-w-7xl {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+  }
+
+  .mobile-app-header .mobile-header-brand {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .mobile-app-header .mobile-header-brand h1 {
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+
+  .mobile-app-header .mobile-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .mobile-app-header button,
+  .mobile-search-view button,
+  .mobile-results-view button,
+  .mobile-forms-library-view button,
+  .mobile-saved-forms-view button,
+  .mobile-admin-view button {
+    min-height: 40px;
+  }
+
+  .mobile-package-view .mobile-form-nav button,
+  .mobile-package-view .space-y-2.pt-4.border-t.border-gray-200 > button,
+  .mobile-package-view .space-y-2.pt-4.border-t.border-gray-200 > .relative.group > button,
+  .mobile-my-work-view .mobile-work-header-actions button,
+  .mobile-my-work-view .mobile-work-tabs button,
+  .mobile-my-work-view .mobile-work-table td[data-label="Actions"] > button {
+    min-height: 40px;
+  }
+
+  .mobile-search-view .mobile-operations-callout {
+    padding: 0.75rem 0.875rem;
+  }
+
+  .mobile-search-view .mobile-operations-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: 0.375rem;
+  }
+
+  .mobile-search-view .mobile-search-main-grid > .mobile-search-card {
+    padding: 1rem;
+  }
+
+  .mobile-results-view .mobile-results-header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .mobile-results-view .mobile-results-card {
+    padding: 1rem;
+  }
+
+  .mobile-results-view .mobile-results-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .mobile-results-view .mobile-results-row-main {
+    min-width: 0;
+  }
+
+  .mobile-results-view .mobile-results-row-title {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+  }
+
+  .mobile-results-view .mobile-results-badge {
+    margin-left: 1.75rem;
+  }
+
+  .mobile-forms-library-view .mobile-section-header,
+  .mobile-saved-forms-view .mobile-section-header,
+  .mobile-my-work-view .mobile-work-header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .mobile-forms-library-view .mobile-toolbar-card,
+  .mobile-saved-forms-view .mobile-toolbar-card {
+    padding: 0.875rem;
+  }
+
+  .mobile-forms-library-view .mobile-form-list-row-top,
+  .mobile-saved-forms-view .mobile-form-list-row-top {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .mobile-forms-library-view .mobile-form-list-actions,
+  .mobile-saved-forms-view .mobile-form-list-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .mobile-package-view .mobile-package-layout {
+    flex-direction: column;
+  }
+
+  .mobile-package-view .mobile-package-sidebar {
+    width: 100%;
+  }
+
+  .mobile-package-view .mobile-package-sidebar-panel {
+    position: static;
+    top: auto;
+  }
+
+  .mobile-package-view .mobile-form-nav {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .mobile-package-view .mobile-form-header-row {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+  }
+
+  .mobile-package-view .mobile-signer-detail-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+
+  .mobile-package-view .mobile-signer-detail-label {
+    width: auto;
+  }
+
+  .mobile-form-shell {
+    padding: 1rem;
+  }
+
+  .mobile-form-shell .grid.grid-cols-2,
+  .mobile-form-shell .grid.grid-cols-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mobile-form-shell .flex.gap-4 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .mobile-form-shell .mobile-security-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mobile-form-shell .mobile-security-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mobile-my-work-view .mobile-work-header-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .mobile-my-work-view .mobile-work-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    padding-inline: 0.5rem;
+  }
+
+  .mobile-my-work-view .mobile-work-tabs button {
+    white-space: nowrap;
+  }
+
+  .mobile-my-work-view .mobile-work-table,
+  .mobile-my-work-view .mobile-work-table tbody,
+  .mobile-my-work-view .mobile-work-table tr,
+  .mobile-my-work-view .mobile-work-table td {
+    display: block;
+    width: 100% !important;
+  }
+
+  .mobile-my-work-view .mobile-work-table thead {
+    display: none;
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody tr {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgb(229 231 235 / 0.9);
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody td {
+    padding: 0.35rem 0;
+    text-align: left;
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.6875rem;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgb(107 114 128);
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody td[data-label="To"]::before {
+    content: "Recipient";
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody td[data-label="Actions"] {
+    padding-top: 0.75rem;
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody td[data-label="Actions"]::before {
+    margin-bottom: 0.4rem;
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody td:not([data-label]) {
+    text-align: center;
+    padding-block: 1rem;
+  }
+
+  .mobile-my-work-view .mobile-work-table tbody td:not([data-label])::before {
+    display: none;
+  }
+
+  .mobile-my-work-view .mobile-actions-menu {
+    position: static;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .mobile-floating-action-wrap {
+    bottom: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    inset-inline: 0.75rem;
+  }
+
+  .mobile-floating-action-wrap .floating-glass {
+    width: 100%;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .mobile-floating-action-wrap .floating-action {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .mobile-toast {
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+  }
+
+  .mobile-toast .mobile-toast-card {
+    width: 100%;
+    min-width: 0 !important;
+  }
+
+  .mobile-admin-view .operations-glass > div:first-child {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: 0.375rem;
+  }
+}

@@ -3,9 +3,9 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
   const isInAdmin = currentView === 'admin';
 
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="mobile-app-header bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="mobile-header-brand flex items-center gap-3">
           <h1 className="text-xl font-semibold text-gray-900">Forms library</h1>
           {isAdmin && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-semibold">
@@ -14,7 +14,7 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="mobile-header-actions flex items-center gap-2">
           {isAdmin && (
             <button
               onClick={isInAdmin ? undefined : onNavigateToAdmin}
