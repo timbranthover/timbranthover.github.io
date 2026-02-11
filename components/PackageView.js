@@ -251,7 +251,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
         );
       default:
         return (
-          <div className="bg-white shadow-lg max-w-3xl mx-auto p-8">
+          <div className="mobile-form-shell bg-white shadow-lg max-w-3xl mx-auto p-8">
             <div className="border-b-2 border-gray-900 pb-4">
               <h2 className="text-xl font-bold">{currentForm?.name}</h2>
               <p className="text-sm text-gray-600 mt-1">{currentForm?.description}</p>
@@ -269,7 +269,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
   };
 
   return (
-    <div>
+    <div className="mobile-package-view">
       {/* Header with navigation */}
       <div className="flex items-center justify-between mb-6">
         <button
@@ -284,14 +284,14 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
       </div>
 
       {/* Main content with sidebar */}
-      <div className="flex gap-4">
+      <div className="mobile-package-layout flex gap-4">
         {/* Form content - Left side */}
         <div className="flex-1 space-y-4">
           {renderFormComponent()}
 
           {/* Navigation buttons */}
           {selectedForms.length > 1 && (
-            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="mobile-form-nav flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <button
                 onClick={goToPreviousForm}
                 disabled={currentFormIndex === 0}
@@ -326,9 +326,9 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
         </div>
 
         {/* Sidebar - Right side */}
-        <div className="w-96 space-y-4">
+        <div className="mobile-package-sidebar w-96 space-y-4">
           {/* Signer Selection */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-6">
+          <div className="mobile-package-sidebar-panel bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Select signers</h3>
             <div className="space-y-3 mb-6">
               {selectedForms.map((formCode, formIndex) => {
@@ -367,7 +367,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="mobile-form-header-row flex items-center gap-2">
                           <span className={`text-sm font-medium ${isCurrentForm ? 'text-blue-600' : 'text-gray-900'}`}>
                             Form {formIndex + 1}: {form?.name}
                           </span>
@@ -448,8 +448,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
 
                               {isSelected && (
                                 <div className="ml-6 space-y-2">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-gray-600 w-12">Email</span>
+                                  <div className="mobile-signer-detail-row flex items-center gap-2">
+                                    <span className="mobile-signer-detail-label text-xs text-gray-600 w-12">Email</span>
                                     <select
                                       value={signerDetails[signer.id]?.email || signer.emails[0]}
                                       onChange={(e) => updateSignerDetail(signer.id, 'email', e.target.value)}
@@ -461,8 +461,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                                       ))}
                                     </select>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-gray-600 w-12">Phone</span>
+                                  <div className="mobile-signer-detail-row flex items-center gap-2">
+                                    <span className="mobile-signer-detail-label text-xs text-gray-600 w-12">Phone</span>
                                     <select
                                       value={signerDetails[signer.id]?.phone || signer.phones[0]}
                                       onChange={(e) => updateSignerDetail(signer.id, 'phone', e.target.value)}
@@ -582,12 +582,12 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
 
       {/* Toast Notification */}
       <div
-        className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
+        className={`mobile-toast fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
           toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
         }`}
       >
         {toast && (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-start gap-3 min-w-[320px]">
+          <div className="mobile-toast-card bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-start gap-3 min-w-[320px]">
             <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
               <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

@@ -1,6 +1,6 @@
 const LAGENForm = ({ formData, onUpdateField, selectedSigners, account }) => {
   return (
-    <div className="bg-white shadow-lg max-w-3xl mx-auto p-8 space-y-6">
+    <div className="mobile-form-shell bg-white shadow-lg max-w-3xl mx-auto p-8 space-y-6">
       <div className="border-b-2 border-gray-900 pb-4">
         <h2 className="text-xl font-bold">Generic Letter of Authorization</h2>
         <p className="text-sm text-gray-600 mt-1">Grant authorization to a designated party</p>

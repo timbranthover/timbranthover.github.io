@@ -54,13 +54,13 @@ const SearchView = ({
   };
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="mobile-search-view space-y-6 max-w-5xl">
       <div
-        className={`operations-glass px-5 py-3 transition-all duration-500 ${
+        className={`operations-glass mobile-operations-callout px-5 py-3 transition-all duration-500 ${
           isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
         }`}
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="mobile-operations-header flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="h-2.5 w-2.5 rounded-full bg-amber-600 flex-shrink-0" />
             <p className="text-xs font-semibold tracking-wide text-amber-900">{operationsCallout.label}</p>
@@ -72,9 +72,9 @@ const SearchView = ({
         <p className="text-sm text-amber-900 mt-1.5">{operationsCallout.message}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.25fr_0.95fr] gap-6 items-stretch">
+      <div className="mobile-search-main-grid grid grid-cols-1 lg:grid-cols-[1.25fr_0.95fr] gap-6 items-stretch">
         <div
-          className={`bg-white rounded-lg shadow-md border border-slate-300 p-6 lg:p-7 transition-all duration-500 ${
+          className={`mobile-search-card bg-white rounded-lg shadow-md border border-slate-300 p-6 lg:p-7 transition-all duration-500 ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
           }`}
           style={{ transitionDelay: '80ms' }}
@@ -136,7 +136,7 @@ const SearchView = ({
         </div>
 
         <div
-          className={`bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 rounded-lg border border-slate-300 p-6 lg:p-7 transition-all duration-500 ${
+          className={`mobile-search-card bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 rounded-lg border border-slate-300 p-6 lg:p-7 transition-all duration-500 ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
           }`}
           style={{ transitionDelay: '140ms' }}
