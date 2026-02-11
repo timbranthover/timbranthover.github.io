@@ -3,27 +3,33 @@ const FormsLibraryView = ({
   onContinue,
   savedFormCodes = [],
   onToggleSaveForm,
-  initialAccountNumber = ''
+  onBrowseForms,
+  initialAccountNumber = '',
+  mode = 'browse'
 }) => {
+  const isSavedMode = mode === 'saved';
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [debouncedQuery, setDebouncedQuery] = React.useState('');
+  const debouncedQuery = useDebounce(searchQuery);
   const [selectedFormCode, setSelectedFormCode] = React.useState(null);
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [accountInput, setAccountInput] = React.useState(initialAccountNumber);
   const [accountError, setAccountError] = React.useState(null);
   const [selectedCategory, setSelectedCategory] = React.useState(null);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 150);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  const savedForms = React.useMemo(() => {
+    if (!isSavedMode) return null;
+    const codeSet = new Set(savedFormCodes);
+    return FORMS_DATA
+      .filter((form) => codeSet.has(form.code))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [isSavedMode, savedFormCodes]);
 
   const searchResult = React.useMemo(
-    () => searchFormsCatalog(debouncedQuery, { limit: debouncedQuery.trim() ? 24 : FORMS_DATA.length }),
-    [debouncedQuery]
+    () => isSavedMode ? null : searchFormsCatalog(debouncedQuery, { limit: debouncedQuery.trim() ? 24 : FORMS_DATA.length }),
+    [debouncedQuery, isSavedMode]
   );
 
-  const searchedForms = searchResult.items;
+  const searchedForms = isSavedMode ? (savedForms || []) : searchResult.items;
   const normalizedAccount = accountInput.trim().toUpperCase();
   const resolvedAccount = normalizedAccount ? MOCK_ACCOUNTS[normalizedAccount] : null;
   const hasSelection = selectedForms.length > 0;
@@ -66,6 +72,13 @@ const FormsLibraryView = ({
     }));
   }, [resolvedAccount]);
 
+  // In saved mode, drop selections for forms that were un-saved
+  React.useEffect(() => {
+    if (!isSavedMode || !savedForms) return;
+    const currentCodes = new Set(savedForms.map((form) => form.code));
+    setSelectedForms((prev) => prev.filter((code) => currentCodes.has(code)));
+  }, [savedForms, isSavedMode]);
+
   const toggleFormSelection = (form) => {
     if (!isFormSelectableForAccount(form, resolvedAccount)) return;
 
@@ -95,7 +108,9 @@ const FormsLibraryView = ({
 
   const activeCategory = selectedCategory ? FORM_CATEGORIES.find(c => c.id === selectedCategory) : null;
   let statusText;
-  if (debouncedQuery && activeCategory) {
+  if (isSavedMode) {
+    statusText = `${savedForms.length} saved form${savedForms.length !== 1 ? 's' : ''}`;
+  } else if (debouncedQuery && activeCategory) {
     statusText = `${visibleForms.length} result${visibleForms.length !== 1 ? 's' : ''} in ${activeCategory.label}`;
   } else if (debouncedQuery) {
     statusText = `${visibleForms.length}${searchResult.limited ? ' top' : ''} of ${searchResult.totalMatches} matching form${searchResult.totalMatches !== 1 ? 's' : ''}`;
@@ -110,8 +125,8 @@ const FormsLibraryView = ({
       {/* Header */}
       <div className="mobile-section-header flex items-start gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">General forms search</h2>
-          <p className="text-sm text-gray-500 mt-1">Browse and select from {FORMS_DATA.length} available forms</p>
+          <h2 className="text-2xl font-semibold text-gray-900">{isSavedMode ? 'Saved forms' : 'General forms search'}</h2>
+          <p className="text-sm text-gray-500 mt-1">{isSavedMode ? 'Quick access to your saved forms list' : `Browse and select from ${FORMS_DATA.length} available forms`}</p>
         </div>
         <div className="ml-auto">
           <button
@@ -128,10 +143,10 @@ const FormsLibraryView = ({
 
       {/* Unified toolbar card */}
       <div className="mobile-toolbar-card bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className={`flex flex-col ${isSavedMode ? '' : 'lg:flex-row'} gap-4`}>
           {/* Account input */}
-          <div className="lg:w-[280px] flex-shrink-0">
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">Account / UAN</label>
+          <div className={isSavedMode ? '' : 'lg:w-[280px] flex-shrink-0'}>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">{isSavedMode ? 'Account / UAN for package' : 'Account / UAN'}</label>
             <input
               type="text"
               placeholder="e.g. ABC123"
@@ -156,107 +171,125 @@ const FormsLibraryView = ({
             </div>
           </div>
 
-          {/* Search input */}
-          <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">Search forms</label>
-            <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search by name, code, or keyword..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
+          {/* Search input -- browse mode only */}
+          {!isSavedMode && (
+            <div className="flex-1">
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">Search forms</label>
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search by name, code, or keyword..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <div className="mt-1 h-5 flex items-center">
+                <p className="text-xs text-gray-500">{statusText}</p>
+              </div>
             </div>
-            <div className="mt-1 h-5 flex items-center">
-              <p className="text-xs text-gray-500">{statusText}</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Category filter chips */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setSelectedCategory(null)}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-            !selectedCategory
-              ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          All
-        </button>
-        {FORM_CATEGORIES.map(cat => {
-          const count = categoryCounts[cat.id];
-          const isActive = selectedCategory === cat.id;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(isActive ? null : cat.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                isActive
-                  ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200'
-                  : count === 0
-                    ? 'bg-gray-50 text-gray-400'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {cat.label}
-              <span className={`ml-1 ${isActive ? 'text-blue-500' : 'text-gray-400'}`}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Category filter chips -- browse mode only */}
+      {!isSavedMode && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              !selectedCategory
+                ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            All
+          </button>
+          {FORM_CATEGORIES.map(cat => {
+            const count = categoryCounts[cat.id];
+            const isActive = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(isActive ? null : cat.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  isActive
+                    ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200'
+                    : count === 0
+                      ? 'bg-gray-50 text-gray-400'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {cat.label}
+                <span className={`ml-1 ${isActive ? 'text-blue-500' : 'text-gray-400'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Forms list */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {visibleForms.length === 0 ? (
           <div className="p-12 text-center">
             <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isSavedMode ? "M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" : "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"} />
             </svg>
-            <p className="text-gray-500">
-              {activeCategory && debouncedQuery
-                ? `No ${activeCategory.label.toLowerCase()} forms match "${debouncedQuery}"`
-                : activeCategory
-                  ? `No forms in ${activeCategory.label}`
-                  : `No forms match "${searchQuery}"`
-              }
-            </p>
-            <div className="flex items-center justify-center gap-3 mt-2">
-              {selectedCategory && (
+            {isSavedMode ? (
+              <>
+                <p className="text-gray-500">No saved forms yet</p>
                 <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  onClick={onBrowseForms}
+                  className="text-sm text-blue-600 hover:text-blue-700 mt-2"
                 >
-                  Clear filter
+                  Browse forms library
                 </button>
-              )}
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="text-sm text-blue-600 hover:text-blue-700"
-                >
-                  Clear search
-                </button>
-              )}
-            </div>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-500">
+                  {activeCategory && debouncedQuery
+                    ? `No ${activeCategory.label.toLowerCase()} forms match "${debouncedQuery}"`
+                    : activeCategory
+                      ? `No forms in ${activeCategory.label}`
+                      : `No forms match "${searchQuery}"`
+                  }
+                </p>
+                <div className="flex items-center justify-center gap-3 mt-2">
+                  {selectedCategory && (
+                    <button
+                      onClick={() => setSelectedCategory(null)}
+                      className="text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      Clear filter
+                    </button>
+                  )}
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      Clear search
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-gray-200">

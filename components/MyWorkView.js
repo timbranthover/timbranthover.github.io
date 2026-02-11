@@ -5,15 +5,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
   const [loadingActions, setLoadingActions] = React.useState({});
   const [isPolling, setIsPolling] = React.useState(false);
   const [lastRefreshed, setLastRefreshed] = React.useState(null);
-  const [toast, setToast] = React.useState(null);
   const [voidModal, setVoidModal] = React.useState({ isOpen: false, item: null });
-
-  // Auto-dismiss toast
-  React.useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 4000);
-    return () => clearTimeout(timer);
-  }, [toast]);
 
   // Status badge config
   const STATUS_BADGES = {
@@ -95,9 +87,9 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
     const result = await DocuSignService.resendEnvelope(item.docusignEnvelopeId);
     if (result.success) {
-      setToast({ type: 'success', message: 'Notification resent', subtitle: 'The signer will receive a new email.' });
+      showToast({ type: 'success', message: 'Notification resent', subtitle: 'The signer will receive a new email.' });
     } else {
-      setToast({ message: 'Failed to resend', subtitle: result.error });
+      showToast({ message: 'Failed to resend', subtitle: result.error });
     }
 
     setLoadingActions(prev => { const next = { ...prev }; delete next[item.id]; return next; });
@@ -129,7 +121,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
     const result = await DocuSignService.downloadDocument(item.docusignEnvelopeId);
     if (!result.success) {
-      setToast({ message: 'Failed to download', subtitle: result.error });
+      showToast({ message: 'Failed to download', subtitle: result.error });
     }
 
     setLoadingActions(prev => { const next = { ...prev }; delete next[item.id]; return next; });
@@ -598,42 +590,6 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       envelopeName={voidModal.item ? `${voidModal.item.account} — ${voidModal.item.names}` : ''}
     />
 
-    {/* Toast Notification */}
-    <div
-      className={`mobile-toast fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
-        toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
-      }`}
-    >
-      {toast && (
-        <div className="mobile-toast-card bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-start gap-3 min-w-[320px]">
-          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${toast.type === 'success' ? 'bg-green-100' : 'bg-blue-100'}`}>
-            {toast.type === 'success' ? (
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium ${toast.type === 'success' ? 'text-green-900' : 'text-gray-900'}`}>{toast.message}</p>
-            {toast.subtitle && (
-              <p className={`text-sm mt-0.5 ${toast.type === 'success' ? 'text-green-700' : 'text-gray-500'}`}>{toast.subtitle}</p>
-            )}
-          </div>
-          <button
-            onClick={() => setToast(null)}
-            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
-          >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      )}
-    </div>
     </>
   );
 };

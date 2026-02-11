@@ -9,7 +9,6 @@ const App = () => {
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [draftData, setDraftData] = React.useState(null);
   const [searchError, setSearchError] = React.useState(null);
-  const [toast, setToast] = React.useState(null);
   const [confetti, setConfetti] = React.useState([]);
   const [savedFormCodes, setSavedFormCodes] = React.useState(() => {
     try {
@@ -43,7 +42,7 @@ const App = () => {
             rotation: Math.random() * 360
           }));
           setConfetti(newConfetti);
-          setToast({ type: 'party', message: '🎉 You found the secret! 🎉', subtitle: 'Nice work, code wizard!' });
+          showToast({ type: 'party', message: '🎉 You found the secret! 🎉', subtitle: 'Nice work, code wizard!' });
           setTimeout(() => setConfetti([]), 4000);
           konamiIndex = 0;
         }
@@ -55,13 +54,6 @@ const App = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  // Auto-dismiss toast
-  React.useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 5000);
-    return () => clearTimeout(timer);
-  }, [toast]);
 
   const clearAdminHash = React.useCallback(() => {
     const currentUrl = new URL(window.location.href);
@@ -75,7 +67,7 @@ const App = () => {
       if (!isAdmin) {
         clearAdminHash();
         setView('landing');
-        setToast({
+        showToast({
           message: 'Admin access required',
           subtitle: 'This workspace is only available to admin users.'
         });
@@ -102,7 +94,7 @@ const App = () => {
       } else {
         clearAdminHash();
         setView('landing');
-        setToast({
+        showToast({
           message: 'Admin access required',
           subtitle: 'Direct access to /#admin is blocked for non-admin users.'
         });
@@ -113,24 +105,10 @@ const App = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [isAdmin, clearAdminHash]);
 
-  // Initialize workItems from localStorage or fall back to MOCK_HISTORY
-  const [workItems, setWorkItems] = React.useState(() => {
-    try {
-      const savedItems = localStorage.getItem('formsLibrary_workItems');
-      return savedItems ? JSON.parse(savedItems) : MOCK_HISTORY;
-    } catch (error) {
-      console.error('Error loading from localStorage:', error);
-      return MOCK_HISTORY;
-    }
-  });
+  const [workItems, setWorkItems] = React.useState(loadWorkItems);
 
-  // Save workItems to localStorage whenever they change
   React.useEffect(() => {
-    try {
-      localStorage.setItem('formsLibrary_workItems', JSON.stringify(workItems));
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
-    }
+    saveWorkItems(workItems);
   }, [workItems]);
 
   React.useEffect(() => {
@@ -169,7 +147,7 @@ const App = () => {
 
   const handleNavigateToAdmin = () => {
     if (!isAdmin) {
-      setToast({
+      showToast({
         message: 'Admin access required',
         subtitle: 'You do not have permission to open the admin workspace.'
       });
@@ -213,7 +191,7 @@ const App = () => {
     // Look up the account from the draft
     const account = MOCK_ACCOUNTS[draftItem.account];
     if (!account) {
-      setToast({ message: 'Draft account not found', subtitle: `Account ${draftItem.account} no longer exists` });
+      showToast({ message: 'Draft account not found', subtitle: `Account ${draftItem.account} no longer exists` });
       return;
     }
     setCurrentAccount(account);
@@ -223,218 +201,58 @@ const App = () => {
   };
 
   const handleSendForSignature = async (packageData) => {
-    // Check if any selected form has DocuSign enabled via the docuSignEnabled flag
-    const shouldUseDocuSign = packageData.forms.some(formCode => {
-      const form = FORMS_DATA.find(f => f.code === formCode);
-      return form && form.docuSignEnabled;
-    });
-
-    console.log('DocuSign check:', {
-      account: currentAccount.accountNumber,
-      forms: packageData.forms,
-      shouldUseDocuSign: shouldUseDocuSign
-    });
-
     let docusignEnvelopeId = null;
 
-    // Send via DocuSign if conditions are met
-    if (shouldUseDocuSign) {
+    if (shouldUseDocuSign(packageData.forms)) {
       try {
-        // Build signers array with routing order, using dropdown-selected emails
-        const signers = packageData.signers.map((signer) => {
-          const routingOrder = packageData.sequentialSigning && packageData.signerOrder
-            ? packageData.signerOrder.indexOf(signer.id) + 1
-            : 1; // All get order 1 for parallel signing
-
-          const email = (packageData.signerDetails && packageData.signerDetails[signer.id])
-            ? packageData.signerDetails[signer.id].email
-            : (signer.emails ? signer.emails[0] : signer.email);
-
-          return {
-            email: email,
-            name: signer.name,
-            routingOrder
-          };
-        });
-
-        // Sort by routing order for sequential signing
-        if (packageData.sequentialSigning) {
-          signers.sort((a, b) => a.routingOrder - b.routingOrder);
-        }
-
+        const signers = buildSignerPayload(packageData);
         console.log('DocuSign: Sending envelope with signers:', signers);
 
-        // Find the first docuSignEnabled form for its template/PDF config
-        const docuSignForm = packageData.forms
-          .map(code => FORMS_DATA.find(f => f.code === code))
-          .find(f => f && f.docuSignEnabled);
-
-        let result;
-        if (docuSignForm && docuSignForm.pdfPath) {
-          // PDF fill path: fill the source PDF with form data, upload as document
-          result = await DocuSignService.sendDocumentEnvelope(
-            signers,
-            docuSignForm.pdfPath,
-            docuSignForm.pdfFieldMap,
-            packageData.formData[docuSignForm.code],
-            packageData.customMessage,
-            docuSignForm.signaturePosition,
-            currentAccount.accountNumber
-          );
-        } else {
-          // Template path: use textTabs to pre-fill template fields
-          const textTabs = [];
-          packageData.forms.forEach(formCode => {
-            const form = FORMS_DATA.find(f => f.code === formCode);
-            if (form && form.textTabFields && packageData.formData && packageData.formData[formCode]) {
-              const formFields = packageData.formData[formCode];
-              Object.entries(form.textTabFields).forEach(([dataKey, tabLabel]) => {
-                if (formFields[dataKey] != null && formFields[dataKey] !== '') {
-                  textTabs.push({ tabLabel: tabLabel, value: String(formFields[dataKey]) });
-                }
-              });
-            }
-          });
-          result = await DocuSignService.sendEnvelope(
-            signers,
-            currentAccount.accountNumber,
-            packageData.customMessage,
-            {
-              templateId: docuSignForm && docuSignForm.templateId ? docuSignForm.templateId : undefined,
-              textTabs: textTabs.length > 0 ? textTabs : undefined
-            }
-          );
-        }
+        const result = await sendDocuSignEnvelope(packageData, currentAccount.accountNumber);
 
         if (result.success) {
           docusignEnvelopeId = result.envelopeId;
           console.log('DocuSign envelope sent successfully:', result.envelopeId);
           const signerNames = signers.map(s => s.name).join(', ');
-          setToast({
-            type: 'success',
-            message: `DocuSign envelope sent to ${signerNames}`
-          });
+          showToast({ type: 'success', message: `DocuSign envelope sent to ${signerNames}` });
         } else {
           console.error('DocuSign error:', result.error);
-          setToast({ message: 'DocuSign error', subtitle: result.error + ' — item still added to My work' });
+          showToast({ message: 'DocuSign error', subtitle: result.error + ' — item still added to My work' });
         }
       } catch (error) {
         console.error('Error sending DocuSign envelope:', error);
-        setToast({ message: 'DocuSign error', subtitle: error.message + ' — item still added to My work' });
+        showToast({ message: 'DocuSign error', subtitle: error.message + ' — item still added to My work' });
       }
     }
 
-    // Create a new in-progress item
-    const newItem = {
-      id: `ip${Date.now()}`,
-      account: currentAccount.accountNumber,
-      names: currentAccount.accountName,
-      forms: packageData.forms,
-      status: packageData.signers.length > 1
-        ? `Waiting for ${packageData.signers[0].name} and ${packageData.signers.length - 1} other${packageData.signers.length > 2 ? 's' : ''}`
-        : `Waiting for ${packageData.signers[0]?.name || 'signer'}`,
-      lastChange: 'Just now',
-      progress: { signed: 0, total: packageData.signers.length },
-      docusignEnvelopeId: docusignEnvelopeId, // Store envelope ID if sent via DocuSign
-      sentAt: new Date().toISOString()
-    };
-
-    // Add to in-progress items
-    setWorkItems(prev => ({
-      ...prev,
-      inProgress: [newItem, ...prev.inProgress]
-    }));
-
-    // Navigate to My Work to show the new item
+    const newItem = createInProgressItem(currentAccount, packageData, docusignEnvelopeId);
+    setWorkItems(prev => addInProgressItem(prev, newItem));
     setView('work');
   };
 
   const handleSaveDraft = (draftName, draftFormData) => {
-    // Create a new draft item
-    const newDraft = {
-      id: `d${Date.now()}`,
-      account: currentAccount.accountNumber,
-      names: currentAccount.accountName,
-      forms: selectedForms,
-      status: 'Draft',
-      lastChange: 'Just now',
-      draftName: draftName,
-      draftData: draftFormData,
-      savedAt: new Date().toISOString()
-    };
-
-    // Add to drafts
-    setWorkItems(prev => ({
-      ...prev,
-      drafts: [newDraft, ...prev.drafts]
-    }));
+    const draft = createDraftItem(currentAccount, selectedForms, draftName, draftFormData);
+    setWorkItems(prev => addDraft(prev, draft));
   };
 
-  // Delete a draft
   const handleDeleteDraft = (draftItem) => {
-    setWorkItems(prev => ({
-      ...prev,
-      drafts: prev.drafts.filter(d => d.id !== draftItem.id)
-    }));
+    setWorkItems(prev => removeDraft(prev, draftItem.id));
   };
 
-  // Void a real DocuSign envelope and move to voided tab
   const handleVoidEnvelope = async (item, reason) => {
     if (!item.docusignEnvelopeId) return;
 
     const result = await DocuSignService.voidEnvelope(item.docusignEnvelopeId, reason);
     if (result.success) {
-      setWorkItems(prev => ({
-        ...prev,
-        inProgress: prev.inProgress.filter(i => i.id !== item.id),
-        voided: [{
-          ...item,
-          status: 'Voided',
-          lastChange: 'Just now',
-          reason: reason
-        }, ...prev.voided]
-      }));
-      setToast({ type: 'success', message: 'Envelope voided successfully' });
+      setWorkItems(prev => voidItem(prev, item, reason));
+      showToast({ type: 'success', message: 'Envelope voided successfully' });
     } else {
-      setToast({ message: 'Failed to void envelope', subtitle: result.error });
+      showToast({ message: 'Failed to void envelope', subtitle: result.error });
     }
   };
 
-  // Handle envelope status changes from polling (auto-move completed/voided)
   const handleEnvelopeStatusChange = (itemId, envelopeData) => {
-    if (envelopeData.status === 'completed') {
-      setWorkItems(prev => {
-        const item = prev.inProgress.find(i => i.id === itemId);
-        if (!item) return prev;
-
-        return {
-          ...prev,
-          inProgress: prev.inProgress.filter(i => i.id !== itemId),
-          completed: [{
-            ...item,
-            status: 'Completed',
-            lastChange: 'Just now',
-            progress: { signed: item.progress?.total || 1, total: item.progress?.total || 1 }
-          }, ...prev.completed]
-        };
-      });
-    } else if (envelopeData.status === 'voided') {
-      setWorkItems(prev => {
-        const item = prev.inProgress.find(i => i.id === itemId);
-        if (!item) return prev;
-
-        return {
-          ...prev,
-          inProgress: prev.inProgress.filter(i => i.id !== itemId),
-          voided: [{
-            ...item,
-            status: 'Voided',
-            lastChange: 'Just now',
-            reason: envelopeData.voidedReason || 'Voided'
-          }, ...prev.voided]
-        };
-      });
-    }
+    setWorkItems(prev => applyEnvelopeStatusChange(prev, itemId, envelopeData));
   };
 
   const handleBack = () => {
@@ -528,7 +346,8 @@ const App = () => {
 
     if (view === 'savedForms') {
       return (
-        <SavedFormsView
+        <FormsLibraryView
+          mode="saved"
           onBack={handleBack}
           onBrowseForms={() => setView('formsLibrary')}
           savedFormCodes={savedFormCodes}
@@ -570,62 +389,7 @@ const App = () => {
         </div>
       </div>
 
-      {/* Toast Notification */}
-      <div
-        className={`mobile-toast fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
-          toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
-        }`}
-      >
-        {toast && (
-          <div className={`mobile-toast-card rounded-lg shadow-lg border p-4 flex gap-3 min-w-[340px] ${
-            toast.subtitle ? 'items-start' : 'items-center'
-          } ${
-            toast.type === 'success'
-              ? 'bg-green-50 border-green-200'
-              : toast.type === 'party'
-              ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
-              : 'bg-white border-gray-200'
-          }`}>
-            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-              toast.type === 'success' ? 'bg-green-100' : toast.type === 'party' ? 'bg-purple-100' : 'bg-blue-100'
-            }`}>
-              {toast.type === 'success' ? (
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : toast.type === 'party' ? (
-                <span className="text-lg">✨</span>
-              ) : (
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`text-sm font-medium ${
-                toast.type === 'success' ? 'text-green-900' : toast.type === 'party' ? 'text-purple-900' : 'text-gray-900'
-              }`}>
-                {toast.message}
-              </p>
-              {toast.subtitle && (
-                <p className={`text-sm mt-0.5 ${
-                  toast.type === 'success' ? 'text-green-700' : toast.type === 'party' ? 'text-purple-600' : 'text-gray-500'
-                }`}>
-                  {toast.subtitle}
-                </p>
-              )}
-            </div>
-            <button
-              onClick={() => setToast(null)}
-              className="flex-shrink-0 p-1 hover:bg-black/5 rounded transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        )}
-      </div>
+      <Toast />
 
       {/* Confetti */}
       {confetti.length > 0 && (

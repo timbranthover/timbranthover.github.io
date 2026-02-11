@@ -1,13 +1,8 @@
 const ResultsView = ({ account, onBack, onContinue }) => {
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [debouncedQuery, setDebouncedQuery] = React.useState('');
+  const debouncedQuery = useDebounce(searchQuery);
   const hasSelection = selectedForms.length > 0;
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 150);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   const toggleFormSelection = (form) => {
     if (!isFormSelectableForAccount(form, account)) return;
