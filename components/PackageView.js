@@ -5,19 +5,11 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
   const [signerDetails, setSignerDetails] = React.useState({});
   const [expandedForms, setExpandedForms] = React.useState({ [selectedForms[0]]: true });
   const [showSaveDraftModal, setShowSaveDraftModal] = React.useState(false);
-  const [toast, setToast] = React.useState(null);
   const [isSending, setIsSending] = React.useState(false);
   const [customMessage, setCustomMessage] = React.useState('');
   const [signerOrder, setSignerOrder] = React.useState([]);
 
   const MAX_MESSAGE_LENGTH = 150;
-
-  // Auto-dismiss toast
-  React.useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 4000);
-    return () => clearTimeout(timer);
-  }, [toast]);
 
   const currentFormCode = selectedForms[currentFormIndex];
   const currentFormData = formDataMap[currentFormCode] || {};
@@ -123,7 +115,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
       onSaveDraft(draftName, formDataMap);
     }
 
-    setToast({ message: `Draft "${draftName}" saved`, subtitle: 'Check "My work" to view your draft' });
+    showToast({ message: `Draft "${draftName}" saved`, subtitle: 'Check "My work" to view your draft' });
   };
 
   const handleSendForSignature = async () => {
@@ -580,36 +572,6 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
         onSave={handleSaveDraft}
       />
 
-      {/* Toast Notification */}
-      <div
-        className={`mobile-toast fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
-          toast ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
-        }`}
-      >
-        {toast && (
-          <div className="mobile-toast-card bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-start gap-3 min-w-[320px]">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">{toast.message}</p>
-              {toast.subtitle && (
-                <p className="text-sm text-gray-500 mt-0.5">{toast.subtitle}</p>
-              )}
-            </div>
-            <button
-              onClick={() => setToast(null)}
-              className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

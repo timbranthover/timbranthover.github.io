@@ -30,7 +30,6 @@
   .mobile-search-view button,
   .mobile-results-view button,
   .mobile-forms-library-view button,
-  .mobile-saved-forms-view button,
   .mobile-admin-view button {
     min-height: 40px;
   }
@@ -87,25 +86,21 @@
   }
 
   .mobile-forms-library-view .mobile-section-header,
-  .mobile-saved-forms-view .mobile-section-header,
   .mobile-my-work-view .mobile-work-header {
     flex-wrap: wrap;
     row-gap: 0.5rem;
   }
 
-  .mobile-forms-library-view .mobile-toolbar-card,
-  .mobile-saved-forms-view .mobile-toolbar-card {
+  .mobile-forms-library-view .mobile-toolbar-card {
     padding: 0.875rem;
   }
 
-  .mobile-forms-library-view .mobile-form-list-row-top,
-  .mobile-saved-forms-view .mobile-form-list-row-top {
+  .mobile-forms-library-view .mobile-form-list-row-top {
     flex-wrap: wrap;
     row-gap: 0.5rem;
   }
 
-  .mobile-forms-library-view .mobile-form-list-actions,
-  .mobile-saved-forms-view .mobile-form-list-actions {
+  .mobile-forms-library-view .mobile-form-list-actions {
     width: 100%;
     justify-content: space-between;
     gap: 0.5rem;

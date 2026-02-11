@@ -102,7 +102,6 @@ const AdminView = ({
   const [formErrors, setFormErrors] = React.useState({});
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [confirmRevertOps, setConfirmRevertOps] = React.useState(false);
-  const [toast, setToast] = React.useState(null);
   const [operationsErrors, setOperationsErrors] = React.useState({});
   const fileInputRef = React.useRef(null);
 
@@ -111,12 +110,6 @@ const AdminView = ({
     message: operationsUpdate?.message || "",
     updatedAt: operationsUpdate?.updatedAt || ""
   });
-
-  React.useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 3200);
-    return () => clearTimeout(timer);
-  }, [toast]);
 
   React.useEffect(() => {
     setOperationsDraft({
@@ -253,9 +246,9 @@ const AdminView = ({
       setSelectedFormCode(result.form.code);
       setFormDraft(mapFormToAdminDraft(result.form));
       setKeywordInput("");
-      setToast({ type: "success", message: response?.action === "added" ? "Form added" : "Form updated" });
+      showToast({ type: "success", message: response?.action === "added" ? "Form added" : "Form updated" });
     } catch (error) {
-      setToast({ type: "error", message: error.message || "Unable to save form." });
+      showToast({ type: "error", message: error.message || "Unable to save form." });
     }
   };
 
@@ -274,14 +267,14 @@ const AdminView = ({
     const saved = onSaveOperationsUpdate({ label: nextLabel, message: nextMessage, updatedAt: nextUpdatedAt });
     setOperationsErrors({});
     setOperationsDraft(saved);
-    setToast({ type: "success", message: "Operations update saved" });
+    showToast({ type: "success", message: "Operations update saved" });
   };
 
   const handleRevertOperations = () => {
     const reset = onResetOperationsUpdate();
     setOperationsDraft(reset);
     setOperationsErrors({});
-    setToast({ type: "success", message: "Operations update reverted" });
+    showToast({ type: "success", message: "Operations update reverted" });
     setConfirmRevertOps(false);
   };
 
@@ -509,46 +502,6 @@ const AdminView = ({
         onConfirm={handleRevertOperations}
       />
 
-      <div
-        className={`mobile-toast fixed bottom-6 right-6 z-40 transition-all duration-300 ease-out ${
-          toast ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
-        }`}
-      >
-        {toast && (
-          <div className={`mobile-toast-card rounded-lg shadow-lg border p-4 flex items-center gap-3 min-w-[260px] ${
-            toast.type === "success"
-              ? "bg-green-50 border-green-200"
-              : "bg-red-50 border-red-200"
-          }`}>
-            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-              toast.type === "success" ? "bg-green-100" : "bg-red-100"
-            }`}>
-              {toast.type === "success" ? (
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              )}
-            </div>
-            <p className={`text-sm font-medium ${
-              toast.type === "success" ? "text-green-900" : "text-red-900"
-            }`}>
-              {toast.message}
-            </p>
-            <button
-              onClick={() => setToast(null)}
-              className="ml-auto p-1 hover:bg-black/5 rounded transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 };
