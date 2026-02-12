@@ -5,16 +5,40 @@ const FormsLibraryView = ({
   onToggleSaveForm,
   onBrowseForms,
   initialAccountNumber = '',
+  initialSearchQuery = '',
+  initialCategoryId = null,
+  initialScenarioLabel = '',
+  initialRecommendedCodes = [],
   mode = 'browse'
 }) => {
   const isSavedMode = mode === 'saved';
-  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const createScenarioContext = (label, recommendedCodes) => {
+    const normalizedLabel = String(label || '').trim();
+    if (!normalizedLabel) return null;
+
+    const normalizedCodes = Array.isArray(recommendedCodes)
+      ? recommendedCodes
+          .map((code) => String(code || '').trim().toUpperCase())
+          .filter(Boolean)
+      : [];
+
+    return {
+      label: normalizedLabel,
+      recommendedCodes: normalizedCodes
+    };
+  };
+
+  const [searchQuery, setSearchQuery] = React.useState(isSavedMode ? '' : initialSearchQuery);
   const debouncedQuery = useDebounce(searchQuery);
   const [selectedFormCode, setSelectedFormCode] = React.useState(null);
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [accountInput, setAccountInput] = React.useState(initialAccountNumber);
   const [accountError, setAccountError] = React.useState(null);
-  const [selectedCategory, setSelectedCategory] = React.useState(null);
+  const [selectedCategory, setSelectedCategory] = React.useState(isSavedMode ? null : initialCategoryId);
+  const [scenarioContext, setScenarioContext] = React.useState(() => (
+    isSavedMode ? null : createScenarioContext(initialScenarioLabel, initialRecommendedCodes)
+  ));
 
   const savedForms = React.useMemo(() => {
     if (!isSavedMode) return null;
@@ -39,19 +63,46 @@ const FormsLibraryView = ({
     return FORMS_DATA.filter((form) => isFormSelectableForAccount(form, resolvedAccount)).length;
   }, [resolvedAccount]);
 
+  const activeCategory = React.useMemo(
+    () => (selectedCategory ? FORM_CATEGORIES.find((category) => category.id === selectedCategory) || null : null),
+    [selectedCategory]
+  );
+
   const categoryCounts = React.useMemo(() => {
     const counts = {};
-    FORM_CATEGORIES.forEach(cat => {
-      counts[cat.id] = searchedForms.filter(form => formMatchesCategory(form, cat)).length;
+    FORM_CATEGORIES.forEach((category) => {
+      counts[category.id] = searchedForms.filter((form) => formMatchesCategory(form, category)).length;
     });
     return counts;
   }, [searchedForms]);
 
   const visibleForms = React.useMemo(() => {
-    if (!selectedCategory) return searchedForms;
-    const cat = FORM_CATEGORIES.find(c => c.id === selectedCategory);
-    return cat ? searchedForms.filter(form => formMatchesCategory(form, cat)) : searchedForms;
-  }, [searchedForms, selectedCategory]);
+    const baseForms = activeCategory
+      ? searchedForms.filter((form) => formMatchesCategory(form, activeCategory))
+      : searchedForms;
+
+    if (isSavedMode || !scenarioContext || !scenarioContext.recommendedCodes.length) {
+      return baseForms;
+    }
+
+    const scenarioRanking = new Map(
+      scenarioContext.recommendedCodes.map((code, index) => [code, index])
+    );
+
+    const prioritizedForms = [];
+    const otherForms = [];
+
+    baseForms.forEach((form) => {
+      if (scenarioRanking.has(form.code)) {
+        prioritizedForms.push(form);
+      } else {
+        otherForms.push(form);
+      }
+    });
+
+    prioritizedForms.sort((a, b) => scenarioRanking.get(a.code) - scenarioRanking.get(b.code));
+    return [...prioritizedForms, ...otherForms];
+  }, [searchedForms, activeCategory, isSavedMode, scenarioContext]);
 
   const accountStatusMessage = accountError
     ? accountError
@@ -64,6 +115,25 @@ const FormsLibraryView = ({
       setSelectedFormCode(null);
     }
   }, [visibleForms, selectedFormCode]);
+
+  React.useEffect(() => {
+    if (isSavedMode) return;
+    setSearchQuery(initialSearchQuery || '');
+  }, [initialSearchQuery, isSavedMode]);
+
+  React.useEffect(() => {
+    if (isSavedMode) return;
+    setSelectedCategory(initialCategoryId || null);
+  }, [initialCategoryId, isSavedMode]);
+
+  React.useEffect(() => {
+    if (isSavedMode) {
+      setScenarioContext(null);
+      return;
+    }
+
+    setScenarioContext(createScenarioContext(initialScenarioLabel, initialRecommendedCodes));
+  }, [initialScenarioLabel, initialRecommendedCodes, isSavedMode]);
 
   React.useEffect(() => {
     setSelectedForms((prev) => prev.filter((code) => {
@@ -106,7 +176,6 @@ const FormsLibraryView = ({
     }
   };
 
-  const activeCategory = selectedCategory ? FORM_CATEGORIES.find(c => c.id === selectedCategory) : null;
   let statusText;
   if (isSavedMode) {
     statusText = `${savedForms.length} saved form${savedForms.length !== 1 ? 's' : ''}`;
@@ -267,7 +336,7 @@ const FormsLibraryView = ({
                     ? `No ${activeCategory.label.toLowerCase()} forms match "${debouncedQuery}"`
                     : activeCategory
                       ? `No forms in ${activeCategory.label}`
-                      : `No forms match "${searchQuery}"`
+                        : `No forms match "${searchQuery}"`
                   }
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-2">
@@ -299,6 +368,10 @@ const FormsLibraryView = ({
               const isExpanded = selectedFormCode === form.code;
               const canSelectForm = isFormSelectableForAccount(form, resolvedAccount);
               const disabledReason = getFormSelectionDisabledReason(form, resolvedAccount);
+              const isRecommended = !isSavedMode
+                && scenarioContext
+                && Array.isArray(scenarioContext.recommendedCodes)
+                && scenarioContext.recommendedCodes.includes(form.code);
 
               return (
                 <div
@@ -326,6 +399,11 @@ const FormsLibraryView = ({
                               {form.code}
                             </span>
                             <h3 className="font-medium text-gray-900 truncate">{form.name}</h3>
+                            {isRecommended && (
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[11px] font-medium">
+                                Recommended
+                              </span>
+                            )}
                           </div>
                           <p className="text-sm text-gray-500 mt-1">{form.description}</p>
                           {disabledReason && (
