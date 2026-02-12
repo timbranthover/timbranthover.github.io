@@ -20,6 +20,7 @@ const App = () => {
       return [];
     }
   });
+  const [formsLibrarySeed, setFormsLibrarySeed] = React.useState(null);
 
   // Konami Code Easter Egg: ↑ ↑ ↓ ↓ ← → ← → B A
   React.useEffect(() => {
@@ -187,6 +188,26 @@ const App = () => {
     setView('package');
   };
 
+  const handleBrowseForms = () => {
+    setFormsLibrarySeed(null);
+    setView('formsLibrary');
+  };
+
+  const handleStartScenario = (scenario) => {
+    if (!scenario) {
+      handleBrowseForms();
+      return;
+    }
+
+    setFormsLibrarySeed({
+      label: scenario.title || 'Scenario',
+      seedQuery: scenario.seedQuery || '',
+      seedCategory: scenario.seedCategory || null,
+      recommendedCodes: Array.isArray(scenario.recommendedCodes) ? scenario.recommendedCodes : []
+    });
+    setView('formsLibrary');
+  };
+
   const handleLoadDraft = (draftItem) => {
     // Look up the account from the draft
     const account = MOCK_ACCOUNTS[draftItem.account];
@@ -262,7 +283,10 @@ const App = () => {
       setView('landing');
       setCurrentAccount(null);
       setSearchError(null);
-    } else if (view === 'work' || view === 'formsLibrary' || view === 'savedForms' || view === 'admin') {
+    } else if (view === 'formsLibrary' || view === 'savedForms') {
+      setFormsLibrarySeed(null);
+      setView('landing');
+    } else if (view === 'work' || view === 'admin') {
       setView('landing');
     }
   };
@@ -275,8 +299,9 @@ const App = () => {
             onSearch={handleSearch}
             searchError={searchError}
             onAccountInputChange={() => setSearchError(null)}
-            onBrowseForms={() => setView('formsLibrary')}
+            onBrowseForms={handleBrowseForms}
             onBrowseSavedForms={() => setView('savedForms')}
+            onStartScenario={handleStartScenario}
             onResumeLastDraft={() => {
               const latestDraft = workItems.drafts[0];
               if (latestDraft) {
@@ -340,6 +365,10 @@ const App = () => {
           onToggleSaveForm={handleToggleSavedForm}
           onContinue={handleContinueFromFormsLibrary}
           initialAccountNumber={currentAccount?.accountNumber || ''}
+          initialSearchQuery={formsLibrarySeed?.seedQuery || ''}
+          initialCategoryId={formsLibrarySeed?.seedCategory || null}
+          initialScenarioLabel={formsLibrarySeed?.label || ''}
+          initialRecommendedCodes={formsLibrarySeed?.recommendedCodes || []}
         />
       );
     }
@@ -349,7 +378,7 @@ const App = () => {
         <FormsLibraryView
           mode="saved"
           onBack={handleBack}
-          onBrowseForms={() => setView('formsLibrary')}
+          onBrowseForms={handleBrowseForms}
           savedFormCodes={savedFormCodes}
           onToggleSaveForm={handleToggleSavedForm}
           onContinue={handleContinueFromFormsLibrary}
