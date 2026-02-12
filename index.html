@@ -25,6 +25,43 @@
       background-size: 20px 20px;
     }
 
+    .work-dashboard-scroll {
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.58) transparent;
+    }
+
+    .work-dashboard-scroll::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .work-dashboard-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .work-dashboard-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(
+        180deg,
+        rgba(148, 163, 184, 0.58) 0%,
+        rgba(100, 116, 139, 0.58) 100%
+      );
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    .work-dashboard-scroll:hover::-webkit-scrollbar-thumb {
+      background: linear-gradient(
+        180deg,
+        rgba(148, 163, 184, 0.74) 0%,
+        rgba(100, 116, 139, 0.74) 100%
+      );
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
     :root {
       --floating-tint: rgb(59 130 246);
       --floating-rim: color-mix(in srgb, var(--floating-tint) 32%, white 68%);
@@ -432,6 +469,7 @@
   <script type="text/babel" src="./components/Header.js"></script>
   <script type="text/babel" src="./components/SearchView.js"></script>
   <script type="text/babel" src="./components/ResultsView.js"></script>
+  <script type="text/babel" src="./components/LandingWorkDashboard.js"></script>
   <script type="text/babel" src="./components/MyWorkView.js"></script>
   <script type="text/babel" src="./components/FormsLibraryView.js"></script>
   <script type="text/babel" src="./components/PackageView.js"></script>
