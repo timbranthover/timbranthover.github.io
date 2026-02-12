@@ -294,7 +294,7 @@ const App = () => {
   const renderActiveView = () => {
     if (view === 'landing') {
       return (
-        <>
+        <div className="space-y-6">
           <SearchView
             onSearch={handleSearch}
             searchError={searchError}
@@ -312,7 +312,16 @@ const App = () => {
             savedFormsCount={savedFormCodes.length}
             operationsUpdate={operationsUpdate}
           />
-        </>
+
+          <LandingWorkDashboard
+            workItems={workItems}
+            onLoadDraft={handleLoadDraft}
+            onDeleteDraft={handleDeleteDraft}
+            onVoidEnvelope={handleVoidEnvelope}
+            onEnvelopeStatusChange={handleEnvelopeStatusChange}
+            onOpenFullMyWork={() => setView('work')}
+          />
+        </div>
       );
     }
 
