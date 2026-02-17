@@ -9,7 +9,7 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
           <h1 className="text-lg font-semibold text-white tracking-wide">Forms library</h1>
           {isAdmin && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/20 bg-white/10 text-white/90 text-xs font-medium">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#469A6C]" />
               Admin
             </span>
           )}

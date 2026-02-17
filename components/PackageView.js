@@ -267,7 +267,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
         <button
           onClick={onBack}
           className="text-sm hover:underline flex items-center gap-1"
-          style={{ color: 'var(--ubs-gray-5)' }}
+          style={{ color: '#00759E' }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -510,7 +510,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 </div>
                 {hasRequiredSigners && (
                   <div className="flex justify-end mt-1">
-                    <span className={`text-xs ${customMessage.length >= MAX_MESSAGE_LENGTH ? 'text-amber-600' : 'text-[#B8B3A2]'}`}>
+                    <span className={`text-xs ${customMessage.length >= MAX_MESSAGE_LENGTH ? 'text-[#AF8626]' : 'text-[#B8B3A2]'}`}>
                       {customMessage.length}/{MAX_MESSAGE_LENGTH}
                     </span>
                   </div>
@@ -538,8 +538,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                     !hasRequiredSigners
                       ? 'bg-[#ECEBE4] text-[#8E8D83] cursor-not-allowed pointer-events-none'
                       : isSending
-                        ? 'bg-[#404040] text-white shadow-sm opacity-75 cursor-not-allowed'
-                        : 'bg-[#404040] text-white shadow-sm hover:bg-[#333333]'
+                        ? 'bg-[#E60000] text-white shadow-sm opacity-75 cursor-not-allowed'
+                        : 'bg-[#E60000] text-white shadow-sm hover:bg-[#BD000C]'
                   }`}
                 >
                   {isSending ? (

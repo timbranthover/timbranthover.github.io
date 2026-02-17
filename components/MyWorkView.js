@@ -9,11 +9,11 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
   // Status badge config
   const STATUS_BADGES = {
-    sent: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Sent' },
+    sent: { bg: 'bg-[#FFF8EC]', text: 'text-[#AF8626]', label: 'Sent' },
     delivered: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Viewed' },
-    completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
-    voided: { bg: 'bg-red-100', text: 'text-red-800', label: 'Voided' },
-    declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined' }
+    completed: { bg: 'bg-[#EBF5EF]', text: 'text-[#469A6C]', label: 'Completed' },
+    voided: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Voided' },
+    declined: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Declined' }
   };
   const MAX_VISIBLE_FORM_CHIPS = 3;
 
@@ -188,7 +188,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
         {recipientInfo && recipientInfo.signers.map(signer => (
           <div key={signer.recipientId || signer.email} className="flex items-center gap-1.5 text-xs text-[#7A7870] py-0.5">
             {signer.status === 'completed' ? (
-              <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 text-[#469A6C] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             ) : signer.status === 'delivered' ? (
@@ -248,14 +248,14 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
       return (
         <div className="inline-flex items-center gap-2.5">
           <div className="relative group">
-            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 cursor-default">
+            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-[#FFF8EC] text-[#AF8626] cursor-default">
               Sent
             </span>
             {hasDetailPopup && renderDetailPopup(recipientInfo, envStatus)}
           </div>
           <div className="w-32 h-2.5 bg-[#ECEBE4] rounded-full">
             <div
-              className="h-full bg-[#8E8D83] rounded-full transition-all duration-500"
+              className="h-full bg-[#AF8626] rounded-full transition-all duration-500"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -280,7 +280,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             <div className="flex items-center gap-2">
               <div className="w-32 h-2.5 bg-[#ECEBE4] rounded-full">
                 <div
-                  className="h-full bg-[#8E8D83] rounded-full transition-all duration-500"
+                  className="h-full bg-[#AF8626] rounded-full transition-all duration-500"
                   style={{ width: `${recipientInfo && recipientInfo.total > 0 ? (recipientInfo.completed / recipientInfo.total) * 100 : 0}%` }}
                 />
               </div>
@@ -298,7 +298,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     return (
       <div className="flex items-center gap-2">
         {workTab === 'completed' && (
-          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-[#469A6C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         )}
@@ -332,7 +332,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
                 }
                 setActiveActionMenu(null);
               }}
-              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-[#ECEBE4] flex items-center gap-2"
+              className="w-full text-left px-4 py-2 text-sm text-[#AD3E4A] hover:bg-[#ECEBE4] flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -366,7 +366,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             {hasEnvelope ? (
               <button
                 onClick={(e) => { e.stopPropagation(); handleVoid(item); }}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-[#ECEBE4] flex items-center gap-2"
+                className="w-full text-left px-4 py-2 text-sm text-[#AD3E4A] hover:bg-[#ECEBE4] flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -374,7 +374,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
                 Void envelope
               </button>
             ) : (
-              <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-[#ECEBE4] flex items-center gap-2">
+              <button className="w-full text-left px-4 py-2 text-sm text-[#AD3E4A] hover:bg-[#ECEBE4] flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -469,7 +469,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             onClick={fetchAllStatuses}
             disabled={isPolling}
             className="text-sm hover:underline flex items-center gap-1 disabled:opacity-50"
-            style={{ color: 'var(--ubs-gray-5)' }}
+            style={{ color: '#00759E' }}
           >
             <svg className={`w-4 h-4 ${isPolling ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -479,7 +479,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
           <button
             onClick={onBack}
             className="text-sm hover:underline"
-            style={{ color: 'var(--ubs-gray-5)' }}
+            style={{ color: '#00759E' }}
           >
             Back to search
           </button>

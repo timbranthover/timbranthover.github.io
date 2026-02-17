@@ -44,25 +44,25 @@ const Toast = () => {
           toast.subtitle ? 'items-start' : 'items-center'
         } ${
           toast.type === 'success'
-            ? 'bg-green-50 border-green-200'
+            ? 'bg-[#EBF5EF] border-[#469A6C]/30'
             : toast.type === 'error'
-            ? 'bg-red-50 border-red-200'
+            ? 'bg-[#FDF2F3] border-[#AD3E4A]/30'
             : toast.type === 'party'
-            ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
+            ? 'bg-gradient-to-r from-[#F0EFF8] to-[#FDF2F3] border-[#8489BD]/30'
             : 'bg-white border-[#CCCABC]'
         }`}>
           <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-            toast.type === 'success' ? 'bg-green-100'
-            : toast.type === 'error' ? 'bg-red-100'
-            : toast.type === 'party' ? 'bg-purple-100'
+            toast.type === 'success' ? 'bg-[#469A6C]/15'
+            : toast.type === 'error' ? 'bg-[#AD3E4A]/15'
+            : toast.type === 'party' ? 'bg-[#8489BD]/15'
             : 'bg-[#ECEBE4]'
           }`}>
             {toast.type === 'success' ? (
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[#469A6C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             ) : toast.type === 'error' ? (
-              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[#AD3E4A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             ) : toast.type === 'party' ? (
@@ -75,18 +75,18 @@ const Toast = () => {
           </div>
           <div className="flex-1 min-w-0">
             <p className={`text-sm font-medium ${
-              toast.type === 'success' ? 'text-green-900'
-              : toast.type === 'error' ? 'text-red-900'
-              : toast.type === 'party' ? 'text-purple-900'
+              toast.type === 'success' ? 'text-[#295B40]'
+              : toast.type === 'error' ? 'text-[#620004]'
+              : toast.type === 'party' ? 'text-[#545A9C]'
               : 'text-[#404040]'
             }`}>
               {toast.message}
             </p>
             {toast.subtitle && (
               <p className={`text-sm mt-0.5 ${
-                toast.type === 'success' ? 'text-green-700'
-                : toast.type === 'error' ? 'text-red-700'
-                : toast.type === 'party' ? 'text-purple-600'
+                toast.type === 'success' ? 'text-[#469A6C]'
+                : toast.type === 'error' ? 'text-[#AD3E4A]'
+                : toast.type === 'party' ? 'text-[#8489BD]'
                 : 'text-[#8E8D83]'
               }`}>
                 {toast.subtitle}

@@ -201,7 +201,7 @@ const FormsLibraryView = ({
           <button
             onClick={onBack}
             className="text-sm hover:underline flex items-center gap-1"
-            style={{ color: 'var(--ubs-gray-5)' }}
+            style={{ color: '#00759E' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -226,14 +226,14 @@ const FormsLibraryView = ({
                 if (accountError) setAccountError(null);
               }}
               className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B8B3A2] ${
-                accountError ? 'border-red-300' : 'border-[#CCCABC]'
+                accountError ? 'border-[#AD3E4A]' : 'border-[#CCCABC]'
               }`}
             />
             <div className="mt-1 h-5 flex items-center" aria-live="polite">
               <p
                 className={`text-xs truncate transition-opacity duration-150 ${
                   accountStatusMessage ? 'opacity-100' : 'opacity-0'
-                } ${accountError ? 'text-red-600' : 'text-green-700'}`}
+                } ${accountError ? 'text-[#AD3E4A]' : 'text-[#469A6C]'}`}
                 title={accountStatusMessage || undefined}
               >
                 {accountStatusMessage || '\u00a0'}
@@ -326,7 +326,7 @@ const FormsLibraryView = ({
                 <button
                   onClick={onBrowseForms}
                   className="text-sm hover:underline mt-2"
-                  style={{ color: 'var(--ubs-gray-5)' }}
+                  style={{ color: '#00759E' }}
                 >
                   Browse forms library
                 </button>
@@ -346,7 +346,7 @@ const FormsLibraryView = ({
                     <button
                       onClick={() => setSelectedCategory(null)}
                       className="text-sm hover:underline"
-                      style={{ color: 'var(--ubs-gray-5)' }}
+                      style={{ color: '#00759E' }}
                     >
                       Clear filter
                     </button>
@@ -355,7 +355,7 @@ const FormsLibraryView = ({
                     <button
                       onClick={() => setSearchQuery('')}
                       className="text-sm hover:underline"
-                      style={{ color: 'var(--ubs-gray-5)' }}
+                      style={{ color: '#00759E' }}
                     >
                       Clear search
                     </button>
@@ -411,7 +411,7 @@ const FormsLibraryView = ({
                           </div>
                           <p className="text-sm text-[#8E8D83] mt-1">{form.description}</p>
                           {disabledReason && (
-                            <p className="text-xs text-amber-700 mt-1">{disabledReason}</p>
+                            <p className="text-xs text-[#AD3E4A] mt-1">{disabledReason}</p>
                           )}
                         </div>
                       </div>
@@ -429,7 +429,7 @@ const FormsLibraryView = ({
                             </div>
                             <div>
                               <span className="text-[#8E8D83]">eSign:</span>
-                              <span className={`ml-2 font-medium ${form.eSignEnabled ? 'text-green-600' : 'text-[#B8B3A2]'}`}>
+                              <span className={`ml-2 font-medium ${form.eSignEnabled ? 'text-[#0C7EC6]' : 'text-[#B8B3A2]'}`}>
                                 {form.eSignEnabled ? 'Enabled' : 'Not available'}
                               </span>
                             </div>
@@ -477,14 +477,14 @@ const FormsLibraryView = ({
                             Print only
                           </div>
                         ) : canSelectForm ? (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#ECEBE4] text-[#5A5D5C] rounded text-xs font-medium whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap" style={{ backgroundColor: '#EDF6FD', color: '#0C7EC6' }}>
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
                             eSign
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-700 rounded text-xs font-medium whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#FDF2F3] text-[#AD3E4A] rounded text-xs font-medium whitespace-nowrap">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3.7c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" />
                             </svg>
