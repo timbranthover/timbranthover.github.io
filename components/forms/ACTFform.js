@@ -17,32 +17,32 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
 
   return (
     <div className="mobile-form-shell bg-white shadow-lg max-w-3xl mx-auto p-8 space-y-6">
-      <div className="border-b-2 border-gray-900 pb-4">
+      <div className="border-b-2 border-[#404040] pb-4">
         <h2 className="text-xl font-bold">ACATS Account Transfer Form</h2>
-        <p className="text-sm text-gray-600 mt-1">Transfer assets from external financial institution</p>
+        <p className="text-sm text-[#7A7870] mt-1">Transfer assets from external financial institution</p>
       </div>
 
       <div className="space-y-6">
         {/* Account Info */}
         <div>
-          <h3 className="font-semibold text-gray-900 mb-3">Account Information</h3>
+          <h3 className="font-semibold text-[#404040] mb-3">Account Information</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Account Number</label>
+              <label className="block text-xs font-medium text-[#5A5D5C] mb-1">Account Number</label>
               <input 
                 type="text" 
                 value={account.accountNumber} 
                 readOnly 
-                className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50 text-sm" 
+                className="w-full px-3 py-2 border border-[#CCCABC] rounded bg-[#F5F0E1] text-sm" 
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Account Type</label>
+              <label className="block text-xs font-medium text-[#5A5D5C] mb-1">Account Type</label>
               <input 
                 type="text" 
                 value={account.accountType} 
                 readOnly 
-                className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50 text-sm" 
+                className="w-full px-3 py-2 border border-[#CCCABC] rounded bg-[#F5F0E1] text-sm" 
               />
             </div>
           </div>
@@ -50,35 +50,35 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
 
         {/* Transferring From */}
         <div className="border-t pt-6">
-          <h3 className="font-semibold text-gray-900 mb-3">Transferring From (Previous Institution)</h3>
+          <h3 className="font-semibold text-[#404040] mb-3">Transferring From (Previous Institution)</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Name of Firm/Institution</label>
+              <label className="block text-xs font-medium text-[#5A5D5C] mb-1">Name of Firm/Institution</label>
               <input 
                 type="text" 
                 value={formData.transferringFirm || ''}
                 onChange={(e) => onUpdateField('transferringFirm', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm" 
+                className="w-full px-3 py-2 border border-[#CCCABC] rounded text-sm" 
                 placeholder="e.g., Fidelity Investments" 
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Account Number at Previous Firm</label>
+                <label className="block text-xs font-medium text-[#5A5D5C] mb-1">Account Number at Previous Firm</label>
                 <input 
                   type="text"
                   value={formData.transferringAccount || ''}
                   onChange={(e) => onUpdateField('transferringAccount', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm" 
+                  className="w-full px-3 py-2 border border-[#CCCABC] rounded text-sm" 
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">DTCC Number (if known)</label>
+                <label className="block text-xs font-medium text-[#5A5D5C] mb-1">DTCC Number (if known)</label>
                 <input 
                   type="text"
                   value={formData.dtccNumber || ''}
                   onChange={(e) => onUpdateField('dtccNumber', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm" 
+                  className="w-full px-3 py-2 border border-[#CCCABC] rounded text-sm" 
                 />
               </div>
             </div>
@@ -87,7 +87,7 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
 
         {/* Transfer Type */}
         <div className="border-t pt-6">
-          <h3 className="font-semibold text-gray-900 mb-3">Type of Transfer</h3>
+          <h3 className="font-semibold text-[#404040] mb-3">Type of Transfer</h3>
           <div className="space-y-3">
             <label className="flex items-center gap-2">
               <input 
@@ -116,7 +116,7 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
 
         {/* Asset Handling */}
         <div className="border-t pt-6">
-          <h3 className="font-semibold text-gray-900 mb-3">Asset Handling</h3>
+          <h3 className="font-semibold text-[#404040] mb-3">Asset Handling</h3>
           <div className="space-y-3">
             <label className="flex items-center gap-2">
               <input 
@@ -146,7 +146,7 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
         {/* Partial Transfer Details */}
         {formData.transferType === 'partial' && (
           <div className="border-t pt-6">
-            <h3 className="font-semibold text-gray-900 mb-3">Partial Transfer Details</h3>
+            <h3 className="font-semibold text-[#404040] mb-3">Partial Transfer Details</h3>
             <div className="space-y-3">
               {(formData.securities || []).map((security, index) => (
                 <div key={index} className="mobile-security-row flex gap-3 items-start">
@@ -155,21 +155,21 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
                       type="text"
                       value={security.symbol}
                       onChange={(e) => updateSecurity(index, 'symbol', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded text-sm"
+                      className="px-3 py-2 border border-[#CCCABC] rounded text-sm"
                       placeholder="Symbol"
                     />
                     <input
                       type="text"
                       value={security.quantity}
                       onChange={(e) => updateSecurity(index, 'quantity', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded text-sm"
+                      className="px-3 py-2 border border-[#CCCABC] rounded text-sm"
                       placeholder="Quantity"
                     />
                     <input
                       type="text"
                       value={security.description}
                       onChange={(e) => updateSecurity(index, 'description', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded text-sm"
+                      className="px-3 py-2 border border-[#CCCABC] rounded text-sm"
                       placeholder="Description"
                     />
                   </div>
@@ -185,7 +185,8 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
               ))}
               <button 
                 onClick={addSecurity}
-                className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                className="text-sm hover:underline flex items-center gap-1"
+                style={{ color: 'var(--ubs-gray-5)' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -197,13 +198,13 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
         )}
 
        {/* Signatures */}
-        <div className="border-t-2 border-gray-900 pt-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Signatures Required</h3>
-          <p className="text-xs text-gray-600 mb-4">All account holders must sign below. Electronic signatures will be captured via DocuSign.</p>
+        <div className="border-t-2 border-[#404040] pt-6">
+          <h3 className="font-semibold text-[#404040] mb-4">Signatures Required</h3>
+          <p className="text-xs text-[#7A7870] mb-4">All account holders must sign below. Electronic signatures will be captured via DocuSign.</p>
           
           {/* Signer 1 */}
           <div className="mb-6">
-            <label className="block text-xs font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-[#5A5D5C] mb-2">
               Account Holder 1 - Signature
             </label>
             <div className="relative">
@@ -211,12 +212,12 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
                 type="text"
                 value={selectedSigners[0]?.name || ''}
                 readOnly
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded bg-white text-gray-700 font-medium"
+                className="w-full px-4 py-3 border-2 border-[#CCCABC] rounded bg-white text-[#5A5D5C] font-medium"
                 placeholder="[Signature field]"
               />
             </div>
             {selectedSigners[0] && (
-              <div className="mt-2 text-xs text-gray-600">
+              <div className="mt-2 text-xs text-[#7A7870]">
                 Email: {selectedSigners[0].emails?.[0]} • Date: {new Date().toLocaleDateString()}
               </div>
             )}
@@ -224,7 +225,7 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
 
           {/* Signer 2 */}
           <div className="mb-6">
-            <label className="block text-xs font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-[#5A5D5C] mb-2">
               Account Holder 2 - Signature
             </label>
             <div className="relative">
@@ -232,12 +233,12 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
                 type="text"
                 value={selectedSigners[1]?.name || ''}
                 readOnly
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded bg-white text-gray-700 font-medium"
+                className="w-full px-4 py-3 border-2 border-[#CCCABC] rounded bg-white text-[#5A5D5C] font-medium"
                 placeholder="[Signature field]"
               />
             </div>
             {selectedSigners[1] && (
-              <div className="mt-2 text-xs text-gray-600">
+              <div className="mt-2 text-xs text-[#7A7870]">
                 Email: {selectedSigners[1].emails?.[0]} • Date: {new Date().toLocaleDateString()}
               </div>
             )}
@@ -245,7 +246,7 @@ const ACTFForm = ({ formData, onUpdateField, selectedSigners, account }) => {
         </div>
 
         {/* Important Info */}
-        <div className="bg-gray-50 p-4 rounded text-xs text-gray-600 space-y-2">
+        <div className="bg-[#F5F0E1] p-4 rounded text-xs text-[#7A7870] space-y-2">
           <p className="font-medium">Important Information:</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Please attach a copy of your most recent account statement from the transferring firm</li>

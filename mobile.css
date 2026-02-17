@@ -35,8 +35,8 @@
   }
 
   .mobile-package-view .mobile-form-nav button,
-  .mobile-package-view .space-y-2.pt-4.border-t.border-gray-200 > button,
-  .mobile-package-view .space-y-2.pt-4.border-t.border-gray-200 > .relative.group > button,
+  .mobile-package-view .space-y-2.pt-4.border-t > button,
+  .mobile-package-view .space-y-2.pt-4.border-t > .relative.group > button,
   .mobile-my-work-view .mobile-work-header-actions button,
   .mobile-my-work-view .mobile-work-tabs button,
   .mobile-my-work-view .mobile-work-table td[data-label="Actions"] > button {
@@ -195,7 +195,7 @@
 
   .mobile-my-work-view .mobile-work-table tbody tr {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgb(229 231 235 / 0.9);
+    border-bottom: 1px solid var(--ubs-gray-1);
   }
 
   .mobile-my-work-view .mobile-work-table tbody td {
@@ -211,7 +211,7 @@
     line-height: 1.1;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: rgb(107 114 128);
+    color: var(--ubs-gray-3);
   }
 
   .mobile-my-work-view .mobile-work-table tbody td[data-label="To"]::before {

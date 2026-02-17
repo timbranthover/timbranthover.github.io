@@ -3,14 +3,14 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
   const isInAdmin = currentView === 'admin';
 
   return (
-    <div className="mobile-app-header bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div className="mobile-app-header" style={{ backgroundColor: 'var(--ubs-gray-6)' }}>
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         <div className="mobile-header-brand flex items-center gap-3">
-          <h1 className="text-xl font-semibold text-gray-900">Forms library</h1>
+          <h1 className="text-lg font-semibold text-white tracking-wide">Forms library</h1>
           {isAdmin && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Admin mode
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/20 bg-white/10 text-white/90 text-xs font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Admin
             </span>
           )}
         </div>
@@ -19,10 +19,10 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
             <button
               onClick={isInAdmin ? undefined : onNavigateToAdmin}
               disabled={isInAdmin}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 isInAdmin
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-60'
-                  : 'bg-slate-700 text-white hover:bg-slate-800 cursor-pointer'
+                  ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                  : 'bg-white/10 text-white hover:bg-white/20 cursor-pointer'
               }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,10 +35,10 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
           <button
             onClick={isInMyWork ? undefined : onNavigateToWork}
             disabled={isInMyWork}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg transition-colors ${
+            className={`flex items-center gap-2 px-5 py-2 rounded-md text-sm font-medium transition-colors ${
               isInMyWork
-                ? 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-60'
-                : 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
+                ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                : 'bg-white text-[var(--ubs-gray-6)] hover:bg-white/90 cursor-pointer'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,6 +48,7 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
           </button>
         </div>
       </div>
+      <div style={{ height: '2px', background: 'var(--ubs-bordeaux-1)' }}></div>
     </div>
   );
 };

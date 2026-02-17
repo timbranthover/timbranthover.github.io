@@ -28,12 +28,12 @@ const LandingWorkDashboard = ({
   }, [onEnvelopeStatusChange]);
 
   const STATUS_BADGES = {
-    draft: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Draft' },
-    sent: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Sent' },
-    delivered: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Viewed' },
-    completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
-    voided: { bg: 'bg-red-100', text: 'text-red-800', label: 'Voided' },
-    declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined' }
+    draft: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Draft' },
+    sent: { bg: 'bg-[#F5F0E1]', text: 'text-[#6C5312]', label: 'Sent' },
+    delivered: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Viewed' },
+    completed: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Completed' },
+    voided: { bg: 'bg-red-50', text: 'text-red-800', label: 'Voided' },
+    declined: { bg: 'bg-red-50', text: 'text-red-800', label: 'Declined' }
   };
 
   const tabConfig = [
@@ -195,7 +195,7 @@ const LandingWorkDashboard = ({
           ? 'voided'
           : 'sent';
       const envStatus = envelopeStatuses[item.docusignEnvelopeId]?.status || fallbackStatus;
-      return STATUS_BADGES[envStatus] || { bg: 'bg-gray-100', text: 'text-gray-700', label: envStatus };
+      return STATUS_BADGES[envStatus] || { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: envStatus };
     }
 
     if (activeTab === 'inProgress') return STATUS_BADGES.sent;
@@ -214,14 +214,14 @@ const LandingWorkDashboard = ({
         {visibleForms.map((formCode) => (
           <span
             key={formCode}
-            className="inline-flex shrink-0 items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-700"
+            className="inline-flex shrink-0 items-center rounded-md border border-[#CCCABC] bg-[#F5F0E1] px-2 py-0.5 text-[11px] font-medium text-[#5A5D5C]"
           >
             {formCode}
           </span>
         ))}
         {hiddenCount > 0 && (
           <span
-            className="inline-flex shrink-0 items-center rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-500"
+            className="inline-flex shrink-0 items-center rounded-md border border-[#CCCABC] bg-white px-2 py-0.5 text-[11px] font-medium text-[#8E8D83]"
             title={forms.slice(MAX_VISIBLE_FORM_CHIPS).join(', ')}
           >
             +{hiddenCount}
@@ -235,7 +235,7 @@ const LandingWorkDashboard = ({
     const loadingAction = loadingActions[item.id];
     if (loadingAction) {
       return (
-        <div className="inline-flex items-center gap-2 text-xs text-blue-700">
+        <div className="inline-flex items-center gap-2 text-xs text-[#5A5D5C]">
           <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -265,10 +265,10 @@ const LandingWorkDashboard = ({
           {badge.label}
         </span>
         <div className="flex items-center gap-1.5">
-          <div className="w-16 h-1 rounded-full bg-gray-200 overflow-hidden">
-            <div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${progressPct}%` }} />
+          <div className="w-16 h-1 rounded-full bg-[#ECEBE4] overflow-hidden">
+            <div className="h-full rounded-full bg-[#8E8D83] transition-all duration-500" style={{ width: `${progressPct}%` }} />
           </div>
-          <span className="text-[11px] text-gray-500">{signedCount}/{totalCount}</span>
+          <span className="text-[11px] text-[#8E8D83]">{signedCount}/{totalCount}</span>
         </div>
       </div>
     );
@@ -330,7 +330,7 @@ const LandingWorkDashboard = ({
   const renderActionButton = ({ label, onClick, tone = 'default', disabled = false, loading = false }) => {
     const toneClass = tone === 'danger'
       ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
-      : 'border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300';
+      : 'border-[#CCCABC] text-[#5A5D5C] hover:bg-[#ECEBE4] hover:border-[#B8B3A2]';
 
     return (
       <button
@@ -453,24 +453,24 @@ const LandingWorkDashboard = ({
   return (
     <>
       <div className="mobile-landing-work-view mobile-my-work-view max-w-5xl">
-        <div className="bg-white rounded-lg border border-gray-300 p-5 sm:p-6">
+        <div className="bg-white p-5 sm:p-6" style={{ borderRadius: 'var(--ubs-radius)', border: '1px solid var(--ubs-card-border)', boxShadow: 'var(--ubs-card-shadow)' }}>
           <div className="mobile-work-header flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Work dashboard</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-xl font-semibold text-[#404040]">Work dashboard</h2>
+              <p className="text-sm text-[#7A7870] mt-1">
                 Monitor drafts, active signature packages, and completed outcomes from home.
               </p>
             </div>
             <div className="mobile-work-header-actions flex items-center gap-3">
               {lastRefreshed && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-[#B8B3A2]">
                   Updated {formatTimeAgo(lastRefreshed.toISOString())}
                 </span>
               )}
               <button
                 onClick={fetchAllStatuses}
                 disabled={isPolling || !hasEnvelopeItems}
-                className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1.5 text-sm text-[#5A5D5C] hover:text-[#5A5D5C] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <svg className={`w-4 h-4 ${isPolling ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -479,22 +479,22 @@ const LandingWorkDashboard = ({
               </button>
               <button
                 onClick={onOpenFullMyWork}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#CCCABC] bg-[#ECEBE4] px-3 py-1.5 text-sm font-medium text-[#5A5D5C] hover:bg-[#ECEBE4]"
               >
                 Open full My work
               </button>
             </div>
           </div>
 
-          <div className="mobile-work-tabs mt-5 border border-gray-200 bg-gray-50/90 rounded-lg p-1.5 flex flex-wrap gap-1.5">
+          <div className="mobile-work-tabs mt-5 border-b border-[#CCCABC] flex flex-wrap gap-0">
             {tabConfig.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === tab.key
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-gray-600 hover:bg-white'
+                    ? 'text-[#404040] border-b-2 border-[#BD000C]'
+                    : 'text-[#8E8D83] hover:text-[#5A5D5C]'
                 }`}
               >
                 {tab.label} ({(workItems[tab.key] || []).length})
@@ -503,47 +503,47 @@ const LandingWorkDashboard = ({
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[#8E8D83]">
               {currentItems.length} {tabConfig.find((tab) => tab.key === activeTab)?.label.toLowerCase()} item{currentItems.length === 1 ? '' : 's'}
             </p>
             {hasOverflow && (
-              <span className="text-xs text-gray-400">Scroll to view more</span>
+              <span className="text-xs text-[#B8B3A2]">Scroll to view more</span>
             )}
           </div>
 
-          <div className="mt-3 rounded-lg border border-gray-200 bg-white">
+          <div className="mt-3 rounded-lg border border-[#CCCABC] bg-white">
             <div className="work-dashboard-scroll overflow-y-scroll overflow-x-auto" style={{ height: `${PREVIEW_VIEWPORT_HEIGHT}px` }}>
               <table className="mobile-work-table w-full table-fixed">
-                <thead className="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
+                <thead className="sticky top-0 z-10 bg-[#F5F0E1] border-b border-[#CCCABC]">
                   <tr className="h-10">
-                    <th className="w-[31%] text-left px-4 py-2 text-[11px] font-semibold tracking-[0.08em] text-gray-500">To</th>
-                    <th className="w-[21%] text-left px-3 py-2 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Forms</th>
-                    <th className="w-[24%] text-left px-3 py-2 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Status</th>
-                    <th className="w-[9%] text-right px-2 py-2 text-[11px] font-semibold tracking-[0.08em] text-gray-500">{getDateColumnLabel()}</th>
-                    <th className="w-[15%] text-right px-4 py-2 text-[11px] font-semibold tracking-[0.08em] text-gray-500">Actions</th>
+                    <th className="w-[31%] text-left px-4 py-2 text-[11px] font-semibold tracking-[0.08em] text-[#8E8D83]">To</th>
+                    <th className="w-[21%] text-left px-3 py-2 text-[11px] font-semibold tracking-[0.08em] text-[#8E8D83]">Forms</th>
+                    <th className="w-[24%] text-left px-3 py-2 text-[11px] font-semibold tracking-[0.08em] text-[#8E8D83]">Status</th>
+                    <th className="w-[9%] text-right px-2 py-2 text-[11px] font-semibold tracking-[0.08em] text-[#8E8D83]">{getDateColumnLabel()}</th>
+                    <th className="w-[15%] text-right px-4 py-2 text-[11px] font-semibold tracking-[0.08em] text-[#8E8D83]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200/90">
+                <tbody className="divide-y divide-[#CCCABC]/90">
                   {visibleItems.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-7 text-center text-sm text-gray-500">
+                      <td colSpan={5} className="px-4 py-7 text-center text-sm text-[#8E8D83]">
                         No items in this tab
                       </td>
                     </tr>
                   )}
 
                   {visibleItems.map((item) => (
-                    <tr key={item.id} className="h-[72px] odd:bg-white even:bg-gray-50/20 hover:bg-blue-50/30 transition-colors">
+                    <tr key={item.id} className="h-[72px] odd:bg-white even:bg-[#F5F0E1]/20 hover:bg-[#ECEBE4]/30 transition-colors">
                       <td data-label="To" className="px-4 py-2 align-middle">
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="inline-flex shrink-0 items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-semibold tracking-wide text-gray-700">
+                            <span className="inline-flex shrink-0 items-center rounded-md border border-[#CCCABC] bg-[#F5F0E1] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-[#5A5D5C]">
                               {item.account}
                             </span>
                             {activeTab === 'drafts' && item.draftName && (
                               <span
                                 title={item.draftName}
-                                className="min-w-0 truncate text-[11px] font-medium text-blue-700"
+                                className="min-w-0 truncate text-[11px] font-medium text-[#5A5D5C]"
                               >
                                 {item.draftName}
                               </span>
@@ -551,7 +551,7 @@ const LandingWorkDashboard = ({
                           </div>
                           <p
                             title={item.names}
-                            className="text-sm font-medium text-gray-900 leading-5 truncate"
+                            className="text-sm font-medium text-[#404040] leading-5 truncate"
                           >
                             {item.names}
                           </p>
@@ -563,7 +563,7 @@ const LandingWorkDashboard = ({
                       <td data-label="Status" className="px-3 py-2 align-middle">
                         {renderStatusCell(item)}
                       </td>
-                      <td data-label={getDateColumnLabel()} className="px-2 py-2 align-middle text-right text-sm text-gray-500">
+                      <td data-label={getDateColumnLabel()} className="px-2 py-2 align-middle text-right text-sm text-[#8E8D83]">
                         {getDateValue(item)}
                       </td>
                       <td data-label="Actions" className="px-4 py-2 align-middle">

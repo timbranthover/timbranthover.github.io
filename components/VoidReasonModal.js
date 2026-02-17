@@ -18,24 +18,24 @@ const VoidReasonModal = ({ isOpen, onClose, onConfirm, envelopeName }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div className="bg-white max-w-md w-full mx-4" style={{ borderRadius: 'var(--ubs-radius)', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
               <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Void envelope</h3>
+              <h3 className="text-lg font-semibold" style={{ color: 'var(--ubs-gray-6)' }}>Void envelope</h3>
               {envelopeName && (
-                <p className="text-sm text-gray-500">{envelopeName}</p>
+                <p className="text-sm" style={{ color: 'var(--ubs-gray-3)' }}>{envelopeName}</p>
               )}
             </div>
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--ubs-gray-5)' }}>
               Reason for voiding
             </label>
             <textarea
@@ -49,14 +49,17 @@ const VoidReasonModal = ({ isOpen, onClose, onConfirm, envelopeName }) => {
               }}
               placeholder="e.g., Incorrect signer information"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+              className="w-full px-3 py-2 resize-none focus:outline-none"
+              style={{ border: '1px solid var(--ubs-input-border)', borderRadius: 'var(--ubs-radius)' }}
+              onFocus={(e) => { e.target.style.boxShadow = '0 0 0 2px rgba(138,0,10,0.18)'; }}
+              onBlur={(e) => { e.target.style.boxShadow = 'none'; }}
               autoFocus
             />
             <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs" style={{ color: 'var(--ubs-gray-3)' }}>
                 This reason will be recorded on the voided envelope
               </p>
-              <span className={`text-xs ${reason.length >= 200 ? 'text-amber-600' : 'text-gray-400'}`}>
+              <span className="text-xs" style={{ color: reason.length >= 200 ? 'var(--ubs-bronze-1)' : 'var(--ubs-gray-3)' }}>
                 {reason.length}/200
               </span>
             </div>
@@ -65,18 +68,22 @@ const VoidReasonModal = ({ isOpen, onClose, onConfirm, envelopeName }) => {
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded transition-colors"
+              className="px-4 py-2 text-sm font-medium rounded-md transition-colors"
+              style={{ color: 'var(--ubs-gray-5)', border: '1px solid var(--ubs-gray-1)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--ubs-pastel-1)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
               disabled={!reason.trim()}
-              className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
-                reason.trim()
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              className="px-4 py-2 text-sm font-medium rounded-md transition-colors"
+              style={{
+                backgroundColor: reason.trim() ? '#c53030' : 'var(--ubs-pastel-1)',
+                color: reason.trim() ? 'white' : 'var(--ubs-gray-3)',
+                cursor: reason.trim() ? 'pointer' : 'not-allowed'
+              }}
             >
               Void envelope
             </button>

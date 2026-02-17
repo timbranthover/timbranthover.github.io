@@ -49,13 +49,13 @@ const Toast = () => {
             ? 'bg-red-50 border-red-200'
             : toast.type === 'party'
             ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
-            : 'bg-white border-gray-200'
+            : 'bg-white border-[#CCCABC]'
         }`}>
           <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
             toast.type === 'success' ? 'bg-green-100'
             : toast.type === 'error' ? 'bg-red-100'
             : toast.type === 'party' ? 'bg-purple-100'
-            : 'bg-blue-100'
+            : 'bg-[#ECEBE4]'
           }`}>
             {toast.type === 'success' ? (
               <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@ const Toast = () => {
             ) : toast.type === 'party' ? (
               <span className="text-lg">✨</span>
             ) : (
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[#5A5D5C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             )}
@@ -78,7 +78,7 @@ const Toast = () => {
               toast.type === 'success' ? 'text-green-900'
               : toast.type === 'error' ? 'text-red-900'
               : toast.type === 'party' ? 'text-purple-900'
-              : 'text-gray-900'
+              : 'text-[#404040]'
             }`}>
               {toast.message}
             </p>
@@ -87,7 +87,7 @@ const Toast = () => {
                 toast.type === 'success' ? 'text-green-700'
                 : toast.type === 'error' ? 'text-red-700'
                 : toast.type === 'party' ? 'text-purple-600'
-                : 'text-gray-500'
+                : 'text-[#8E8D83]'
               }`}>
                 {toast.subtitle}
               </p>
@@ -97,7 +97,7 @@ const Toast = () => {
             onClick={() => setToast(null)}
             className="flex-shrink-0 p-1 hover:bg-black/5 rounded transition-colors"
           >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-[#B8B3A2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>

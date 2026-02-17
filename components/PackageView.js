@@ -244,16 +244,16 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
       default:
         return (
           <div className="mobile-form-shell bg-white shadow-lg max-w-3xl mx-auto p-8">
-            <div className="border-b-2 border-gray-900 pb-4">
+            <div className="border-b-2 border-[#404040] pb-4">
               <h2 className="text-xl font-bold">{currentForm?.name}</h2>
-              <p className="text-sm text-gray-600 mt-1">{currentForm?.description}</p>
+              <p className="text-sm text-[#7A7870] mt-1">{currentForm?.description}</p>
             </div>
-            <div className="mt-6 p-8 bg-gray-50 rounded text-center">
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mt-6 p-8 bg-[#F5F0E1] rounded text-center">
+              <svg className="w-16 h-16 text-[#B8B3A2] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <p className="text-gray-600">Form preview coming soon</p>
-              <p className="text-sm text-gray-500 mt-2">This form will be available for editing in the next release</p>
+              <p className="text-[#7A7870]">Form preview coming soon</p>
+              <p className="text-sm text-[#8E8D83] mt-2">This form will be available for editing in the next release</p>
             </div>
           </div>
         );
@@ -266,7 +266,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={onBack}
-          className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+          className="text-sm hover:underline flex items-center gap-1"
+          style={{ color: 'var(--ubs-gray-5)' }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -283,14 +284,14 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
 
           {/* Navigation buttons */}
           {selectedForms.length > 1 && (
-            <div className="mobile-form-nav flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="mobile-form-nav flex items-center justify-between bg-white rounded-lg shadow-sm border border-[#CCCABC] p-4">
               <button
                 onClick={goToPreviousForm}
                 disabled={currentFormIndex === 0}
                 className={`px-4 py-2 text-sm rounded-lg flex items-center gap-2 ${
                   currentFormIndex === 0
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'text-[#B8B3A2] cursor-not-allowed'
+                    : 'text-[#5A5D5C] hover:bg-[#ECEBE4]'
                 }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -304,8 +305,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 disabled={currentFormIndex === selectedForms.length - 1}
                 className={`px-4 py-2 text-sm rounded-lg flex items-center gap-2 ${
                   currentFormIndex === selectedForms.length - 1
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-blue-600 hover:bg-blue-50 font-medium'
+                    ? 'text-[#B8B3A2] cursor-not-allowed'
+                    : 'text-[#5A5D5C] hover:bg-[#ECEBE4] font-medium'
                 }`}
               >
                 Next form
@@ -320,8 +321,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
         {/* Sidebar - Right side */}
         <div className="mobile-package-sidebar w-96 space-y-4">
           {/* Signer Selection */}
-          <div className="mobile-package-sidebar-panel bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Select signers</h3>
+          <div className="mobile-package-sidebar-panel bg-white rounded-lg shadow-sm border border-[#CCCABC] p-4 sticky top-6">
+            <h3 className="text-sm font-semibold text-[#404040] mb-4">Select signers</h3>
             <div className="space-y-3 mb-6">
               {selectedForms.map((formCode, formIndex) => {
                 const form = FORMS_DATA.find(f => f.code === formCode);
@@ -342,14 +343,14 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                   : account.signers;
 
                 return (
-                  <div key={formCode} className="border border-gray-200 rounded">
+                  <div key={formCode} className="border border-[#CCCABC] rounded">
                     {/* Form header */}
                     <div
                       onClick={() => toggleFormExpansion(formCode)}
-                      className="flex items-start gap-2 p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="flex items-start gap-2 p-3 cursor-pointer hover:bg-[#ECEBE4] transition-colors"
                     >
                       <svg
-                        className={`w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0 transition-transform ${
+                        className={`w-4 h-4 text-[#7A7870] mt-0.5 flex-shrink-0 transition-transform ${
                           isExpanded ? 'transform rotate-90' : ''
                         }`}
                         fill="none"
@@ -360,17 +361,17 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                       </svg>
                       <div className="flex-1 min-w-0">
                         <div className="mobile-form-header-row flex items-center gap-2">
-                          <span className={`text-sm font-medium ${isCurrentForm ? 'text-blue-600' : 'text-gray-900'}`}>
+                          <span className={`text-sm font-medium ${isCurrentForm ? 'text-[#5A5D5C]' : 'text-[#404040]'}`}>
                             Form {formIndex + 1}: {form?.name}
                           </span>
                           {isCurrentForm && (
-                            <span className="text-xs text-blue-600">← Currently viewing</span>
+                            <span className="text-xs text-[#5A5D5C]">← Currently viewing</span>
                           )}
                         </div>
-                        <div className="text-xs text-gray-600 mt-0.5">
+                        <div className="text-xs text-[#7A7870] mt-0.5">
                           {form?.code}
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-[#8E8D83] mt-1">
                           {getSignerRequirementText(form)}
                         </div>
                       </div>
@@ -378,7 +379,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
 
                     {/* Signers list - shown when expanded */}
                     {isExpanded && (
-                      <div className="border-t border-gray-200 px-3 py-2 space-y-3">
+                      <div className="border-t border-[#CCCABC] px-3 py-2 space-y-3">
                         {displaySigners.map(signer => {
                           const isSelected = formSignersList.find(s => s.id === signer.id);
                           const orderIndex = signerOrder.indexOf(signer.id);
@@ -392,30 +393,30 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                                 }}
                                 className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-all ${
                                   isSelected
-                                    ? 'bg-blue-50'
-                                    : 'hover:bg-gray-50'
+                                    ? 'bg-[#F5F0E1]'
+                                    : 'hover:bg-[#ECEBE4]'
                                 }`}
                               >
                                 <input
                                   type="checkbox"
                                   checked={!!isSelected}
                                   onChange={() => {}}
-                                  className="w-4 h-4 text-blue-600 rounded pointer-events-none"
+                                  className="w-4 h-4 accent-[#404040] rounded pointer-events-none"
                                 />
                                 <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-all ${
-                                  showOrder ? 'bg-blue-100 text-blue-700' : 'opacity-0'
+                                  showOrder ? 'bg-[#ECEBE4] text-[#5A5D5C]' : 'opacity-0'
                                 }`}>
                                   {showOrder ? orderIndex + 1 : ''}
                                 </span>
-                                <span className="text-sm text-gray-900 flex-1">{signer.name}</span>
+                                <span className="text-sm text-[#404040] flex-1">{signer.name}</span>
                                 <div className={`flex gap-0.5 transition-opacity ${showOrder ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
                                   <button
                                     onClick={() => moveSignerUp(signer.id)}
                                     disabled={orderIndex === 0}
                                     className={`p-1 rounded transition-colors ${
                                       orderIndex === 0
-                                        ? 'text-gray-300 cursor-not-allowed'
-                                        : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                                        ? 'text-[#CCCABC] cursor-not-allowed'
+                                        : 'text-[#8E8D83] hover:bg-[#ECEBE4] hover:text-[#5A5D5C]'
                                     }`}
                                   >
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -427,8 +428,8 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                                     disabled={orderIndex === signerOrder.length - 1}
                                     className={`p-1 rounded transition-colors ${
                                       orderIndex === signerOrder.length - 1
-                                        ? 'text-gray-300 cursor-not-allowed'
-                                        : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                                        ? 'text-[#CCCABC] cursor-not-allowed'
+                                        : 'text-[#8E8D83] hover:bg-[#ECEBE4] hover:text-[#5A5D5C]'
                                     }`}
                                   >
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -441,12 +442,12 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                               {isSelected && (
                                 <div className="ml-6 space-y-2">
                                   <div className="mobile-signer-detail-row flex items-center gap-2">
-                                    <span className="mobile-signer-detail-label text-xs text-gray-600 w-12">Email</span>
+                                    <span className="mobile-signer-detail-label text-xs text-[#7A7870] w-12">Email</span>
                                     <select
                                       value={signerDetails[signer.id]?.email || signer.emails[0]}
                                       onChange={(e) => updateSignerDetail(signer.id, 'email', e.target.value)}
                                       onClick={(e) => e.stopPropagation()}
-                                      className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      className="flex-1 px-2 py-1 text-xs border border-[#CCCABC] rounded focus:outline-none focus:ring-1 focus:ring-[#B8B3A2]"
                                     >
                                       {signer.emails.map(email => (
                                         <option key={email} value={email}>{email}</option>
@@ -454,12 +455,12 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                                     </select>
                                   </div>
                                   <div className="mobile-signer-detail-row flex items-center gap-2">
-                                    <span className="mobile-signer-detail-label text-xs text-gray-600 w-12">Phone</span>
+                                    <span className="mobile-signer-detail-label text-xs text-[#7A7870] w-12">Phone</span>
                                     <select
                                       value={signerDetails[signer.id]?.phone || signer.phones[0]}
                                       onChange={(e) => updateSignerDetail(signer.id, 'phone', e.target.value)}
                                       onClick={(e) => e.stopPropagation()}
-                                      className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      className="flex-1 px-2 py-1 text-xs border border-[#CCCABC] rounded focus:outline-none focus:ring-1 focus:ring-[#B8B3A2]"
                                     >
                                       {signer.phones.map(phone => (
                                         <option key={phone} value={phone}>{phone}</option>
@@ -479,9 +480,9 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
             </div>
 
             {/* Custom Message */}
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-[#CCCABC]">
               <div className="relative">
-                <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                <label className="block text-xs font-medium text-[#5A5D5C] mb-1.5">
                   Personal message
                 </label>
                 <div className="relative">
@@ -493,14 +494,14 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                     rows={2}
                     className={`w-full px-3 py-2 text-sm border rounded-lg resize-none transition-all ${
                       hasRequiredSigners
-                        ? 'border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                        : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                        ? 'border-[#CCCABC] bg-white focus:outline-none focus:ring-2 focus:ring-[#B8B3A2] focus:border-transparent'
+                        : 'border-[#CCCABC] bg-[#F5F0E1] cursor-not-allowed'
                     }`}
                   />
                   {!hasRequiredSigners && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-8 h-8 bg-[#ECEBE4] rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 text-[#B8B3A2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       </div>
@@ -509,7 +510,7 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                 </div>
                 {hasRequiredSigners && (
                   <div className="flex justify-end mt-1">
-                    <span className={`text-xs ${customMessage.length >= MAX_MESSAGE_LENGTH ? 'text-amber-600' : 'text-gray-400'}`}>
+                    <span className={`text-xs ${customMessage.length >= MAX_MESSAGE_LENGTH ? 'text-amber-600' : 'text-[#B8B3A2]'}`}>
                       {customMessage.length}/{MAX_MESSAGE_LENGTH}
                     </span>
                   </div>
@@ -518,10 +519,10 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
             </div>
 
             {/* Action buttons */}
-            <div className="space-y-2 pt-4 border-t border-gray-200">
+            <div className="space-y-2 pt-4 border-t border-[#CCCABC]">
               <button
                 onClick={() => setShowSaveDraftModal(true)}
-                className="w-full px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2"
+                className="w-full px-4 py-2 text-sm text-[#5A5D5C] bg-white border border-[#CCCABC] rounded-lg hover:bg-[#ECEBE4] flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -535,10 +536,10 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                   disabled={isSending || !hasRequiredSigners}
                   className={`w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition-all ${
                     !hasRequiredSigners
-                      ? 'bg-blue-100 text-blue-400 cursor-not-allowed pointer-events-none'
+                      ? 'bg-[#ECEBE4] text-[#8E8D83] cursor-not-allowed pointer-events-none'
                       : isSending
-                        ? 'bg-blue-600 text-white shadow-sm opacity-75 cursor-not-allowed'
-                        : 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
+                        ? 'bg-[#404040] text-white shadow-sm opacity-75 cursor-not-allowed'
+                        : 'bg-[#404040] text-white shadow-sm hover:bg-[#333333]'
                   }`}
                 >
                   {isSending ? (
@@ -554,9 +555,9 @@ const PackageView = ({ account, selectedForms, onBack, initialData, onSendForSig
                   {isSending ? 'Sending...' : 'Send for signature'}
                 </button>
                 {!hasRequiredSigners && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 bg-opacity-90 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-[#404040] bg-opacity-90 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
                     Select {signerShortfall} more {signerShortfall === 1 ? 'signer' : 'signers'} to continue
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[#404040]"></div>
                   </div>
                 )}
               </div>
