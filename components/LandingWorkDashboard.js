@@ -29,11 +29,11 @@ const LandingWorkDashboard = ({
 
   const STATUS_BADGES = {
     draft: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Draft' },
-    sent: { bg: 'bg-[#F5F0E1]', text: 'text-[#6C5312]', label: 'Sent' },
+    sent: { bg: 'bg-[#FFF8EC]', text: 'text-[#AF8626]', label: 'Sent' },
     delivered: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Viewed' },
-    completed: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Completed' },
-    voided: { bg: 'bg-red-50', text: 'text-red-800', label: 'Voided' },
-    declined: { bg: 'bg-red-50', text: 'text-red-800', label: 'Declined' }
+    completed: { bg: 'bg-[#EBF5EF]', text: 'text-[#469A6C]', label: 'Completed' },
+    voided: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Voided' },
+    declined: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Declined' }
   };
 
   const tabConfig = [
@@ -266,7 +266,7 @@ const LandingWorkDashboard = ({
         </span>
         <div className="flex items-center gap-1.5">
           <div className="w-16 h-1 rounded-full bg-[#ECEBE4] overflow-hidden">
-            <div className="h-full rounded-full bg-[#8E8D83] transition-all duration-500" style={{ width: `${progressPct}%` }} />
+            <div className="h-full rounded-full bg-[#AF8626] transition-all duration-500" style={{ width: `${progressPct}%` }} />
           </div>
           <span className="text-[11px] text-[#8E8D83]">{signedCount}/{totalCount}</span>
         </div>
@@ -329,7 +329,7 @@ const LandingWorkDashboard = ({
 
   const renderActionButton = ({ label, onClick, tone = 'default', disabled = false, loading = false }) => {
     const toneClass = tone === 'danger'
-      ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
+      ? 'border-[#AD3E4A]/30 text-[#AD3E4A] hover:bg-[#FDF2F3] hover:border-[#AD3E4A]/50'
       : 'border-[#CCCABC] text-[#5A5D5C] hover:bg-[#ECEBE4] hover:border-[#B8B3A2]';
 
     return (

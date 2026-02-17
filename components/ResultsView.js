@@ -37,7 +37,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
         <button
           onClick={onBack}
           className="text-sm hover:underline"
-          style={{ color: 'var(--ubs-gray-5)' }}
+          style={{ color: '#00759E' }}
         >
           ← Back to search
         </button>
@@ -121,7 +121,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
                   <div className="mobile-results-row-main flex-1 min-w-0">
                     <div className="mobile-results-row-title flex items-center gap-3">
                       <span className="font-mono text-sm font-medium" style={{ color: 'var(--ubs-gray-6)' }}>{form.code}</span>
-                      <span className="text-sm" style={{ color: 'var(--ubs-gray-5)' }}>{form.name}</span>
+                      <span className="text-sm" style={{ color: '#00759E' }}>{form.name}</span>
                     </div>
                     <p className="text-xs mt-1" style={{ color: 'var(--ubs-gray-3)' }}>{form.description}</p>
                     {disabledReason && (
@@ -137,7 +137,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
                       Print only
                     </div>
                   ) : canSelectForm ? (
-                    <div className="mobile-results-badge flex items-center gap-2 px-3 py-1 rounded text-sm font-medium" style={{ backgroundColor: 'var(--ubs-pastel-1)', color: 'var(--ubs-gray-5)' }}>
+                    <div className="mobile-results-badge flex items-center gap-2 px-3 py-1 rounded text-sm font-medium" style={{ backgroundColor: '#EDF6FD', color: '#0C7EC6' }}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                       </svg>

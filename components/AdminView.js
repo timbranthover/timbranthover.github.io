@@ -76,7 +76,7 @@ const AdminConfirmModal = ({ isOpen, title, message, onCancel, onConfirm, confir
           <button onClick={onCancel} className="px-3 py-2 text-sm rounded-lg border border-[#CCCABC] text-[#5A5D5C] hover:bg-[#ECEBE4]">
             Cancel
           </button>
-          <button onClick={onConfirm} className="px-3 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">
+          <button onClick={onConfirm} className="px-3 py-2 text-sm rounded-lg bg-[#AD3E4A] text-white hover:bg-[#8A000A]">
             {confirmLabel}
           </button>
         </div>
@@ -343,9 +343,9 @@ const AdminView = ({
                   value={formDraft.code}
                   onChange={(e) => setFormDraft((prev) => ({ ...prev, code: e.target.value.toUpperCase() }))}
                   disabled={editorMode === "edit"}
-                  className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.code ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"} ${editorMode === "edit" ? "bg-[#F5F0E1] text-[#8E8D83]" : ""}`}
+                  className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.code ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"} ${editorMode === "edit" ? "bg-[#F5F0E1] text-[#8E8D83]" : ""}`}
                 />
-                {formErrors.code && <p className="text-xs text-red-600 mt-1">{formErrors.code}</p>}
+                {formErrors.code && <p className="text-xs text-[#AD3E4A] mt-1">{formErrors.code}</p>}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Required signers</label>
@@ -359,18 +359,18 @@ const AdminView = ({
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Form name</label>
-                <input type="text" value={formDraft.name} onChange={(e) => setFormDraft((prev) => ({ ...prev, name: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.name ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
-                {formErrors.name && <p className="text-xs text-red-600 mt-1">{formErrors.name}</p>}
+                <input type="text" value={formDraft.name} onChange={(e) => setFormDraft((prev) => ({ ...prev, name: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.name ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
+                {formErrors.name && <p className="text-xs text-[#AD3E4A] mt-1">{formErrors.name}</p>}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Description</label>
-                <textarea rows={2} value={formDraft.description} onChange={(e) => setFormDraft((prev) => ({ ...prev, description: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.description ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
-                {formErrors.description && <p className="text-xs text-red-600 mt-1">{formErrors.description}</p>}
+                <textarea rows={2} value={formDraft.description} onChange={(e) => setFormDraft((prev) => ({ ...prev, description: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.description ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
+                {formErrors.description && <p className="text-xs text-[#AD3E4A] mt-1">{formErrors.description}</p>}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Long description</label>
-                <textarea rows={3} value={formDraft.longDescription} onChange={(e) => setFormDraft((prev) => ({ ...prev, longDescription: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.longDescription ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
-                {formErrors.longDescription && <p className="text-xs text-red-600 mt-1">{formErrors.longDescription}</p>}
+                <textarea rows={3} value={formDraft.longDescription} onChange={(e) => setFormDraft((prev) => ({ ...prev, longDescription: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.longDescription ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
+                {formErrors.longDescription && <p className="text-xs text-[#AD3E4A] mt-1">{formErrors.longDescription}</p>}
               </div>
             </div>
 
@@ -388,7 +388,7 @@ const AdminView = ({
                 <input type="text" value={keywordInput} onChange={(e) => setKeywordInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addKeywordChip(keywordInput); } }} className="flex-1 px-3 py-2 text-sm border border-[#CCCABC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8B3A2]" placeholder="Add keyword and press Enter" />
                 <button onClick={() => addKeywordChip(keywordInput)} className="px-3 py-2 text-sm rounded-lg border border-[#CCCABC] text-[#5A5D5C] hover:bg-[#ECEBE4]">Add</button>
               </div>
-              {formErrors.keywords && <p className="text-xs text-red-600 mt-1">{formErrors.keywords}</p>}
+              {formErrors.keywords && <p className="text-xs text-[#AD3E4A] mt-1">{formErrors.keywords}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -396,7 +396,7 @@ const AdminView = ({
                 <p className="text-xs font-semibold text-[#5A5D5C]">Flags</p>
                 <label className="flex items-center gap-2"><input type="checkbox" checked={formDraft.eSignEnabled} onChange={(e) => setFormDraft((prev) => ({ ...prev, eSignEnabled: e.target.checked }))} />eSign enabled</label>
                 <label className="flex items-center gap-2"><input type="checkbox" checked={formDraft.docuSignEnabled} onChange={(e) => setFormDraft((prev) => ({ ...prev, docuSignEnabled: e.target.checked }))} />DocuSign enabled</label>
-                {formErrors.docuSignEnabled && <p className="text-xs text-red-600">{formErrors.docuSignEnabled}</p>}
+                {formErrors.docuSignEnabled && <p className="text-xs text-[#AD3E4A]">{formErrors.docuSignEnabled}</p>}
               </div>
               <div className="space-y-2">
                 <p className="text-xs font-semibold text-[#5A5D5C]">Account types</p>
@@ -410,7 +410,7 @@ const AdminView = ({
                     {option.label}
                   </label>
                 ))}
-                {formErrors.validAccountTypeKeys && <p className="text-xs text-red-600">{formErrors.validAccountTypeKeys}</p>}
+                {formErrors.validAccountTypeKeys && <p className="text-xs text-[#AD3E4A]">{formErrors.validAccountTypeKeys}</p>}
               </div>
             </div>
 
@@ -421,8 +421,8 @@ const AdminView = ({
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">PDF path (optional)</label>
-                <input type="text" value={formDraft.pdfPath} onChange={(e) => setFormDraft((prev) => ({ ...prev, pdfPath: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.pdfPath ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
-                {formErrors.pdfPath && <p className="text-xs text-red-600 mt-1">{formErrors.pdfPath}</p>}
+                <input type="text" value={formDraft.pdfPath} onChange={(e) => setFormDraft((prev) => ({ ...prev, pdfPath: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${formErrors.pdfPath ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
+                {formErrors.pdfPath && <p className="text-xs text-[#AD3E4A] mt-1">{formErrors.pdfPath}</p>}
               </div>
             </div>
 
@@ -441,8 +441,8 @@ const AdminView = ({
 
             <div>
               <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Advanced attributes JSON (optional)</label>
-              <textarea rows={4} value={formDraft.advancedJson} onChange={(e) => setFormDraft((prev) => ({ ...prev, advancedJson: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg font-mono focus:outline-none focus:ring-2 ${formErrors.advancedJson ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} placeholder='{\"pdfFieldMap\": {...}}' />
-              {formErrors.advancedJson && <p className="text-xs text-red-600 mt-1">{formErrors.advancedJson}</p>}
+              <textarea rows={4} value={formDraft.advancedJson} onChange={(e) => setFormDraft((prev) => ({ ...prev, advancedJson: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg font-mono focus:outline-none focus:ring-2 ${formErrors.advancedJson ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} placeholder='{\"pdfFieldMap\": {...}}' />
+              {formErrors.advancedJson && <p className="text-xs text-[#AD3E4A] mt-1">{formErrors.advancedJson}</p>}
             </div>
 
             <div className="flex justify-end">
@@ -456,18 +456,18 @@ const AdminView = ({
             <h3 className="text-base font-semibold text-[#404040]">Operations update editor</h3>
             <div>
               <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Label</label>
-              <input type="text" value={operationsDraft.label} onChange={(e) => setOperationsDraft((prev) => ({ ...prev, label: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${operationsErrors.label ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
-              {operationsErrors.label && <p className="text-xs text-red-600 mt-1">{operationsErrors.label}</p>}
+              <input type="text" value={operationsDraft.label} onChange={(e) => setOperationsDraft((prev) => ({ ...prev, label: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${operationsErrors.label ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
+              {operationsErrors.label && <p className="text-xs text-[#AD3E4A] mt-1">{operationsErrors.label}</p>}
             </div>
             <div>
               <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Message</label>
-              <textarea rows={3} value={operationsDraft.message} onChange={(e) => setOperationsDraft((prev) => ({ ...prev, message: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${operationsErrors.message ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
-              {operationsErrors.message && <p className="text-xs text-red-600 mt-1">{operationsErrors.message}</p>}
+              <textarea rows={3} value={operationsDraft.message} onChange={(e) => setOperationsDraft((prev) => ({ ...prev, message: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${operationsErrors.message ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
+              {operationsErrors.message && <p className="text-xs text-[#AD3E4A] mt-1">{operationsErrors.message}</p>}
             </div>
             <div>
               <label className="block text-xs font-semibold text-[#5A5D5C] mb-1">Updated at text</label>
-              <input type="text" value={operationsDraft.updatedAt} onChange={(e) => setOperationsDraft((prev) => ({ ...prev, updatedAt: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${operationsErrors.updatedAt ? "border-red-300 focus:ring-red-500" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
-              {operationsErrors.updatedAt && <p className="text-xs text-red-600 mt-1">{operationsErrors.updatedAt}</p>}
+              <input type="text" value={operationsDraft.updatedAt} onChange={(e) => setOperationsDraft((prev) => ({ ...prev, updatedAt: e.target.value }))} className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${operationsErrors.updatedAt ? "border-[#AD3E4A] focus:ring-[#AD3E4A]" : "border-[#CCCABC] focus:ring-[#B8B3A2]"}`} />
+              {operationsErrors.updatedAt && <p className="text-xs text-[#AD3E4A] mt-1">{operationsErrors.updatedAt}</p>}
             </div>
 
             <div>
@@ -475,14 +475,14 @@ const AdminView = ({
               <div className="operations-glass px-5 py-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="h-2.5 w-2.5 rounded-full bg-amber-600 flex-shrink-0" />
-                    <p className="text-xs font-semibold tracking-wide text-amber-900">{operationsDraft.label || defaultOperationsUpdate.label}</p>
+                    <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--ubs-bronze-1)' }} />
+                    <p className="text-xs font-semibold tracking-wide" style={{ color: 'var(--ubs-bronze-3)' }}>{operationsDraft.label || defaultOperationsUpdate.label}</p>
                   </div>
-                  <span className="inline-flex items-center rounded-full border border-amber-400 bg-white/70 px-2 py-0.5 text-[11px] font-medium text-amber-900">
+                  <span className="inline-flex items-center rounded-full border bg-white/70 px-2 py-0.5 text-[11px] font-medium" style={{ borderColor: 'var(--ubs-bronze-1)', color: 'var(--ubs-bronze-3)' }}>
                     {operationsDraft.updatedAt || defaultOperationsUpdate.updatedAt}
                   </span>
                 </div>
-                <p className="text-sm text-amber-900 mt-1.5">{operationsDraft.message || defaultOperationsUpdate.message}</p>
+                <p className="text-sm mt-1.5" style={{ color: 'var(--ubs-gray-6)' }}>{operationsDraft.message || defaultOperationsUpdate.message}</p>
               </div>
             </div>
 
