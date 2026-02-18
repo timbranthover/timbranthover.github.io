@@ -28,46 +28,46 @@
       font-family: system-ui, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
 
-    /* ── UBS Design Tokens ── */
+    /* ── Design Tokens ── */
     :root {
       /* Primary accent */
-      --ubs-bordeaux-1: #BD000C;
-      --ubs-bordeaux-2: #8A000A;
-      --ubs-bordeaux-3: #620004;
+      --app-bordeaux-1: #BD000C;
+      --app-bordeaux-2: #8A000A;
+      --app-bordeaux-3: #620004;
 
       /* Bronze */
-      --ubs-bronze-1: #B98E2C;
-      --ubs-bronze-2: #946F29;
-      --ubs-bronze-3: #6C5312;
+      --app-bronze-1: #B98E2C;
+      --app-bronze-2: #946F29;
+      --app-bronze-3: #6C5312;
 
       /* Pastels */
-      --ubs-pastel-1: #ECEBE4;
-      --ubs-pastel-2: #F5F0E1;
+      --app-pastel-1: #ECEBE4;
+      --app-pastel-2: #F5F0E1;
 
       /* Grays */
-      --ubs-gray-1: #CCCABC;
-      --ubs-gray-2: #B8B3A2;
-      --ubs-gray-3: #8E8D83;
-      --ubs-gray-4: #7A7870;
-      --ubs-gray-5: #5A5D5C;
-      --ubs-gray-6: #404040;
+      --app-gray-1: #CCCABC;
+      --app-gray-2: #B8B3A2;
+      --app-gray-3: #8E8D83;
+      --app-gray-4: #7A7870;
+      --app-gray-5: #5A5D5C;
+      --app-gray-6: #404040;
 
       /* Semantic aliases */
-      --ubs-bg: #f7f6f3;
-      --ubs-card-border: var(--ubs-gray-1);
-      --ubs-input-border: var(--ubs-gray-2);
-      --ubs-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-      --ubs-radius: 6px;
+      --app-bg: #f7f6f3;
+      --app-card-border: var(--app-gray-1);
+      --app-input-border: var(--app-gray-2);
+      --app-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --app-radius: 6px;
     }
 
     .site-grid-bg {
-      background-color: var(--ubs-bg);
+      background-color: var(--app-bg);
     }
 
     .work-dashboard-scroll {
       scrollbar-gutter: stable;
       scrollbar-width: thin;
-      scrollbar-color: var(--ubs-gray-2) transparent;
+      scrollbar-color: var(--app-gray-2) transparent;
     }
 
     .work-dashboard-scroll::-webkit-scrollbar {
@@ -80,20 +80,20 @@
     }
 
     .work-dashboard-scroll::-webkit-scrollbar-thumb {
-      background: var(--ubs-gray-2);
+      background: var(--app-gray-2);
       border-radius: 999px;
       border: 2px solid transparent;
       background-clip: padding-box;
     }
 
     .work-dashboard-scroll:hover::-webkit-scrollbar-thumb {
-      background: var(--ubs-gray-3);
+      background: var(--app-gray-3);
       border-radius: 999px;
       border: 2px solid transparent;
       background-clip: padding-box;
     }
 
-    /* ── Floating glass (kept, recolored to UBS charcoal) ── */
+    /* ── Floating glass ── */
     :root {
       --floating-tint: rgb(90 93 92);
       --floating-rim: color-mix(in srgb, var(--floating-tint) 24%, white 76%);
@@ -108,14 +108,14 @@
       --floating-inner-highlight: rgba(255, 255, 255, 0.72);
       --floating-inner-depth: rgba(15, 23, 42, 0.08);
       --floating-specular: rgba(255, 255, 255, 0.78);
-      --floating-text: var(--ubs-gray-6);
-      --floating-action-top: var(--ubs-gray-6);
+      --floating-text: var(--app-gray-6);
+      --floating-action-top: var(--app-gray-6);
       --floating-action-bottom: #333333;
       --floating-action-text: #ffffff;
       --floating-action-highlight: rgba(255, 255, 255, 0.22);
-      --floating-action-disabled-top: var(--ubs-pastel-1);
+      --floating-action-disabled-top: var(--app-pastel-1);
       --floating-action-disabled-bottom: #ddd9cc;
-      --floating-action-disabled-text: var(--ubs-gray-3);
+      --floating-action-disabled-text: var(--app-gray-3);
     }
 
     .floating-glass {
@@ -275,7 +275,7 @@
       position: relative;
       isolation: isolate;
       overflow: hidden;
-      border-radius: var(--ubs-radius);
+      border-radius: var(--app-radius);
       border: 1px solid rgba(185, 142, 44, 0.55);
       background:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.054'/%3E%3C/svg%3E"),
@@ -361,7 +361,7 @@
     }
 
     .quick-wash-purple {
-      border-color: var(--ubs-gray-1);
+      border-color: var(--app-gray-1);
       background:
         radial-gradient(
           132% 168% at 10% -22%,
@@ -379,7 +379,7 @@
     }
 
     .quick-wash-blue {
-      border-color: var(--ubs-gray-1);
+      border-color: var(--app-gray-1);
       background:
         radial-gradient(
           132% 168% at 10% -22%,

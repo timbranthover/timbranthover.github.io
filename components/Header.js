@@ -3,7 +3,7 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
   const isInAdmin = currentView === 'admin';
 
   return (
-    <div className="mobile-app-header" style={{ backgroundColor: 'var(--ubs-gray-6)' }}>
+    <div className="mobile-app-header" style={{ backgroundColor: 'var(--app-gray-6)' }}>
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         <div className="mobile-header-brand flex items-center gap-3">
           <h1 className="text-lg font-semibold text-white tracking-wide">Forms library</h1>
@@ -38,7 +38,7 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
             className={`flex items-center gap-2 px-5 py-2 rounded-md text-sm font-medium transition-colors ${
               isInMyWork
                 ? 'bg-white/10 text-white/40 cursor-not-allowed'
-                : 'bg-white text-[var(--ubs-gray-6)] hover:bg-white/90 cursor-pointer'
+                : 'bg-white text-[var(--app-gray-6)] hover:bg-white/90 cursor-pointer'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@ const Header = ({ onNavigateToWork, onNavigateToAdmin = () => {}, currentView, i
           </button>
         </div>
       </div>
-      <div style={{ height: '2px', background: 'var(--ubs-bordeaux-1)' }}></div>
+      <div style={{ height: '2px', background: 'var(--app-bordeaux-1)' }}></div>
     </div>
   );
 };

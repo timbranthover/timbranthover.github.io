@@ -1,4 +1,4 @@
-# UBS Forms Search Executive Summary
+# Forms Search Executive Summary
 
 ## Objective
 Reduce advisor time-to-form and failed searches by implementing intelligent forms search with typo tolerance, acronym handling, and relevance ranking.
@@ -61,5 +61,5 @@ This gives strong recall while keeping results focused (top-N, low-noise list).
 3. Assign owner for ongoing synonym/typo dictionary governance.
 
 ## Repo References
-- Technical guide: `docs/UBS_FORMS_SEARCH_IMPLEMENTATION_GUIDE.md`
+- Technical guide: `docs/FORMS_SEARCH_IMPLEMENTATION_GUIDE.md`
 - Search engine implementation: `services/formsSearch.js`

@@ -235,7 +235,7 @@
 
   .mobile-my-work-view .mobile-work-table tbody tr {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--ubs-gray-1);
+    border-bottom: 1px solid var(--app-gray-1);
   }
 
   .mobile-my-work-view .mobile-work-table tbody td {
@@ -251,7 +251,7 @@
     line-height: 1.1;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--ubs-gray-3);
+    color: var(--app-gray-3);
   }
 
   .mobile-my-work-view .mobile-work-table tbody td[data-label="To"]::before {
