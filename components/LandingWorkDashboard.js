@@ -8,7 +8,7 @@ const LandingWorkDashboard = ({
 }) => {
   const FIXED_VISIBLE_ROWS = 5;
   const PREVIEW_VIEWPORT_HEIGHT = 404;
-  const MAX_VISIBLE_FORM_CHIPS = 2;
+  const MAX_VISIBLE_FORM_CHIPS = 1;
   const POLL_INTERVAL_MS = 60000;
 
   const [activeTab, setActiveTab] = React.useState('inProgress');
@@ -28,12 +28,12 @@ const LandingWorkDashboard = ({
   }, [onEnvelopeStatusChange]);
 
   const STATUS_BADGES = {
-    draft: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Draft' },
-    sent: { bg: 'bg-[#FFF8EC]', text: 'text-[#AF8626]', label: 'Sent' },
-    delivered: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Viewed' },
-    completed: { bg: 'bg-[#EBF5EF]', text: 'text-[#469A6C]', label: 'Completed' },
-    voided: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Voided' },
-    declined: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Declined' }
+    draft:     { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', border: 'border-[#B8B3A2]', label: 'Draft' },
+    sent:      { bg: 'bg-[#FFF8EC]', text: 'text-[#AF8626]', border: 'border-[#DDB84E]', label: 'Sent' },
+    delivered: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', border: 'border-[#B8B3A2]', label: 'Viewed' },
+    completed: { bg: 'bg-[#EBF5EF]', text: 'text-[#469A6C]', border: 'border-[#96CEAA]', label: 'Completed' },
+    voided:    { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', border: 'border-[#EDAAB0]', label: 'Voided' },
+    declined:  { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', border: 'border-[#EDAAB0]', label: 'Declined' }
   };
 
   const tabConfig = [
@@ -195,7 +195,7 @@ const LandingWorkDashboard = ({
           ? 'voided'
           : 'sent';
       const envStatus = envelopeStatuses[item.docusignEnvelopeId]?.status || fallbackStatus;
-      return STATUS_BADGES[envStatus] || { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: envStatus };
+      return STATUS_BADGES[envStatus] || { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', border: 'border-[#B8B3A2]', label: envStatus };
     }
 
     if (activeTab === 'inProgress') return STATUS_BADGES.sent;
@@ -220,11 +220,13 @@ const LandingWorkDashboard = ({
           </span>
         ))}
         {hiddenCount > 0 && (
-          <span
-            className="inline-flex shrink-0 items-center rounded-md border border-[#CCCABC] bg-white px-2 py-0.5 text-[11px] font-medium text-[#8E8D83]"
-            title={forms.slice(MAX_VISIBLE_FORM_CHIPS).join(', ')}
-          >
-            +{hiddenCount}
+          <span className="relative group shrink-0 inline-flex">
+            <span className="inline-flex items-center rounded-md border border-[#CCCABC] bg-white px-2 py-0.5 text-[11px] font-medium text-[#8E8D83] cursor-default">
+              +{hiddenCount}
+            </span>
+            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-gray-900 bg-opacity-90 text-white text-[11px] rounded px-2 py-1 whitespace-nowrap z-20">
+              {forms.join(' · ')}
+            </div>
           </span>
         )}
       </div>
@@ -248,7 +250,7 @@ const LandingWorkDashboard = ({
     const badge = getStatusBadge(item);
     if (activeTab !== 'inProgress') {
       return (
-        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${badge.bg} ${badge.text} ${badge.border}`}>
           {badge.label}
         </span>
       );
@@ -261,7 +263,7 @@ const LandingWorkDashboard = ({
 
     return (
       <div className="inline-flex items-center gap-2.5 whitespace-nowrap">
-        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${badge.bg} ${badge.text} ${badge.border}`}>
           {badge.label}
         </span>
         <div className="flex items-center gap-1.5">
