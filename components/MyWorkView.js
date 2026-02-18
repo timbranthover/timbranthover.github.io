@@ -9,11 +9,11 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
 
   // Status badge config
   const STATUS_BADGES = {
-    sent: { bg: 'bg-[#FFF8EC]', text: 'text-[#AF8626]', label: 'Sent' },
-    delivered: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', label: 'Viewed' },
-    completed: { bg: 'bg-[#EBF5EF]', text: 'text-[#469A6C]', label: 'Completed' },
-    voided: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Voided' },
-    declined: { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', label: 'Declined' }
+    sent:      { bg: 'bg-[#FFF8EC]', text: 'text-[#AF8626]', border: 'border-[#DDB84E]', label: 'Sent' },
+    delivered: { bg: 'bg-[#ECEBE4]', text: 'text-[#5A5D5C]', border: 'border-[#B8B3A2]', label: 'Viewed' },
+    completed: { bg: 'bg-[#EBF5EF]', text: 'text-[#469A6C]', border: 'border-[#96CEAA]', label: 'Completed' },
+    voided:    { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', border: 'border-[#EDAAB0]', label: 'Voided' },
+    declined:  { bg: 'bg-[#FDF2F3]', text: 'text-[#AD3E4A]', border: 'border-[#EDAAB0]', label: 'Declined' }
   };
   const MAX_VISIBLE_FORM_CHIPS = 3;
 
@@ -268,11 +268,11 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
     if (item.docusignEnvelopeId) {
       // If we have status from API, use it; otherwise default to 'sent' while loading
       const status = envStatus?.status || 'sent';
-      const badge = STATUS_BADGES[status] || { bg: 'bg-[#ECEBE4]', text: 'text-[#404040]', label: status };
+      const badge = STATUS_BADGES[status] || { bg: 'bg-[#ECEBE4]', text: 'text-[#404040]', border: 'border-[#B8B3A2]', label: status };
 
       return (
         <div className="relative group inline-flex items-center gap-2">
-          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium cursor-default ${badge.bg} ${badge.text}`}>
+          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border cursor-default ${badge.bg} ${badge.text} ${badge.border}`}>
             {badge.label}
           </span>
           {/* Always show progress bar for in-progress items to prevent layout shift */}
@@ -437,11 +437,13 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
           </span>
         ))}
         {hiddenForms.length > 0 && (
-          <span
-            title={hiddenForms.join(', ')}
-            className="inline-flex items-center rounded-md border border-[#CCCABC] bg-white px-2 py-0.5 text-xs font-medium text-[#8E8D83]"
-          >
-            +{hiddenForms.length} more
+          <span className="relative group inline-flex">
+            <span className="inline-flex items-center rounded-md border border-[#CCCABC] bg-white px-2 py-0.5 text-xs font-medium text-[#8E8D83] cursor-default">
+              +{hiddenForms.length}
+            </span>
+            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-gray-900 bg-opacity-90 text-white text-[11px] rounded px-2 py-1 whitespace-nowrap z-20">
+              {forms.join(' · ')}
+            </div>
           </span>
         )}
       </div>
