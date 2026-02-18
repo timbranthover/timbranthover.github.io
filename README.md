@@ -1,25 +1,25 @@
-# Forms Library — UBS Branded Edition
+# Forms Library
 
-A UBS-branded variant of the Forms Library prototype for financial advisors. Same full functionality — account search, form selection, signer assignment, DocuSign eSign — reskinned to match UBS Online Services design language.
+A Forms Library prototype for financial advisors. Supports account search, form selection, signer assignment, and DocuSign eSign.
 
 **Live site:** [timbranthover.github.io/UFG_site](https://timbranthover.github.io/UFG_site/)
 
 **Original (personal branding):** [timbranthover.github.io](https://timbranthover.github.io/)
 
-## What's Different in This Version
+## Styling Notes
 
-This is a **styling-only fork** of the original Forms Library. No functionality, state management, or API behavior has changed. The differences are purely visual:
+Visual customization applied to the base Forms Library. No functionality, state management, or API behavior changed. Differences are purely visual:
 
-- **Color system** — All Tailwind blue/gray classes replaced with UBS design tokens (charcoal, bronze, bordeaux, warm pastels)
+- **Color system** — All Tailwind blue/gray classes replaced with custom design tokens (charcoal, bronze, bordeaux, warm pastels)
 - **Typography** — System-ui font stack (replaces Inter from Google Fonts)
 - **Header** — Dark charcoal (#404040) with 2px bordeaux (#BD000C) accent line
 - **Glassmorphism** — Preserved and recolored to charcoal/bronze tones
-- **CSS custom properties** — UBS tokens defined as `--ubs-*` variables in `:root`
+- **CSS custom properties** — Design tokens defined as `--app-*` variables in `:root`
 - **Buttons** — Primary actions use charcoal (#404040) with white text; disabled states use warm pastels
 - **Inputs** — Focus rings use `#B8B3A2`; readonly fields use `bg-[#F5F0E1]`
 - **Badges/pills** — Warm pastel backgrounds (`#ECEBE4`, `#F5F0E1`) with muted text
 
-### UBS Color Token Reference
+### Color Token Reference
 
 | Token | Hex | Usage |
 |-------|-----|-------|
@@ -200,7 +200,7 @@ assets/
 
 - React 18 + ReactDOM 18 (CDN)
 - Babel Standalone (in-browser JSX transpilation)
-- Tailwind CSS (CDN) with UBS design tokens via CSS custom properties
+- Tailwind CSS (CDN) with custom design tokens via CSS custom properties
 - Fuse.js (fuzzy form search)
 - jsrsasign (JWT signing for DocuSign auth)
 - pdf-lib (in-browser PDF form fill for LA-GEN)

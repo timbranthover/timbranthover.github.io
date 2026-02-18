@@ -455,7 +455,7 @@ const LandingWorkDashboard = ({
   return (
     <>
       <div className="mobile-landing-work-view mobile-my-work-view max-w-5xl">
-        <div className="bg-white p-5 sm:p-6" style={{ borderRadius: 'var(--ubs-radius)', border: '1px solid var(--ubs-card-border)', boxShadow: 'var(--ubs-card-shadow)' }}>
+        <div className="bg-white p-5 sm:p-6" style={{ borderRadius: 'var(--app-radius)', border: '1px solid var(--app-card-border)', boxShadow: 'var(--app-card-shadow)' }}>
           <div className="mobile-work-header flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-[#404040]">Work dashboard</h2>

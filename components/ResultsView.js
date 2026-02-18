@@ -43,23 +43,23 @@ const ResultsView = ({ account, onBack, onContinue }) => {
         </button>
 
         <div className={`min-h-[24px] flex items-center transition-opacity duration-150 ${hasSelection ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <span className="text-sm" style={{ color: 'var(--ubs-gray-4)' }}>
+          <span className="text-sm" style={{ color: 'var(--app-gray-4)' }}>
             {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''} selected
           </span>
         </div>
       </div>
 
-      <div className="mobile-results-card bg-white p-6" style={{ borderRadius: 'var(--ubs-radius)', border: '1px solid var(--ubs-card-border)', boxShadow: 'var(--ubs-card-shadow)' }}>
+      <div className="mobile-results-card bg-white p-6" style={{ borderRadius: 'var(--app-radius)', border: '1px solid var(--app-card-border)', boxShadow: 'var(--app-card-shadow)' }}>
         <div className="mb-6">
-          <h2 className="text-lg font-medium" style={{ color: 'var(--ubs-gray-6)' }}>Account {account.accountNumber}</h2>
-          <p className="text-sm" style={{ color: 'var(--ubs-gray-4)' }}>{account.accountName} • {account.accountType}</p>
+          <h2 className="text-lg font-medium" style={{ color: 'var(--app-gray-6)' }}>Account {account.accountNumber}</h2>
+          <p className="text-sm" style={{ color: 'var(--app-gray-4)' }}>{account.accountName} • {account.accountType}</p>
         </div>
 
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="w-5 h-5" style={{ color: 'var(--ubs-gray-3)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" style={{ color: 'var(--app-gray-3)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -69,7 +69,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search forms by name, code, or keyword (e.g., 'acat', 'transfer', 'ira')..."
               className="w-full pl-10 pr-4 py-3 text-sm focus:outline-none"
-              style={{ border: '1px solid var(--ubs-input-border)', borderRadius: 'var(--ubs-radius)' }}
+              style={{ border: '1px solid var(--app-input-border)', borderRadius: 'var(--app-radius)' }}
               onFocus={(e) => { e.target.style.boxShadow = '0 0 0 2px rgba(138,0,10,0.18)'; }}
               onBlur={(e) => { e.target.style.boxShadow = 'none'; }}
             />
@@ -78,13 +78,13 @@ const ResultsView = ({ account, onBack, onContinue }) => {
                 onClick={() => setSearchQuery('')}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
-                <svg className="w-5 h-5" style={{ color: 'var(--ubs-gray-3)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" style={{ color: 'var(--app-gray-3)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             )}
           </div>
-          <p className="mt-2 text-xs" style={{ color: 'var(--ubs-gray-3)' }}>
+          <p className="mt-2 text-xs" style={{ color: 'var(--app-gray-3)' }}>
             Showing {filteredForms.length}
             {searchResult.limited ? ' top' : ''} of {searchResult.totalMatches} matching forms
             {' '}from {FORMS_DATA.length} total
@@ -120,17 +120,17 @@ const ResultsView = ({ account, onBack, onContinue }) => {
                   />
                   <div className="mobile-results-row-main flex-1 min-w-0">
                     <div className="mobile-results-row-title flex items-center gap-3">
-                      <span className="font-mono text-sm font-medium" style={{ color: 'var(--ubs-gray-6)' }}>{form.code}</span>
+                      <span className="font-mono text-sm font-medium" style={{ color: 'var(--app-gray-6)' }}>{form.code}</span>
                       <span className="text-sm" style={{ color: '#00759E' }}>{form.name}</span>
                     </div>
-                    <p className="text-xs mt-1" style={{ color: 'var(--ubs-gray-3)' }}>{form.description}</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--app-gray-3)' }}>{form.description}</p>
                     {disabledReason && (
-                      <p className="text-xs mt-1" style={{ color: 'var(--ubs-bronze-2)' }}>{disabledReason}</p>
+                      <p className="text-xs mt-1" style={{ color: 'var(--app-bronze-2)' }}>{disabledReason}</p>
                     )}
                   </div>
 
                   {!form.eSignEnabled ? (
-                    <div className="mobile-results-badge flex items-center gap-2 px-3 py-1 rounded text-sm" style={{ backgroundColor: 'var(--ubs-pastel-1)', color: 'var(--ubs-gray-4)' }}>
+                    <div className="mobile-results-badge flex items-center gap-2 px-3 py-1 rounded text-sm" style={{ backgroundColor: 'var(--app-pastel-1)', color: 'var(--app-gray-4)' }}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                       </svg>
@@ -144,7 +144,7 @@ const ResultsView = ({ account, onBack, onContinue }) => {
                       eSign
                     </div>
                   ) : (
-                    <div className="mobile-results-badge flex items-center gap-2 px-3 py-1 rounded text-sm font-medium" style={{ backgroundColor: 'var(--ubs-pastel-2)', color: 'var(--ubs-bronze-2)' }}>
+                    <div className="mobile-results-badge flex items-center gap-2 px-3 py-1 rounded text-sm font-medium" style={{ backgroundColor: 'var(--app-pastel-2)', color: 'var(--app-bronze-2)' }}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3.7c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" />
                       </svg>
@@ -156,11 +156,11 @@ const ResultsView = ({ account, onBack, onContinue }) => {
             })
           ) : (
             <div className="text-center py-12">
-              <svg className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--ubs-gray-2)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--app-gray-2)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="mb-2" style={{ color: 'var(--ubs-gray-4)' }}>No forms found matching "{searchQuery}"</p>
-              <p className="text-sm" style={{ color: 'var(--ubs-gray-3)' }}>Try searching by form code, name, or keyword</p>
+              <p className="mb-2" style={{ color: 'var(--app-gray-4)' }}>No forms found matching "{searchQuery}"</p>
+              <p className="text-sm" style={{ color: 'var(--app-gray-3)' }}>Try searching by form code, name, or keyword</p>
             </div>
           )}
         </div>

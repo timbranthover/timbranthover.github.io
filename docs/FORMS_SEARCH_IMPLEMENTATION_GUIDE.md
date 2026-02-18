@@ -1,4 +1,4 @@
-# UBS Forms Search Implementation Guide
+# Forms Search Implementation Guide
 
 ## Purpose
 This guide explains the fuzzy forms-search approach used in this prototype and how to implement the same pattern in a production system.

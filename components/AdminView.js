@@ -285,7 +285,7 @@ const AdminView = ({
           <h2 className="text-2xl font-semibold text-[#404040]">Admin</h2>
           <p className="text-sm text-[#8E8D83] mt-1">Prototype admin workspace for forms and operations messaging.</p>
         </div>
-        <button onClick={onBack} className="text-sm hover:underline flex items-center gap-1" style={{ color: 'var(--ubs-gray-5)' }}>
+        <button onClick={onBack} className="text-sm hover:underline flex items-center gap-1" style={{ color: 'var(--app-gray-5)' }}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
@@ -475,14 +475,14 @@ const AdminView = ({
               <div className="operations-glass px-5 py-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--ubs-bronze-1)' }} />
-                    <p className="text-xs font-semibold tracking-wide" style={{ color: 'var(--ubs-bronze-3)' }}>{operationsDraft.label || defaultOperationsUpdate.label}</p>
+                    <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--app-bronze-1)' }} />
+                    <p className="text-xs font-semibold tracking-wide" style={{ color: 'var(--app-bronze-3)' }}>{operationsDraft.label || defaultOperationsUpdate.label}</p>
                   </div>
-                  <span className="inline-flex items-center rounded-full border bg-white/70 px-2 py-0.5 text-[11px] font-medium" style={{ borderColor: 'var(--ubs-bronze-1)', color: 'var(--ubs-bronze-3)' }}>
+                  <span className="inline-flex items-center rounded-full border bg-white/70 px-2 py-0.5 text-[11px] font-medium" style={{ borderColor: 'var(--app-bronze-1)', color: 'var(--app-bronze-3)' }}>
                     {operationsDraft.updatedAt || defaultOperationsUpdate.updatedAt}
                   </span>
                 </div>
-                <p className="text-sm mt-1.5" style={{ color: 'var(--ubs-gray-6)' }}>{operationsDraft.message || defaultOperationsUpdate.message}</p>
+                <p className="text-sm mt-1.5" style={{ color: 'var(--app-gray-6)' }}>{operationsDraft.message || defaultOperationsUpdate.message}</p>
               </div>
             </div>
 
