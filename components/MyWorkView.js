@@ -503,7 +503,8 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
           ))}
         </div>
 
-        <table className="mobile-work-table w-full table-fixed">
+        <div className="overflow-x-auto">
+        <table className="mobile-work-table w-full table-fixed min-w-[560px]">
           <thead className="bg-[#F5F0E1]/90 border-b border-[#CCCABC]">
             <tr className="h-11">
               <th className="w-[30%] text-left px-6 py-3 text-[11px] font-semibold tracking-[0.08em] text-[#8E8D83]">To</th>
@@ -581,6 +582,7 @@ const MyWorkView = ({ onBack, onLoadDraft, onDeleteDraft, workItems = MOCK_HISTO
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
 

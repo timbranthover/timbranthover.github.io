@@ -513,7 +513,7 @@ const LandingWorkDashboard = ({
 
           <div className="mt-3 rounded-lg border border-[#CCCABC] bg-white">
             <div className="work-dashboard-scroll overflow-y-scroll overflow-x-auto" style={{ height: `${PREVIEW_VIEWPORT_HEIGHT}px` }}>
-              <table className="mobile-work-table w-full table-fixed">
+              <table className="mobile-work-table w-full table-fixed min-w-[560px]">
                 <thead className="sticky top-0 z-10 bg-[#F5F0E1] border-b border-[#CCCABC]">
                   <tr className="h-10">
                     <th className="w-[31%] text-left px-4 py-2 text-[11px] font-semibold tracking-[0.08em] text-[#8E8D83]">To</th>
