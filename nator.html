@@ -85,7 +85,7 @@ async function doMint(){
     new DataView(mtd.buffer).setBigUint64(1,BigInt("100000000000000000"),true);
     var bh3=(await CN.getLatestBlockhash("finalized")).blockhash;
     var t3=new TX({recentBlockhash:bh3,feePayer:WP});
-    t3.add(new TI({keys:[{pubkey:WP,isSigner:true,isWritable:true},{pubkey:ata,isSigner:false,isWritable:true},{pubkey:WP,isSigner:false,isWritable:false},{pubkey:mint,isSigner:false,isWritable:false},{pubkey:SYS,isSigner:false,isWritable:false},{pubkey:TOKEN,isSigner:false,isWritable:false}],programId:ASSOC,data:new Uint8Array([0])}));
+    t3.add(new TI({keys:[{pubkey:WP,isSigner:true,isWritable:true},{pubkey:ata,isSigner:false,isWritable:true},{pubkey:WP,isSigner:false,isWritable:false},{pubkey:mint,isSigner:false,isWritable:false},{pubkey:SYS,isSigner:false,isWritable:false},{pubkey:TOKEN,isSigner:false,isWritable:false},{pubkey:RENT,isSigner:false,isWritable:false}],programId:ASSOC,data:new Uint8Array([])}));
     t3.add(new TI({keys:[{pubkey:mint,isSigner:false,isWritable:true},{pubkey:ata,isSigner:false,isWritable:true},{pubkey:WP,isSigner:true,isWritable:false}],programId:TOKEN,data:mtd}));
     logMsg(">>> Approve TX3 in Phantom...","info");
     await sendConfirm(await p.signTransaction(t3),"TX3");
