@@ -35,7 +35,7 @@ async function doConnect(){
 }
 async function sendConfirm(signed,label){
   logMsg("Sending "+label+"...");
-  var sig=await CN.sendRawTransaction(signed.serialize(),{skipPreflight:false});
+  var sig=await CN.sendRawTransaction(signed.serialize(),{skipPreflight:true});
   logMsg("TX: https://solscan.io/tx/"+sig);
   await CN.confirmTransaction(sig,"confirmed");
   logMsg("Confirmed: "+label);
