@@ -29,7 +29,7 @@ async function doConnect(){
     if(!p){logMsg("No Phantom found!","err");return;}
     var r=await p.connect();
     WP=r.publicKey;
-    CN=new solanaWeb3.Connection("https://mainnet.helius-rpc.com/?api-key=demo","confirmed");
+    CN=new solanaWeb3.Connection("https://solana-rpc.publicnode.com","confirmed");
     var bal=await CN.getBalance(WP);
     document.getElementById("w").textContent=WP.toBase58();
     document.getElementById("b").textContent=(bal/1e9).toFixed(6)+" SOL";
