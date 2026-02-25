@@ -4,6 +4,7 @@ const SearchView = ({
   onBrowseSavedForms = () => {},
   onResumeLastDraft = () => {},
   onStartScenario = () => {},
+  onStartMultiEnvelope = () => {},
   onAccountInputChange = () => {},
   searchError = null,
   hasSavedDrafts = false,
@@ -246,6 +247,35 @@ const SearchView = ({
         style={{ borderRadius: 'var(--app-radius)', border: '1px solid var(--app-card-border)', transitionDelay: '260ms' }}
       >
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+
+          {/* Multi-Account Envelope entry point */}
+          <button
+            onClick={onStartMultiEnvelope}
+            className="md:col-span-12 w-full text-left px-4 py-3.5 text-sm flex items-start gap-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+            style={{ borderRadius: 'var(--ubs-radius)', border: '1px solid var(--ubs-bordeaux-1)', backgroundColor: 'white' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(189,0,12,0.03)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; }}
+          >
+            <div
+              className="w-8 h-8 flex-shrink-0 rounded-md flex items-center justify-center mt-0.5"
+              style={{ backgroundColor: 'rgba(189,0,12,0.08)' }}
+            >
+              <svg className="w-4.5 h-4.5" style={{ color: 'var(--ubs-bordeaux-1)', width: '1.125rem', height: '1.125rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold" style={{ color: 'var(--ubs-bordeaux-1)' }}>Multi-Account Envelope</p>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border" style={{ borderColor: 'var(--ubs-bordeaux-1)', color: 'var(--ubs-bordeaux-1)', backgroundColor: 'rgba(189,0,12,0.06)' }}>New</span>
+              </div>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--ubs-gray-4)' }}>Combine forms across multiple accounts into one eSign envelope</p>
+            </div>
+            <svg className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: 'var(--ubs-bordeaux-1)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+
           <button
             onClick={onBrowseForms}
             className="md:col-span-7 w-full text-left bg-white px-4 py-3 text-sm flex items-start gap-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"

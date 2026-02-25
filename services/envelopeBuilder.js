@@ -85,3 +85,66 @@ const sendDocuSignEnvelope = async (packageData, accountNumber) => {
     }
   );
 };
+
+// ── Multi-account envelope helpers ───────────────────────────────────────────
+
+/**
+ * Builds a deduplicated, sorted signer array from all accounts in a
+ * multi-account envelope.  Signers are deduped by name (case-insensitive).
+ * signerDetails map: { [signerId_accountNum]: { email } }
+ */
+const buildMultiAccountSignerPayload = (multiAccountData) => {
+  const seen = new Map(); // name.toLowerCase() → signer entry
+  let position = 1;
+
+  for (const { account, forms } of multiAccountData.accounts) {
+    for (const signer of (account.signers || [])) {
+      const key = signer.name.toLowerCase();
+      if (!seen.has(key)) {
+        const detailKey = `${signer.id}_${account.accountNumber}`;
+        const email = (
+          multiAccountData.signerDetails &&
+          multiAccountData.signerDetails[detailKey]
+        )
+          ? multiAccountData.signerDetails[detailKey].email
+          : (signer.emails ? signer.emails[0] : signer.email);
+
+        seen.set(key, { email, name: signer.name, routingOrder: position++ });
+      }
+    }
+  }
+
+  return [...seen.values()].sort((a, b) => a.routingOrder - b.routingOrder);
+};
+
+/**
+ * Sends a single DocuSign envelope covering all accounts in multiAccountData.
+ * Uses the template path (first docuSignEnabled non-PDF form found).
+ * Returns { success, envelopeId, error }.
+ */
+const sendMultiAccountEnvelope = async (multiAccountData, customMessage) => {
+  const allFormCodes = multiAccountData.accounts.flatMap(({ forms }) => forms);
+  const primaryAccountNumber = multiAccountData.accounts[0]?.account?.accountNumber || 'MULTI';
+
+  // Find first docuSignEnabled template form (skip PDF-fill forms for multi-account v1)
+  const docuSignForm = allFormCodes
+    .map(code => FORMS_DATA.find(f => f.code === code))
+    .find(f => f && f.docuSignEnabled && !f.pdfPath);
+
+  if (!docuSignForm) {
+    return { success: false, error: 'No eSign-eligible template forms selected' };
+  }
+
+  const signers = buildMultiAccountSignerPayload(multiAccountData);
+  const accountNumbers = multiAccountData.accounts.map(a => a.account.accountNumber).join(', ');
+
+  return DocuSignService.sendEnvelope(
+    signers,
+    primaryAccountNumber,
+    customMessage || '',
+    {
+      templateId: docuSignForm.templateId,
+      emailSubject: `Multi-Account eSign: ${accountNumbers}`
+    }
+  );
+};
