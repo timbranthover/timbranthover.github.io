@@ -175,61 +175,47 @@ const App = () => {
     }
   };
 
-  const handleContinueToPackage = (forms) => {
+  const handleContinueToPackage = (forms, mad = null) => {
     setSelectedForms(forms);
     setDraftData(null);
-    setView('package');
-  };
-
-  const handleStartMultiEnvelope = () => {
-    setMultiAccountData(null);
-    setView('multiEnvelope');
-  };
-
-  const handleMultiEnvelopeContinue = (data) => {
-    setMultiAccountData(data);
-    setView('multiPackage');
+    if (mad) {
+      setMultiAccountData(mad);
+      setView('multiPackage');
+    } else {
+      setMultiAccountData(null);
+      setView('package');
+    }
   };
 
   const handleMultiPackageSend = async (packageData) => {
-    let docusignEnvelopeId = null;
-
-    const allFormCodes = packageData.accounts.flatMap(({ forms }) => forms);
-    if (shouldUseDocuSign(allFormCodes)) {
-      try {
-        const result = await sendMultiAccountEnvelope(
-          { ...multiAccountData, signerDetails: packageData.signerDetails },
-          packageData.customMessage
-        );
-        if (result.success) {
-          docusignEnvelopeId = result.envelopeId;
-          const signerNames = (packageData.signers || []).map(s => s.name).join(', ');
-          showToast({ type: 'success', message: `DocuSign envelope sent to ${signerNames}` });
-        } else {
-          showToast({ message: 'DocuSign error', subtitle: result.error + ' — item still added to My Work' });
+    let envelopeId = null;
+    try {
+      const result = await sendMultiAccountEnvelope(packageData);
+      if (result.success) {
+        envelopeId = result.envelopeId;
+        if (envelopeId) {
+          const allSignerNames = [...new Set(
+            packageData.accounts.flatMap(({ account }) => account.signers.map(s => s.name))
+          )];
+          showToast({ type: 'success', message: `DocuSign envelope sent to ${allSignerNames.join(', ')}` });
         }
-      } catch (err) {
-        showToast({ message: 'DocuSign error', subtitle: err.message + ' — item still added to My Work' });
+      } else {
+        showToast({ message: 'DocuSign error', subtitle: (result.error || 'Unknown error') + ' — item still added to My Work' });
       }
+    } catch (error) {
+      showToast({ message: 'DocuSign error', subtitle: error.message + ' — item still added to My Work' });
     }
 
-    const newItem = createMultiAccountInProgressItem(
-      { ...multiAccountData, signers: packageData.signers, signerOrder: packageData.signerOrder },
-      docusignEnvelopeId
-    );
+    const newItem = createMultiAccountInProgressItem(packageData, envelopeId);
     setWorkItems(prev => addInProgressItem(prev, newItem));
     setView('work');
   };
 
-  const handleMultiPackageSaveDraft = (draftName, draftFormData) => {
-    const firstAccount = multiAccountData?.accounts?.[0]?.account;
-    if (!firstAccount) return;
-    const allFormCodes = (multiAccountData?.accounts || []).flatMap(({ forms }) => forms);
-    const draft = createDraftItem(firstAccount, allFormCodes, draftName, {
-      ...draftFormData,
-      _isMultiAccount: true,
-      _multiAccountData: multiAccountData
-    });
+  const handleMultiPackageSaveDraft = (draftName, data) => {
+    if (!multiAccountData) return;
+    const primaryAccount = multiAccountData.accounts[0].account;
+    const allFormCodes = [...new Set(multiAccountData.accounts.flatMap(({ forms }) => forms))];
+    const draft = createDraftItem(primaryAccount, allFormCodes, draftName, data);
     setWorkItems(prev => addDraft(prev, draft));
   };
 
@@ -341,10 +327,8 @@ const App = () => {
       setView('landing');
     } else if (view === 'work' || view === 'admin') {
       setView('landing');
-    } else if (view === 'multiEnvelope') {
-      setView('landing');
     } else if (view === 'multiPackage') {
-      setView('multiEnvelope');
+      setView('results');
     }
   };
 
@@ -359,7 +343,6 @@ const App = () => {
             onBrowseForms={handleBrowseForms}
             onBrowseSavedForms={() => setView('savedForms')}
             onStartScenario={handleStartScenario}
-            onStartMultiEnvelope={handleStartMultiEnvelope}
             onResumeLastDraft={() => {
               const latestDraft = workItems.drafts[0];
               if (latestDraft) {
@@ -463,15 +446,6 @@ const App = () => {
           initialData={draftData}
           onSendForSignature={handleSendForSignature}
           onSaveDraft={handleSaveDraft}
-        />
-      );
-    }
-
-    if (view === 'multiEnvelope') {
-      return (
-        <MultiEnvelopeView
-          onBack={handleBack}
-          onContinue={handleMultiEnvelopeContinue}
         />
       );
     }
