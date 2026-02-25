@@ -102,6 +102,68 @@ const MOCK_ACCOUNTS = {
         phones: ["7025551234", "7025559876"]
       }
     ]
+  },
+
+  // --- Timothy Branthover sole accounts (for multi-envelope demo) ---
+  "TIM001": {
+    accountNumber: "TIM001",
+    accountName: "Timothy Branthover",
+    accountType: "Individual",
+    accountTypeKey: "RMA_INDIVIDUAL",
+    signers: [
+      {
+        id: 1,
+        name: "Timothy Branthover",
+        role: "Owner",
+        emails: ["timbranthover@gmail.com", "timbrant@gmail.com"],
+        phones: ["9088724028"]
+      }
+    ]
+  },
+  "TIM002": {
+    accountNumber: "TIM002",
+    accountName: "Timothy Branthover",
+    accountType: "Individual",
+    accountTypeKey: "RMA_INDIVIDUAL",
+    signers: [
+      {
+        id: 1,
+        name: "Timothy Branthover",
+        role: "Owner",
+        emails: ["timbranthover@gmail.com", "timbrant@gmail.com"],
+        phones: ["9088724028"]
+      }
+    ]
+  },
+  "TIM003": {
+    accountNumber: "TIM003",
+    accountName: "Timothy Branthover",
+    accountType: "Individual",
+    accountTypeKey: "RMA_INDIVIDUAL",
+    signers: [
+      {
+        id: 1,
+        name: "Timothy Branthover",
+        role: "Owner",
+        emails: ["timbranthover@gmail.com", "timbrant@gmail.com"],
+        phones: ["9088724028"]
+      }
+    ]
+  },
+  "TIMTRUST": {
+    accountNumber: "TIMTRUST",
+    accountName: "Branthover Family Trust",
+    accountType: "Trust",
+    accountTypeKey: "TRUST",
+    signers: [
+      {
+        id: 1,
+        name: "Timothy Branthover",
+        role: "Trustee",
+        emails: ["timbranthover@gmail.com", "timbrant@gmail.com"],
+        phones: ["9088724028"]
+      }
+    ]
   }
 };
 

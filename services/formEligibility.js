@@ -56,3 +56,63 @@ const getFormSelectionDisabledReason = (form, account) => {
 
   return "";
 };
+
+// ── Multi-account envelope compatibility ──────────────────────────────────────
+
+const ENVELOPE_COMPATIBILITY_FAMILIES = Object.freeze({
+  RMA:   [ACCOUNT_TYPE_KEYS.RMA_INDIVIDUAL, ACCOUNT_TYPE_KEYS.RMA_JOINT],
+  IRA:   [ACCOUNT_TYPE_KEYS.IRA_ROTH, ACCOUNT_TYPE_KEYS.IRA_TRADITIONAL],
+  TRUST: [ACCOUNT_TYPE_KEYS.TRUST]
+});
+
+const ENVELOPE_FAMILY_LABELS = Object.freeze({
+  RMA:   'RMA (Individual/Joint)',
+  IRA:   'IRA',
+  TRUST: 'Trust'
+});
+
+const getAccountEnvelopeFamily = (account) => {
+  const key = resolveAccountTypeKey(account);
+  if (!key) return null;
+  for (const [family, keys] of Object.entries(ENVELOPE_COMPATIBILITY_FAMILIES)) {
+    if (keys.includes(key)) return family;
+  }
+  return null;
+};
+
+const canAccountsShareEnvelope = (accounts) => {
+  if (!Array.isArray(accounts) || accounts.length < 2) {
+    return { compatible: true, reason: '', incompatibleAccounts: [] };
+  }
+
+  const familyMap = {};
+  for (const account of accounts) {
+    familyMap[account.accountNumber] = getAccountEnvelopeFamily(account);
+  }
+
+  const uniqueFamilies = [...new Set(Object.values(familyMap).filter(Boolean))];
+
+  if (uniqueFamilies.length <= 1) {
+    return { compatible: true, reason: '', incompatibleAccounts: [] };
+  }
+
+  // Find the majority family (accounts that agree with the first account)
+  const primaryFamily = familyMap[accounts[0].accountNumber];
+  const incompatibleAccounts = accounts
+    .filter(a => familyMap[a.accountNumber] !== primaryFamily)
+    .map(a => a.accountNumber);
+
+  const primaryLabel = ENVELOPE_FAMILY_LABELS[primaryFamily] || primaryFamily;
+  const conflictFamilies = [...new Set(
+    incompatibleAccounts.map(num => {
+      const fam = familyMap[num];
+      return ENVELOPE_FAMILY_LABELS[fam] || fam;
+    })
+  )];
+
+  return {
+    compatible: false,
+    reason: `${conflictFamilies.join(' and ')} accounts cannot be combined with ${primaryLabel} accounts in one envelope`,
+    incompatibleAccounts
+  };
+};

@@ -140,3 +140,44 @@ const applyEnvelopeStatusChange = (workItems, itemId, envelopeData) => {
 
   return workItems;
 };
+
+// ── Multi-account work item ───────────────────────────────────────────────────
+
+/**
+ * Create an in-progress work item for a multi-account envelope.
+ * multiAccountData: { accounts: [{ account, forms }], signers, signerOrder }
+ */
+const createMultiAccountInProgressItem = (multiAccountData, envelopeId) => {
+  const accounts = multiAccountData.accounts;
+  const primaryAccount = accounts[0].account;
+  const extraCount = accounts.length - 1;
+
+  const allFormCodes = [...new Set(accounts.flatMap(({ forms }) => forms))];
+
+  const accountFormMap = {};
+  for (const { account, forms } of accounts) {
+    accountFormMap[account.accountNumber] = forms;
+  }
+
+  const signers = multiAccountData.signers || [];
+  const statusText = signers.length > 1
+    ? `Waiting for ${signers[0].name} and ${signers.length - 1} other${signers.length > 2 ? 's' : ''}`
+    : `Waiting for ${signers[0]?.name || 'signer'}`;
+
+  const extraLabel = extraCount > 0 ? ` + ${extraCount} more` : '';
+
+  return {
+    id: `ip${Date.now()}`,
+    isMultiAccount: true,
+    accounts: accounts.map(({ account }) => account.accountNumber),
+    accountFormMap,
+    account: primaryAccount.accountNumber,
+    names: `${primaryAccount.accountName}${extraLabel}`,
+    forms: allFormCodes,
+    status: statusText,
+    lastChange: 'Just now',
+    progress: { signed: 0, total: signers.length },
+    docusignEnvelopeId: envelopeId,
+    sentAt: new Date().toISOString()
+  };
+};

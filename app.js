@@ -8,6 +8,7 @@ const App = () => {
   const [currentAccount, setCurrentAccount] = React.useState(null);
   const [selectedForms, setSelectedForms] = React.useState([]);
   const [draftData, setDraftData] = React.useState(null);
+  const [multiAccountData, setMultiAccountData] = React.useState(null);
   const [searchError, setSearchError] = React.useState(null);
   const [confetti, setConfetti] = React.useState([]);
   const [savedFormCodes, setSavedFormCodes] = React.useState(() => {
@@ -180,6 +181,58 @@ const App = () => {
     setView('package');
   };
 
+  const handleStartMultiEnvelope = () => {
+    setMultiAccountData(null);
+    setView('multiEnvelope');
+  };
+
+  const handleMultiEnvelopeContinue = (data) => {
+    setMultiAccountData(data);
+    setView('multiPackage');
+  };
+
+  const handleMultiPackageSend = async (packageData) => {
+    let docusignEnvelopeId = null;
+
+    const allFormCodes = packageData.accounts.flatMap(({ forms }) => forms);
+    if (shouldUseDocuSign(allFormCodes)) {
+      try {
+        const result = await sendMultiAccountEnvelope(
+          { ...multiAccountData, signerDetails: packageData.signerDetails },
+          packageData.customMessage
+        );
+        if (result.success) {
+          docusignEnvelopeId = result.envelopeId;
+          const signerNames = (packageData.signers || []).map(s => s.name).join(', ');
+          showToast({ type: 'success', message: `DocuSign envelope sent to ${signerNames}` });
+        } else {
+          showToast({ message: 'DocuSign error', subtitle: result.error + ' — item still added to My Work' });
+        }
+      } catch (err) {
+        showToast({ message: 'DocuSign error', subtitle: err.message + ' — item still added to My Work' });
+      }
+    }
+
+    const newItem = createMultiAccountInProgressItem(
+      { ...multiAccountData, signers: packageData.signers, signerOrder: packageData.signerOrder },
+      docusignEnvelopeId
+    );
+    setWorkItems(prev => addInProgressItem(prev, newItem));
+    setView('work');
+  };
+
+  const handleMultiPackageSaveDraft = (draftName, draftFormData) => {
+    const firstAccount = multiAccountData?.accounts?.[0]?.account;
+    if (!firstAccount) return;
+    const allFormCodes = (multiAccountData?.accounts || []).flatMap(({ forms }) => forms);
+    const draft = createDraftItem(firstAccount, allFormCodes, draftName, {
+      ...draftFormData,
+      _isMultiAccount: true,
+      _multiAccountData: multiAccountData
+    });
+    setWorkItems(prev => addDraft(prev, draft));
+  };
+
   const handleContinueFromFormsLibrary = (forms, account) => {
     setCurrentAccount(account);
     setSelectedForms(forms);
@@ -288,6 +341,10 @@ const App = () => {
       setView('landing');
     } else if (view === 'work' || view === 'admin') {
       setView('landing');
+    } else if (view === 'multiEnvelope') {
+      setView('landing');
+    } else if (view === 'multiPackage') {
+      setView('multiEnvelope');
     }
   };
 
@@ -302,6 +359,7 @@ const App = () => {
             onBrowseForms={handleBrowseForms}
             onBrowseSavedForms={() => setView('savedForms')}
             onStartScenario={handleStartScenario}
+            onStartMultiEnvelope={handleStartMultiEnvelope}
             onResumeLastDraft={() => {
               const latestDraft = workItems.drafts[0];
               if (latestDraft) {
@@ -405,6 +463,26 @@ const App = () => {
           initialData={draftData}
           onSendForSignature={handleSendForSignature}
           onSaveDraft={handleSaveDraft}
+        />
+      );
+    }
+
+    if (view === 'multiEnvelope') {
+      return (
+        <MultiEnvelopeView
+          onBack={handleBack}
+          onContinue={handleMultiEnvelopeContinue}
+        />
+      );
+    }
+
+    if (view === 'multiPackage' && multiAccountData) {
+      return (
+        <MultiPackageView
+          multiAccountData={multiAccountData}
+          onBack={handleBack}
+          onSendForSignature={handleMultiPackageSend}
+          onSaveDraft={handleMultiPackageSaveDraft}
         />
       );
     }
