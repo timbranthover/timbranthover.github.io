@@ -141,42 +141,51 @@ const applyEnvelopeStatusChange = (workItems, itemId, envelopeData) => {
   return workItems;
 };
 
-// ── Multi-account work item ───────────────────────────────────────────────────
-
 /**
  * Create an in-progress work item for a multi-account envelope.
- * multiAccountData: { accounts: [{ account, forms }], signers, signerOrder }
  */
 const createMultiAccountInProgressItem = (multiAccountData, envelopeId) => {
-  const accounts = multiAccountData.accounts;
-  const primaryAccount = accounts[0].account;
-  const extraCount = accounts.length - 1;
+  const allAccounts = multiAccountData.accounts.map(({ account }) => account);
+  const primaryAccount = allAccounts[0];
 
-  const allFormCodes = [...new Set(accounts.flatMap(({ forms }) => forms))];
+  const seenNames = new Set();
+  const allSigners = [];
+  allAccounts.forEach(acct => {
+    acct.signers.forEach(s => {
+      const key = s.name.toLowerCase();
+      if (!seenNames.has(key)) {
+        seenNames.add(key);
+        allSigners.push(s);
+      }
+    });
+  });
+
+  const namesDisplay = allSigners.length > 1
+    ? `${allSigners[0].name} + ${allSigners.length - 1} more`
+    : allSigners[0]?.name || primaryAccount.accountName;
 
   const accountFormMap = {};
-  for (const { account, forms } of accounts) {
+  multiAccountData.accounts.forEach(({ account, forms }) => {
     accountFormMap[account.accountNumber] = forms;
-  }
+  });
 
-  const signers = multiAccountData.signers || [];
-  const statusText = signers.length > 1
-    ? `Waiting for ${signers[0].name} and ${signers.length - 1} other${signers.length > 2 ? 's' : ''}`
-    : `Waiting for ${signers[0]?.name || 'signer'}`;
+  const allFormCodes = [...new Set(multiAccountData.accounts.flatMap(({ forms }) => forms))];
 
-  const extraLabel = extraCount > 0 ? ` + ${extraCount} more` : '';
+  const statusText = allSigners.length > 1
+    ? `Waiting for ${allSigners[0].name} and ${allSigners.length - 1} other${allSigners.length > 2 ? 's' : ''}`
+    : `Waiting for ${allSigners[0]?.name || 'signer'}`;
 
   return {
     id: `ip${Date.now()}`,
     isMultiAccount: true,
-    accounts: accounts.map(({ account }) => account.accountNumber),
-    accountFormMap,
+    accounts: allAccounts.map(a => a.accountNumber),
     account: primaryAccount.accountNumber,
-    names: `${primaryAccount.accountName}${extraLabel}`,
+    names: namesDisplay,
+    accountFormMap,
     forms: allFormCodes,
     status: statusText,
     lastChange: 'Just now',
-    progress: { signed: 0, total: signers.length },
+    progress: { signed: 0, total: allSigners.length },
     docusignEnvelopeId: envelopeId,
     sentAt: new Date().toISOString()
   };

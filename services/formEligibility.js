@@ -80,6 +80,10 @@ const getAccountEnvelopeFamily = (account) => {
   return null;
 };
 
+/**
+ * Returns { compatible, reason, incompatibleAccounts } for a set of accounts.
+ * Compatible if all accounts share the same envelope family.
+ */
 const canAccountsShareEnvelope = (accounts) => {
   if (!Array.isArray(accounts) || accounts.length < 2) {
     return { compatible: true, reason: '', incompatibleAccounts: [] };
@@ -96,23 +100,19 @@ const canAccountsShareEnvelope = (accounts) => {
     return { compatible: true, reason: '', incompatibleAccounts: [] };
   }
 
-  // Find the majority family (accounts that agree with the first account)
   const primaryFamily = familyMap[accounts[0].accountNumber];
   const incompatibleAccounts = accounts
     .filter(a => familyMap[a.accountNumber] !== primaryFamily)
     .map(a => a.accountNumber);
 
   const primaryLabel = ENVELOPE_FAMILY_LABELS[primaryFamily] || primaryFamily;
-  const conflictFamilies = [...new Set(
-    incompatibleAccounts.map(num => {
-      const fam = familyMap[num];
-      return ENVELOPE_FAMILY_LABELS[fam] || fam;
-    })
+  const conflictLabels = [...new Set(
+    incompatibleAccounts.map(num => ENVELOPE_FAMILY_LABELS[familyMap[num]] || familyMap[num])
   )];
 
   return {
     compatible: false,
-    reason: `${conflictFamilies.join(' and ')} accounts cannot be combined with ${primaryLabel} accounts in one envelope`,
+    reason: `${conflictLabels.join(' and ')} accounts cannot be combined with ${primaryLabel} accounts in one envelope`,
     incompatibleAccounts
   };
 };
