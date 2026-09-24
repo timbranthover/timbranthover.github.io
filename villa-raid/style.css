@@ -1,0 +1,37 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #7c8e92; font-family: Arial, Helvetica, sans-serif; touch-action: none; user-select: none; }
+body { position: fixed; inset: 0; }
+button { font: inherit; }
+.gameShell { position: fixed; inset: 0; overflow: hidden; background: #7f9296; }
+.gameCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+.vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 46%, transparent 48%, rgba(0,0,0,.11) 76%, rgba(0,0,0,.32) 120%); mix-blend-mode: multiply; }
+.hud { position: absolute; inset: 0; pointer-events: none; color: rgba(232,239,224,.92); text-shadow: 0 1px 2px #000; font-family: "Courier New", monospace; }
+.topbar { position: absolute; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-size: 13px; letter-spacing: .06em; }
+.mission { padding: 7px 9px; background: rgba(15,20,17,.52); border: 1px solid rgba(194,208,184,.18); backdrop-filter: blur(2px); }
+.stats { text-align: right; line-height: 1.45; }
+.crosshair { position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; transform: translate(-50%,-50%); opacity: .76; }
+.crosshair::before, .crosshair::after { content: ""; position: absolute; background: rgba(224,235,214,.92); box-shadow: 0 0 2px #000; }
+.crosshair::before { width: 1px; height: 20px; left: 9px; top: 0; }
+.crosshair::after { width: 20px; height: 1px; left: 0; top: 9px; }
+.damageFlash { position: absolute; inset: 0; background: rgba(146,0,0,.45); opacity: 0; transition: opacity .08s linear; pointer-events: none; }
+.damageFlash.on { opacity: 1; }
+.killfeed { position: absolute; top: 62px; right: max(12px, env(safe-area-inset-right)); display: grid; gap: 5px; text-align: right; font-size: 12px; }
+.kill { background: rgba(15,20,17,.48); padding: 4px 7px; }
+.controls { position: absolute; inset: 0; pointer-events: none; }
+.joyBase { position: absolute; left: max(22px, env(safe-area-inset-left)); bottom: max(22px, env(safe-area-inset-bottom)); width: 118px; height: 118px; border-radius: 50%; background: rgba(18,24,22,.18); border: 1px solid rgba(232,239,224,.22); box-shadow: inset 0 0 28px rgba(0,0,0,.14); pointer-events: auto; touch-action: none; }
+.joyKnob { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px; border-radius: 50%; background: rgba(219,226,207,.28); border: 1px solid rgba(242,246,233,.34); transform: translate(0px,0px); }
+.aimPad { position: absolute; top: 0; right: 0; width: 62%; height: 100%; pointer-events: auto; touch-action: none; }
+.fireButton, .reloadButton, .jumpButton { position: absolute; border-radius: 50%; color: rgba(239,242,227,.9); background: rgba(42,48,41,.28); border: 1px solid rgba(235,239,219,.28); pointer-events: auto; touch-action: none; text-shadow: 0 1px 2px #000; font: 700 11px/1 Arial, sans-serif; letter-spacing: .08em; }
+.fireButton { right: max(28px, env(safe-area-inset-right)); bottom: max(30px, env(safe-area-inset-bottom)); width: 86px; height: 86px; }
+.reloadButton { right: max(106px, calc(env(safe-area-inset-right) + 96px)); bottom: max(32px, env(safe-area-inset-bottom)); width: 52px; height: 52px; }
+.jumpButton { right: max(40px, env(safe-area-inset-right)); bottom: max(126px, calc(env(safe-area-inset-bottom) + 116px)); width: 48px; height: 48px; }
+.fireButton:active, .reloadButton:active, .jumpButton:active { background: rgba(202,210,188,.28); }
+.startOverlay, .endOverlay { position: absolute; inset: 0; display: grid; place-items: center; z-index: 10; background: radial-gradient(circle at center, rgba(31,39,36,.35), rgba(8,12,11,.88)); color: #e9edde; }
+.startCard, .endCard { width: min(92vw, 520px); padding: 22px; border: 1px solid rgba(220,228,211,.26); background: rgba(20,26,23,.8); box-shadow: 0 18px 55px rgba(0,0,0,.35); text-align: center; }
+.startCard h1, .endCard h1 { margin: 0 0 8px; font: 700 23px/1.05 Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.startCard p, .endCard p { margin: 9px auto; max-width: 390px; color: rgba(226,231,217,.78); font-size: 13px; line-height: 1.45; }
+.deploy { margin-top: 12px; min-width: 180px; padding: 12px 20px; border: 1px solid rgba(235,241,226,.32); background: #455148; color: #f0f3ea; font-weight: 700; letter-spacing: .1em; }
+.rotateHint { position: absolute; left: 50%; bottom: max(8px, env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 6px 9px; background: rgba(20,24,22,.55); color: rgba(239,242,233,.72); font-size: 11px; pointer-events: none; display: none; }
+@media (orientation: portrait) { .rotateHint { display: block; } .joyBase { width: 104px; height: 104px; } .fireButton { width: 78px; height: 78px; } }
+@media (hover: hover) and (pointer: fine) { .joyBase, .fireButton, .reloadButton, .jumpButton, .aimPad { display: none; } }
